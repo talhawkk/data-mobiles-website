@@ -84,6 +84,8 @@ function boot() {
       scene: rendererObj.scene,
       camera: rendererObj.camera,
       phone: rendererObj.phone,
+      accessories: rendererObj.accessories,
+      wifiScene: rendererObj.wifiScene,
       masterTl: scrollObj.masterTl,
       quality: rendererObj.quality,
       getDrawCalls: () => rendererObj.renderer.info.render.calls,

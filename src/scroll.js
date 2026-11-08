@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger.js';
 import Lenis from 'lenis';
@@ -47,6 +48,12 @@ export function initScroll({
   // 2. Base Camera Initial Position
   const initialCamZ = camera.position.z;
 
+  // Reusable vectors for debug logging (no per-frame allocations)
+  const debugAccVec = new THREE.Vector3();
+  const debugRouterVec = new THREE.Vector3();
+  const debugPhoneVec = new THREE.Vector3();
+  let lastLoggedProgress = -1;
+
   // 3. One Master GSAP Timeline (Duration 100 units for exact 0.00 -> 1.00 mapping)
   const masterTl = gsap.timeline({
     scrollTrigger: {
@@ -58,6 +65,21 @@ export function initScroll({
         markScrolling();
         const p = self.progress;
 
+        // Debug logging at timeline progress ~0.84 per requirement
+        const tlProg = masterTl.progress();
+        if (Math.abs(tlProg - 0.84) < 0.008 && Math.abs(tlProg - lastLoggedProgress) > 0.005) {
+          lastLoggedProgress = tlProg;
+          accessories.group.getWorldPosition(debugAccVec);
+          wifiScene.group.getWorldPosition(debugRouterVec);
+          phone.group.getWorldPosition(debugPhoneVec);
+          console.log(
+            `[DEBUG 0.84] progress=${tlProg.toFixed(3)} | ` +
+            `accessories: visible=${accessories.group.visible}, scale=${accessories.group.scale.x.toFixed(3)}, pos=[${debugAccVec.x.toFixed(2)}, ${debugAccVec.y.toFixed(2)}, ${debugAccVec.z.toFixed(2)}] | ` +
+            `router: visible=${wifiScene.group.visible}, scale=${wifiScene.group.scale.x.toFixed(3)}, pos=[${debugRouterVec.x.toFixed(2)}, ${debugRouterVec.y.toFixed(2)}, ${debugRouterVec.z.toFixed(2)}] | ` +
+            `phone: visible=${phone.group.visible}, scale=${phone.group.scale.x.toFixed(3)}, pos=[${debugPhoneVec.x.toFixed(2)}, ${debugPhoneVec.y.toFixed(2)}, ${debugPhoneVec.z.toFixed(2)}]`
+          );
+        }
+
         // Update nav progress fill
         if (navObj && typeof navObj.updateProgress === 'function') {
           navObj.updateProgress(p);
@@ -67,6 +89,9 @@ export function initScroll({
         // hero: 0 - 0.10
         const heroOpacity = p <= 0.08 ? 1 : Math.max(0, 1 - (p - 0.08) / 0.04);
         overlayObj.setSectionState('hero', heroOpacity, p < 0.12);
+        if (typeof rendererObj.setHeroGlowOpacity === 'function') {
+          rendererObj.setHeroGlowOpacity(heroOpacity * 0.12);
+        }
 
         // inspect: 0.28 - 0.52
         const isInspect = p >= 0.26 && p <= 0.52;
@@ -241,12 +266,13 @@ export function initScroll({
   const sidePhoneX = isMobile ? 0 : -0.75;
   const sidePhoneY = isMobile ? 0.45 : 0;
 
+  // Phone moves to left during accessories entrance (66 -> 72)
   masterTl.to(
     phone.group.position,
     {
       x: sidePhoneX,
       y: sidePhoneY,
-      duration: 12,
+      duration: 6,
     },
     66
   );
@@ -257,7 +283,7 @@ export function initScroll({
     {
       y: Math.PI - 0.2,
       x: 0.05,
-      duration: 12,
+      duration: 6,
     },
     66
   );
@@ -270,11 +296,12 @@ export function initScroll({
   }
 
   const accObj = { scale: 0 };
+  // Scale accessories in from 66 to 70
   masterTl.to(
     accObj,
     {
       scale: 1,
-      duration: 12,
+      duration: 4,
       onUpdate: () => {
         accessories.setProgress(accObj.scale);
       },
@@ -282,56 +309,83 @@ export function initScroll({
     66
   );
 
-  // E. WiFi Phase (78 -> 90)
-  // Accessories scale out, phone shifts, wifi router appears with rings
+  // REQUIREMENT 1: "all accessories scale to 0 and leave the frame by progress 0.78"
+  // Between 74 and 78, scale accessories out to 0 and shift slightly right
   masterTl.to(
     accObj,
     {
       scale: 0,
-      duration: 6,
+      duration: 4,
       onUpdate: () => {
         accessories.setProgress(accObj.scale);
       },
     },
-    78
+    74
   );
-
-  // Position wifi scene to the right (desktop) or upper (mobile)
   if (!isMobile) {
-    wifiScene.group.position.set(0.75, -0.05, 0);
-  } else {
-    wifiScene.group.position.set(0, 0.4, 0);
+    masterTl.to(accessories.group.position, { x: 1.6, duration: 4 }, 74);
   }
 
-  const wifiObj = { scale: 0 };
-  masterTl.to(
-    wifiObj,
-    {
-      scale: 1,
-      duration: 12,
-      onUpdate: () => {
-        wifiScene.setProgress(wifiObj.scale);
-      },
-    },
-    78
-  );
+  // As accessories leave (74 -> 78), phone shifts to right half near router at small scale
+  // Desktop: x = 1.05, y = -0.22, z = 0.20, scale = 0.45
+  // Mobile: x = 0.28, y = 0.22, z = 0.20, scale = 0.40
+  const wifiPhoneX = isMobile ? 0.28 : 1.05;
+  const wifiPhoneY = isMobile ? 0.22 : -0.22;
+  const wifiPhoneScale = isMobile ? 0.40 : 0.45;
 
   masterTl.to(
     phone.group.position,
     {
-      x: isMobile ? 0 : 0.65,
-      y: isMobile ? 0.4 : -0.2,
-      duration: 12,
+      x: wifiPhoneX,
+      y: wifiPhoneY,
+      z: 0.20,
+      duration: 4,
     },
-    78
+    74
+  );
+
+  masterTl.to(
+    phone.group.scale,
+    {
+      x: wifiPhoneScale,
+      y: wifiPhoneScale,
+      z: wifiPhoneScale,
+      duration: 4,
+    },
+    74
   );
 
   masterTl.to(
     phone.group.rotation,
     {
-      y: Math.PI + 0.15,
-      x: 0.08,
-      duration: 12,
+      y: Math.PI - 0.12,
+      x: 0.10,
+      duration: 4,
+    },
+    74
+  );
+
+  // E. WiFi Phase (78 -> 90)
+  // Router sits in right half of frame, about 35% of viewport height, tilted 20 degrees toward camera.
+  // Four accent rings expand from antennas toward camera, staggered and looping.
+  // Phone shows wifi-bars screen at small scale near router.
+  // Nothing overlaps heading or plan lines on left.
+  const wifiRouterX = isMobile ? 0 : 0.65;
+  const wifiRouterY = isMobile ? 0.52 : 0.18;
+  const wifiRouterZ = isMobile ? -0.20 : 0.0;
+  const targetRouterScale = isMobile ? 0.72 : 1.0;
+
+  wifiScene.group.position.set(wifiRouterX, wifiRouterY, wifiRouterZ);
+
+  const wifiObj = { scale: 0 };
+  masterTl.to(
+    wifiObj,
+    {
+      scale: targetRouterScale,
+      duration: 4,
+      onUpdate: () => {
+        wifiScene.setProgress(wifiObj.scale);
+      },
     },
     78
   );
@@ -342,10 +396,22 @@ export function initScroll({
     wifiObj,
     {
       scale: 0,
-      duration: 8,
+      duration: 4,
       onUpdate: () => {
         wifiScene.setProgress(wifiObj.scale);
       },
+    },
+    90
+  );
+
+  // Restore phone scale to 1.0
+  masterTl.to(
+    phone.group.scale,
+    {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      duration: 10,
     },
     90
   );

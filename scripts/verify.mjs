@@ -68,6 +68,7 @@ server.listen(4173, async () => {
     desktopPage.on('console', (msg) => {
       const type = msg.type();
       const text = msg.text();
+      if (text.startsWith('[DEBUG')) console.log(text);
       if (type === 'error') errors.push(`[Desktop Error] ${text}`);
       if (type === 'warning') warnings.push(`[Desktop Warning] ${text}`);
     });
@@ -101,6 +102,22 @@ server.listen(4173, async () => {
       const imgPath = path.join(screenshotsDir, 'desktop', `progress_${p}.png`);
       await desktopPage.screenshot({ path: imgPath });
       console.log(`Desktop Progress ${p.toFixed(2)}: Draw Calls = ${metrics.calls}, Triangles = ${metrics.triangles}`);
+
+      if (p === 0.84) {
+        const debug084 = await desktopPage.evaluate(() => {
+          if (!window.__DATA_DEBUG__) return null;
+          const { phone, accessories, wifiScene } = window.__DATA_DEBUG__;
+          const pPos = phone.group.position;
+          const aPos = accessories.group.position;
+          const wPos = wifiScene.group.position;
+          return {
+            accessories: { visible: accessories.group.visible, scale: accessories.group.scale.x, pos: [aPos.x, aPos.y, aPos.z] },
+            router: { visible: wifiScene.group.visible, scale: wifiScene.group.scale.x, pos: [wPos.x, wPos.y, wPos.z] },
+            phone: { visible: phone.group.visible, scale: phone.group.scale.x, pos: [pPos.x, pPos.y, pPos.z] },
+          };
+        });
+        console.log(`[Desktop 0.84 Objects]`, JSON.stringify(debug084));
+      }
     }
 
     await desktopPage.close();
@@ -118,6 +135,7 @@ server.listen(4173, async () => {
     mobilePage.on('console', (msg) => {
       const type = msg.type();
       const text = msg.text();
+      if (text.startsWith('[DEBUG')) console.log(text);
       if (type === 'error') errors.push(`[Mobile Error] ${text}`);
       if (type === 'warning') warnings.push(`[Mobile Warning] ${text}`);
     });
@@ -150,6 +168,22 @@ server.listen(4173, async () => {
       const imgPath = path.join(screenshotsDir, 'mobile', `progress_${p}.png`);
       await mobilePage.screenshot({ path: imgPath });
       console.log(`Mobile Progress ${p.toFixed(2)}: Draw Calls = ${metrics.calls}, Triangles = ${metrics.triangles}`);
+
+      if (p === 0.84) {
+        const debug084 = await mobilePage.evaluate(() => {
+          if (!window.__DATA_DEBUG__) return null;
+          const { phone, accessories, wifiScene } = window.__DATA_DEBUG__;
+          const pPos = phone.group.position;
+          const aPos = accessories.group.position;
+          const wPos = wifiScene.group.position;
+          return {
+            accessories: { visible: accessories.group.visible, scale: accessories.group.scale.x, pos: [aPos.x, aPos.y, aPos.z] },
+            router: { visible: wifiScene.group.visible, scale: wifiScene.group.scale.x, pos: [wPos.x, wPos.y, wPos.z] },
+            phone: { visible: phone.group.visible, scale: phone.group.scale.x, pos: [pPos.x, pPos.y, pPos.z] },
+          };
+        });
+        console.log(`[Mobile 0.84 Objects]`, JSON.stringify(debug084));
+      }
     }
 
     // Benchmark frame times

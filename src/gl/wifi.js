@@ -25,9 +25,25 @@ function createRoundedRectShape(width, height, radius) {
 }
 
 /**
+ * Accent edge outline helper
+ */
+function addEdgeOutline(geometry, parentGroup) {
+  const edgesGeom = new THREE.EdgesGeometry(geometry, 25);
+  const edgesMat = new THREE.LineBasicMaterial({
+    color: 0xC8FF2E,
+    transparent: true,
+    opacity: 0.35,
+  });
+  const edgesMesh = new THREE.LineSegments(edgesGeom, edgesMat);
+  parentGroup.add(edgesMesh);
+  return edgesMesh;
+}
+
+/**
  * WiFi Scene (Procedural)
- * - router: rounded box 1.1 x 0.16 x 0.7, 2 antenna cylinders, 3 accent LEDs blinking
- * - 4 thin torus rings scaling 1 -> 4 while fading 0.6 -> 0, staggered and looping
+ * - router: box 1.1 x 0.16 x 0.7, 2 antenna cylinders, 3 blinking accent LEDs
+ *   tilted 20 degrees toward the camera so it clearly reads as a router.
+ * - 4 thin torus rings expanding from the antennas toward the camera, staggered and looping
  *   MeshBasicMaterial, transparent, depthWrite: false
  */
 export function createWifiScene() {
@@ -36,7 +52,19 @@ export function createWifiScene() {
   rootGroup.visible = false;
   rootGroup.scale.set(0.001, 0.001, 0.001);
 
-  // Router Chassis
+  // contentGroup isolates organic floating from rootGroup transforms
+  const contentGroup = new THREE.Group();
+  contentGroup.name = 'wifiContent';
+  rootGroup.add(contentGroup);
+
+  // routerGroup holds the router body, antennas, and LEDs, tilted 20 degrees toward camera
+  const routerGroup = new THREE.Group();
+  routerGroup.name = 'routerAssembly';
+  // 20 degrees tilt toward camera (+0.35 rad around X)
+  routerGroup.rotation.x = 20 * (Math.PI / 180);
+  contentGroup.add(routerGroup);
+
+  // 1. Router Chassis: 1.1 x 0.16 x 0.7
   const chassisShape = createRoundedRectShape(1.1, 0.7, 0.08);
   const chassisGeom = new THREE.ExtrudeGeometry(chassisShape, {
     depth: 0.16,
@@ -48,57 +76,73 @@ export function createWifiScene() {
   chassisGeom.center();
 
   const chassisMat = new THREE.MeshStandardMaterial({
-    color: 0x151619,
-    roughness: 0.3,
-    metalness: 0.2,
+    color: 0x16181D,
+    roughness: 0.28,
+    metalness: 0.35,
   });
   const chassisMesh = new THREE.Mesh(chassisGeom, chassisMat);
   // Lay horizontally: X=1.1, Y=0.16, Z=0.7
   chassisMesh.rotation.x = Math.PI / 2;
-  rootGroup.add(chassisMesh);
+  routerGroup.add(chassisMesh);
 
-  // 2 Antennas
+  // Accent edge outline so dark router separates crisply from dark background
+  const outlineGroup = new THREE.Group();
+  outlineGroup.rotation.x = Math.PI / 2;
+  addEdgeOutline(chassisGeom, outlineGroup);
+  routerGroup.add(outlineGroup);
+
+  // 2. Antennas: 2 cylinders at the back corners
   const antennaMat = new THREE.MeshStandardMaterial({
-    color: 0x1A1B20,
-    metalness: 0.8,
-    roughness: 0.3,
+    color: 0x1D1F26,
+    metalness: 0.85,
+    roughness: 0.22,
   });
-  const antennaGeom = new THREE.CylinderGeometry(0.016, 0.012, 0.65, 16);
+  const antennaGeom = new THREE.CylinderGeometry(0.016, 0.012, 0.72, 16);
 
   const antenna1 = new THREE.Mesh(antennaGeom, antennaMat);
-  antenna1.position.set(-0.42, 0.35, -0.28);
+  antenna1.position.set(-0.42, 0.38, -0.28);
   antenna1.rotation.z = -0.08;
-  antenna1.rotation.x = -0.05;
+  antenna1.rotation.x = -0.06;
 
   const antenna2 = new THREE.Mesh(antennaGeom, antennaMat);
-  antenna2.position.set(0.42, 0.35, -0.28);
+  antenna2.position.set(0.42, 0.38, -0.28);
   antenna2.rotation.z = 0.08;
-  antenna2.rotation.x = -0.05;
+  antenna2.rotation.x = -0.06;
 
-  rootGroup.add(antenna1, antenna2);
+  // Base pivot nubs for antennas
+  const baseGeom = new THREE.CylinderGeometry(0.026, 0.026, 0.04, 16);
+  const base1 = new THREE.Mesh(baseGeom, antennaMat);
+  base1.position.set(-0.42, 0.08, -0.28);
+  const base2 = new THREE.Mesh(baseGeom, antennaMat);
+  base2.position.set(0.42, 0.08, -0.28);
 
-  // 3 Accent Blinking LEDs
+  routerGroup.add(antenna1, antenna2, base1, base2);
+
+  // 3. Three Accent Blinking LEDs on front bevel
   const ledGeom = new THREE.SphereGeometry(0.014, 8, 8);
   const leds = [];
   [-0.08, 0, 0.08].forEach((xPos) => {
     const ledMat = new THREE.MeshBasicMaterial({
       color: 0xC8FF2E,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
     });
     const ledMesh = new THREE.Mesh(ledGeom, ledMat);
-    ledMesh.position.set(xPos, 0.04, 0.36);
-    rootGroup.add(ledMesh);
+    ledMesh.position.set(xPos, 0.06, 0.35);
+    routerGroup.add(ledMesh);
     leds.push(ledMesh);
   });
 
-  // 4 Thin Torus Signal Rings
-  // scaling 1 -> 4 while fading 0.6 -> 0, staggered and looping (MeshBasicMaterial, transparent, depthWrite: false)
-  const ringGeom = new THREE.TorusGeometry(0.4, 0.008, 8, 48);
-  ringGeom.rotateX(Math.PI / 2);
+  // 4. Four Accent Torus Signal Rings
+  // Rings face the camera and expand forward from antennas toward viewer
+  const ringsGroup = new THREE.Group();
+  ringsGroup.name = 'signalRings';
+  contentGroup.add(ringsGroup);
 
+  const ringGeom = new THREE.TorusGeometry(0.28, 0.007, 12, 64);
   const rings = [];
   const ringCount = 4;
+
   for (let i = 0; i < ringCount; i++) {
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xC8FF2E,
@@ -107,12 +151,12 @@ export function createWifiScene() {
       depthWrite: false,
     });
     const ringMesh = new THREE.Mesh(ringGeom, ringMat);
-    // Center rings above antennas/router
-    ringMesh.position.set(0, 0.45, -0.15);
-    rootGroup.add(ringMesh);
+    // Face the camera directly
+    ringMesh.position.set(0, 0.38, -0.25);
+    ringsGroup.add(ringMesh);
     rings.push({
       mesh: ringMesh,
-      offset: i / ringCount, // Stagger 0, 0.25, 0.5, 0.75
+      offset: i / ringCount, // Stagger: 0, 0.25, 0.5, 0.75
     });
   }
 
@@ -121,25 +165,27 @@ export function createWifiScene() {
 
     // Blinking LEDs
     leds.forEach((led, i) => {
-      const blink = Math.sin(elapsedTime * 8 + i * 2);
-      led.material.opacity = blink > 0.1 ? 0.95 : 0.2;
+      const blink = Math.sin(elapsedTime * 7 + i * 2.1);
+      led.material.opacity = blink > 0.05 ? 0.95 : 0.2;
     });
 
-    // Torus Signal Rings Pulsing
-    // Each loops 0 -> 1 over a 2.5s cycle
+    // 4 Accent Signal Rings expanding from antennas toward the camera
     const cycleTime = 2.4;
     rings.forEach(({ mesh, offset }) => {
       const loopT = ((elapsedTime / cycleTime) + offset) % 1;
-      // Scale from 1 to 4
-      const scale = 1.0 + loopT * 3.0;
+      // Scale from 1.0 -> 4.2
+      const scale = 1.0 + loopT * 3.2;
       mesh.scale.set(scale, scale, scale);
+      // Advance toward the camera: from antenna plane z=-0.25 forward to z=0.65
+      mesh.position.z = -0.25 + loopT * 0.90;
+      mesh.position.y = 0.38 + loopT * 0.08;
       // Fade 0.6 -> 0
       mesh.material.opacity = (1 - loopT) * 0.6;
     });
 
-    // Gentle float
-    rootGroup.position.y = -0.2 + Math.sin(elapsedTime * 1.2) * 0.03;
-    rootGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.08;
+    // Gentle organic float on contentGroup only (never overwrites rootGroup.position)
+    contentGroup.position.y = Math.sin(elapsedTime * 1.2) * 0.02;
+    contentGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.03;
   }
 
   function setProgress(progress) {
@@ -160,7 +206,7 @@ export function createWifiScene() {
     setProgress,
     dispose() {
       rootGroup.traverse((child) => {
-        if (child.isMesh) {
+        if (child.isMesh || child.isLineSegments) {
           child.geometry.dispose();
           if (Array.isArray(child.material)) {
             child.material.forEach((m) => m.dispose());

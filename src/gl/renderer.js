@@ -66,6 +66,33 @@ export function initRenderer(canvasElement) {
   // 3. Lighting
   const lighting = setupLighting(scene, renderer);
 
+  // Soft Radial Glow Plane behind the phone (Hero 0-0.10)
+  // Accent #C8FF2E at 12% opacity so dark phone separates from dark background
+  const glowCanvas = document.createElement('canvas');
+  glowCanvas.width = 256;
+  glowCanvas.height = 256;
+  const glowCtx = glowCanvas.getContext('2d');
+  const glowGrad = glowCtx.createRadialGradient(128, 128, 10, 128, 128, 128);
+  glowGrad.addColorStop(0, 'rgba(200, 255, 46, 1.0)');
+  glowGrad.addColorStop(0.35, 'rgba(200, 255, 46, 0.55)');
+  glowGrad.addColorStop(0.7, 'rgba(200, 255, 46, 0.15)');
+  glowGrad.addColorStop(1, 'rgba(200, 255, 46, 0)');
+  glowCtx.fillStyle = glowGrad;
+  glowCtx.fillRect(0, 0, 256, 256);
+
+  const glowTexture = new THREE.CanvasTexture(glowCanvas);
+  const glowGeom = new THREE.PlaneGeometry(2.4, 2.4);
+  const glowMat = new THREE.MeshBasicMaterial({
+    map: glowTexture,
+    transparent: true,
+    opacity: 0.12, // Strict 12% opacity
+    depthWrite: false,
+  });
+  const heroGlowMesh = new THREE.Mesh(glowGeom, glowMat);
+  heroGlowMesh.name = 'heroGlow';
+  heroGlowMesh.position.set(0, 0, -0.15);
+  scene.add(heroGlowMesh);
+
   // 4. Phone Component
   const phone = createPhone({ isMobile });
   scene.add(phone.group);
@@ -193,12 +220,19 @@ export function initRenderer(canvasElement) {
     quality,
     markScrolling,
     getSize: () => ({ width, height }),
+    setHeroGlowOpacity: (opacity) => {
+      glowMat.opacity = opacity;
+      heroGlowMesh.visible = opacity > 0.001;
+    },
     setIdleBasePos: (y) => {
       idleState.baseY = y;
     },
     dispose() {
       gsap.ticker.remove(onTick);
       observer.disconnect();
+      glowGeom.dispose();
+      glowMat.dispose();
+      glowTexture.dispose();
       phone.dispose();
       accessories.dispose();
       wifiScene.dispose();

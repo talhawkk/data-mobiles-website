@@ -17,7 +17,7 @@ export function setupLighting(scene, renderer) {
   const envMap = pmremGenerator.fromScene(roomEnv, 0.04).texture;
   
   scene.environment = envMap;
-  scene.environmentIntensity = 0.8;
+  scene.environmentIntensity = 1.0;
 
   // Key Light: warm-white, top-left-front, intensity 2.2
   const keyLight = new THREE.DirectionalLight(0xFFF5E6, 2.2);
@@ -25,9 +25,9 @@ export function setupLighting(scene, renderer) {
   keyLight.castShadow = false;
   scene.add(keyLight);
 
-  // Rim Light: #C8FF2E accent, back-right, intensity 3.0
-  const rimLight = new THREE.DirectionalLight(0xC8FF2E, 3.0);
-  rimLight.position.set(3.0, -1.0, -3.0);
+  // Rim Light: #C8FF2E accent, back-right, strengthened intensity 4.5 for visible frame edge
+  const rimLight = new THREE.DirectionalLight(0xC8FF2E, 4.5);
+  rimLight.position.set(2.2, 1.8, -2.2);
   rimLight.castShadow = false;
   scene.add(rimLight);
 
