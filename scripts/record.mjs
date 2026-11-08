@@ -142,6 +142,47 @@ server.listen(4174, async () => {
     console.log(`Path: ${finalWebmPath}`);
     console.log(`Size: ${sizeMB} MB`);
 
+    // Post-process with Python OpenCV to trim initial blank frames and produce compressed MP4s
+    console.log('Trimming initial blank/preloader frames to start directly at Hero...');
+    const { execSync } = await import('node:child_process');
+    try {
+      execSync(`python -c "
+import cv2, os
+
+input_path = '${finalWebmPath.replace(/\\/g, '/')}'
+output_720p = 'D:/Work/Website/recordings/DATA-site-preview.mp4'
+output_compact = 'D:/Work/Website/recordings/DATA-site-preview-compact.mp4'
+
+cap = cv2.VideoCapture(input_path)
+fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+start_frame = int(9.6 * fps)
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out_720 = cv2.VideoWriter(output_720p, fourcc, fps, (w, h))
+out_comp = cv2.VideoWriter(output_compact, fourcc, 24.0, (960, 540))
+
+cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+count = 0
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    out_720.write(frame)
+    frame_comp = cv2.resize(frame, (960, 540), interpolation=cv2.INTER_AREA)
+    out_comp.write(frame_comp)
+    count += 1
+
+cap.release()
+out_720.release()
+out_comp.release()
+print('Trimmed MP4 created: 720p (' + str(round(os.path.getsize(output_720p)/(1024*1024), 2)) + ' MB), Compact (' + str(round(os.path.getsize(output_compact)/(1024*1024), 2)) + ' MB)')
+"`, { stdio: 'inherit' });
+    } catch (e) {
+      console.warn('Trim step skipped:', e.message);
+    }
+
     await browser.close();
   } catch (err) {
     console.error('Recording error:', err);
