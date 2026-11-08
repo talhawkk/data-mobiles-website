@@ -216,6 +216,28 @@ export function initOverlay({ phone, camera, getSize }) {
         anchorNum.setAttribute('y', (screenPos.y - 8).toFixed(1));
         anchorNum.textContent = labelDef.number || '01';
       }
+    } else {
+      // Mobile: short 1px vertical stem (UPGRADE.md U9)
+      if (elbowLine) {
+        const pX = screenPos.x;
+        const pY = screenPos.y;
+        const stemEndY = pY + 22; // 22px short vertical stem
+        elbowLine.setAttribute(
+          'd',
+          `M ${pX.toFixed(1)} ${pY.toFixed(1)} L ${pX.toFixed(1)} ${stemEndY.toFixed(1)}`
+        );
+      }
+
+      if (anchorDot) {
+        anchorDot.setAttribute('cx', screenPos.x.toFixed(1));
+        anchorDot.setAttribute('cy', screenPos.y.toFixed(1));
+      }
+
+      if (anchorNum) {
+        anchorNum.setAttribute('x', (screenPos.x + 8).toFixed(1));
+        anchorNum.setAttribute('y', (screenPos.y - 8).toFixed(1));
+        anchorNum.textContent = labelDef.number || '01';
+      }
     }
   }
 

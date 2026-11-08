@@ -503,14 +503,34 @@
   .inspect-index-rail {
     position: fixed;
     top: auto;
-    bottom: calc(130px + var(--sab));
+    bottom: calc(150px + var(--sab));
     left: var(--container-pad);
     transform: none;
     flex-direction: row;
-    gap: 12px;
+    gap: 8px;
+    align-items: center;
+    z-index: 25;
   }
-  .rail-label {
+  .rail-num,
+  .rail-label,
+  .rail-line {
     display: none;
+  }
+  .rail-item {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(242, 239, 232, 0.25);
+    padding: 0;
+    margin: 0;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-radius 0.25s ease;
+  }
+  .rail-item.active {
+    width: 20px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--accent);
+    opacity: 1;
   }
   .inspect-label-card {
     position: fixed;
@@ -519,9 +539,6 @@
     right: auto;
     max-width: calc(100vw - (var(--container-pad) * 2));
     min-width: 0;
-  }
-  .inspect-line-svg {
-    display: none;
   }
 }
 
@@ -927,5 +944,46 @@
     gap: 8px;
     align-items: center;
     text-align: center;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .grid-container {
+    padding-top: 40px;
+    align-items: flex-start;
+  }
+  .display-title {
+    font-size: 1.85rem !important;
+    line-height: 1.05;
+  }
+  .body-subline {
+    font-size: 0.8125rem;
+    margin-top: 4px;
+  }
+  .contact-content {
+    max-width: 48vw;
+    padding-top: 10px;
+  }
+  .contact-cta-btn {
+    min-height: 48px;
+    padding: 0 24px;
+    font-size: 0.9375rem;
+  }
+  .finale-wordmark {
+    font-size: 24vw;
+  }
+  .finale-wordmark-wrapper {
+    bottom: -6vw;
+  }
+  .finale-marquee-wrapper {
+    bottom: 34px;
+    padding: 4px 0;
+  }
+  .finale-footer-bar {
+    display: none;
+  }
+  .inspect-label-card {
+    max-width: 44vw;
+    bottom: 12px;
   }
 }

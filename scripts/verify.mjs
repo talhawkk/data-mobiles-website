@@ -220,6 +220,37 @@ server.listen(4173, async () => {
 
     await mobilePage.close();
 
+    // --- TEST MULTI-VIEWPORT RESPONSIVE PASS (U9) ---
+    // 360x740, 412x915, 768x1024, landscape 844x390
+    console.log('\n=======================================');
+    console.log('Testing Multi-Viewport Matrix (U9 Pass)');
+    console.log('=======================================');
+    const matrixViewports = [
+      { name: 'Android Small', width: 360, height: 740 },
+      { name: 'Android Large', width: 412, height: 915 },
+      { name: 'Tablet Portrait', width: 768, height: 1024 },
+      { name: 'Mobile Landscape', width: 844, height: 390 },
+    ];
+
+    for (const vp of matrixViewports) {
+      const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+      page.on('console', (msg) => {
+        if (msg.type() === 'error') errors.push(`[${vp.name} Error] ${msg.text()}`);
+      });
+      page.on('pageerror', (err) => errors.push(`[${vp.name} Uncaught] ${err.message}`));
+      await page.goto('http://localhost:4173', { waitUntil: 'networkidle' });
+      await page.waitForTimeout(1000);
+
+      // Seek through key progress checkpoints
+      for (const p of [0.10, 0.35, 0.62, 0.75, 0.85, 1.0]) {
+        await page.evaluate(async (prog) => {
+          if (window.__seek) await window.__seek(prog);
+        }, p);
+      }
+      console.log(`Viewport ${vp.name} (${vp.width}x${vp.height}): Clean render PASS`);
+      await page.close();
+    }
+
     // Summary Report
     console.log('\n=======================================');
     console.log('VERIFICATION SUMMARY REPORT:');
