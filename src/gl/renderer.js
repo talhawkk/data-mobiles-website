@@ -226,6 +226,37 @@ export function initRenderer(canvasElement) {
     document.body.appendChild(hudEl);
   }
 
+  // 13. QA Debug Exploded View (?explode=0..1&part=battery|board|camera|port|screen|cover)
+  const explodeParam = urlParams?.get('explode');
+  const partParam = urlParams?.get('part');
+  if (explodeParam !== null && explodeParam !== undefined) {
+    const explodeVal = Math.max(0, Math.min(1, parseFloat(explodeParam)));
+    idleFrozen = true;
+    phone.setExplodeProgress(explodeVal);
+
+    if (partParam) {
+      phone.setActivePart(partParam);
+      const partGroupMap = {
+        battery: phone.batteryGroup,
+        board: phone.boardGroup,
+        camera: phone.cameraUnitGroup,
+        port: phone.portGroup,
+        screen: phone.screenGroup,
+        cover: phone.backCoverGroup,
+      };
+      const targetGrp = partGroupMap[partParam];
+      if (targetGrp) {
+        phone.group.rotation.set(0.12, 0.45, 0);
+        phone.setExplodeProgress(explodeVal);
+        const targetWorldPos = new THREE.Vector3();
+        targetGrp.getWorldPosition(targetWorldPos);
+        camera.lookAt(targetWorldPos);
+      }
+    } else if (explodeVal > 0) {
+      phone.group.rotation.set(0.12, 0.52, 0);
+    }
+  }
+
   function markScrolling() {
     isScrolling = true;
     if (scrollTimeout) clearTimeout(scrollTimeout);
