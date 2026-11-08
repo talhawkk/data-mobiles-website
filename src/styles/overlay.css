@@ -163,10 +163,10 @@
   color: var(--accent);
 }
 
-.theme-toggle {
+.nav-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
   background: var(--bg-card);
@@ -176,45 +176,18 @@
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  cursor: pointer;
-  pointer-events: auto;
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease;
   user-select: none;
 }
 
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  border-color: var(--accent);
-}
-
-.theme-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-}
-
-[data-theme="light"] .theme-icon.moon {
-  display: none;
-}
-[data-theme="light"] .theme-icon.sun {
-  display: inline-flex;
-}
-[data-theme="dark"] .theme-icon.sun {
-  display: none;
-}
-[data-theme="dark"] .theme-icon.moon {
-  display: inline-flex;
-}
-
-.theme-toggle-text {
+.nav-status-text {
   font-family: var(--font-mono);
   font-size: 0.70rem;
   letter-spacing: 0.08em;
   font-weight: 600;
+  color: var(--text);
 }
 
 @media (max-width: 600px) {

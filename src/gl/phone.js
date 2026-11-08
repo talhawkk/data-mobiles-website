@@ -15,9 +15,9 @@ import {
 function addEdgeOutline(geometry, parentGroup) {
   const edgesGeom = new THREE.EdgesGeometry(geometry, 25);
   const edgesMat = new THREE.LineBasicMaterial({
-    color: 0xC8FF2E,
+    color: 0x16A34A,
     transparent: true,
-    opacity: 0.50,
+    opacity: 0.55,
   });
   const edgesMesh = new THREE.LineSegments(edgesGeom, edgesMat);
   edgesMesh.name = 'edgeOutline';
@@ -425,14 +425,14 @@ export function createPhone({ isMobile = false } = {}) {
   // 3. LAYER 3: INTERNALS (Bottom Assembly, Battery, Board, Camera, Ribbons)
   // ===================================================================
 
-  // A. Bottom Assembly / USB-C Port
+  // A. Bottom Assembly / USB-C Port & Taptic Engine
   const portGroup = new THREE.Group();
   portGroup.name = 'port';
 
-  // Sub-board
-  const subBoardGeom = new RoundedBoxGeometry(0.64, 0.22, 0.01, 3, 0.03);
+  // Sub-board PCB
+  const subBoardGeom = new RoundedBoxGeometry(0.64, 0.22, 0.012, 3, 0.03);
   const subBoardMat = new THREE.MeshStandardMaterial({
-    color: 0x0E1912,
+    color: 0x0D1C13,
     roughness: 0.55,
     map: textures.pcbTexture,
   });
@@ -440,168 +440,282 @@ export function createPhone({ isMobile = false } = {}) {
   subBoardMesh.position.set(0, -0.62, 0);
   portGroup.add(subBoardMesh);
 
-  // USB-C metal shell & slot
-  const portShellGeom = new RoundedBoxGeometry(0.12, 0.035, 0.045, 3, 0.01);
+  // Precision CNC Stainless Steel USB-C Shell
+  const portShellGeom = new RoundedBoxGeometry(0.125, 0.038, 0.048, 3, 0.012);
   const portShellMat = new THREE.MeshStandardMaterial({
-    color: 0x8E9196,
+    color: 0xCACDD6,
     metalness: 1.0,
-    roughness: 0.35,
+    roughness: 0.22,
   });
   const portShellMesh = new THREE.Mesh(portShellGeom, portShellMat);
   portShellMesh.position.set(0, -0.74, 0);
   portGroup.add(portShellMesh);
 
-  // Dark inner slot
-  const slotGeom = new THREE.BoxGeometry(0.08, 0.012, 0.03);
-  const slotMat = new THREE.MeshBasicMaterial({ color: 0x050506 });
+  // Waterproof Blue Silicone O-Ring Gasket around port collar
+  const gasketGeom = new RoundedBoxGeometry(0.132, 0.042, 0.008, 2, 0.01);
+  const gasketMat = new THREE.MeshStandardMaterial({
+    color: 0x0284C7, // Waterproof electric blue silicone
+    roughness: 0.6,
+    metalness: 0.05,
+  });
+  const gasketMesh = new THREE.Mesh(gasketGeom, gasketMat);
+  gasketMesh.position.set(0, -0.725, 0);
+  portGroup.add(gasketMesh);
+
+  // USB-C Internal 24-pin Gold Reversible Contact Tongue
+  const tongueGeom = new THREE.BoxGeometry(0.082, 0.008, 0.032);
+  const tongueMat = new THREE.MeshStandardMaterial({
+    color: 0xD4AF37, // 24K Gold contact pins
+    metalness: 1.0,
+    roughness: 0.20,
+  });
+  const tongueMesh = new THREE.Mesh(tongueGeom, tongueMat);
+  tongueMesh.position.set(0, -0.748, 0);
+  portGroup.add(tongueMesh);
+
+  // Dark inner receptacle cavity
+  const slotGeom = new THREE.BoxGeometry(0.095, 0.016, 0.034);
+  const slotMat = new THREE.MeshBasicMaterial({ color: 0x020304 });
   const slotMesh = new THREE.Mesh(slotGeom, slotMat);
   slotMesh.position.set(0, -0.755, 0);
   portGroup.add(slotMesh);
 
-  // Speaker grille (hole dots) & Vibration motor cylinder
-  const motorGeom = new THREE.CylinderGeometry(0.032, 0.032, 0.016, 16);
-  const motorMat = new THREE.MeshStandardMaterial({ color: 0xB0B3BA, metalness: 0.9, roughness: 0.3 });
-  const motorMesh = new THREE.Mesh(motorGeom, motorMat);
-  motorMesh.rotation.x = Math.PI / 2;
-  motorMesh.position.set(-0.20, -0.62, 0.008);
-  portGroup.add(motorMesh);
+  // Taptic Engine (Linear Resonant Vibration Actuator)
+  const tapticGeom = new RoundedBoxGeometry(0.18, 0.11, 0.022, 3, 0.018);
+  const tapticMat = new THREE.MeshStandardMaterial({
+    color: 0xA8ABB4,
+    metalness: 0.95,
+    roughness: 0.28,
+    roughnessMap: textures.brushedTexture,
+  });
+  const tapticMesh = new THREE.Mesh(tapticGeom, tapticMat);
+  tapticMesh.position.set(-0.18, -0.61, 0.010);
+  portGroup.add(tapticMesh);
+
+  // Taptic laser-engraved logo plate
+  const tapticPlateGeom = new THREE.PlaneGeometry(0.14, 0.08);
+  const tapticPlateMat = new THREE.MeshStandardMaterial({
+    color: 0x8C8F98,
+    metalness: 0.9,
+    roughness: 0.35,
+  });
+  const tapticPlate = new THREE.Mesh(tapticPlateGeom, tapticPlateMat);
+  tapticPlate.position.set(-0.18, -0.61, 0.022);
+  portGroup.add(tapticPlate);
+
+  // MEMS Microphone & Speaker Acoustic Chamber
+  const spkGeom = new RoundedBoxGeometry(0.14, 0.09, 0.018, 3, 0.014);
+  const spkMat = new THREE.MeshStandardMaterial({ color: 0x18191D, roughness: 0.75 });
+  const spkMesh = new THREE.Mesh(spkGeom, spkMat);
+  spkMesh.position.set(0.18, -0.61, 0.008);
+  portGroup.add(spkMesh);
+
+  // Coaxial RF Antenna Cables running along side edge (blue & black shielded cables)
+  const coaxCurve1 = new THREE.LineCurve3(new THREE.Vector3(0.28, -0.70, 0.012), new THREE.Vector3(0.28, -0.48, 0.012));
+  const coaxGeom1 = new THREE.TubeGeometry(coaxCurve1, 16, 0.0035, 6, false);
+  const coaxMat1 = new THREE.MeshStandardMaterial({ color: 0x2563EB, roughness: 0.45 }); // Blue RF cable
+  const coaxMesh1 = new THREE.Mesh(coaxGeom1, coaxMat1);
+  portGroup.add(coaxMesh1);
+
+  const coaxCurve2 = new THREE.LineCurve3(new THREE.Vector3(0.29, -0.70, 0.012), new THREE.Vector3(0.29, -0.48, 0.012));
+  const coaxGeom2 = new THREE.TubeGeometry(coaxCurve2, 16, 0.0035, 6, false);
+  const coaxMat2 = new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.45 }); // Black RF cable
+  const coaxMesh2 = new THREE.Mesh(coaxGeom2, coaxMat2);
+  portGroup.add(coaxMesh2);
 
   const portOutline = addEdgeOutline(subBoardGeom, portGroup);
   innerGroup.add(portGroup);
 
-  // B. Battery
+  // B. Flagship Battery (Pouch Cell with BMS, Pull Tabs & Regulatory Markings)
   const batteryGroup = new THREE.Group();
   batteryGroup.name = 'battery';
 
-  const batteryGeom = new RoundedBoxGeometry(0.32, 0.92, 0.024, 5, 0.025);
+  // Main Pouch Cell with vacuum-crimped perimeter lip
+  const batteryGeom = new RoundedBoxGeometry(0.33, 0.93, 0.026, 5, 0.025);
   const batteryMat = new THREE.MeshStandardMaterial({
-    color: 0x1A1B1F,
-    roughness: 0.7,
+    color: 0x141518,
+    roughness: 0.65,
+    metalness: 0.15,
     map: textures.batteryTexture,
   });
   const batteryMesh = new THREE.Mesh(batteryGeom, batteryMat);
   batteryGroup.add(batteryMesh);
 
-  // Two white stretch-release pull tabs (#E9E7E0, roughness 0.85) (merged geometry)
-  const pullTabMat = new THREE.MeshStandardMaterial({ color: 0xE9E7E0, roughness: 0.85 });
-  const tabGeom1 = new THREE.BoxGeometry(0.065, 0.08, 0.003);
-  tabGeom1.translate(-0.06, -0.49, 0.005);
-  const tabGeom2 = new THREE.BoxGeometry(0.065, 0.08, 0.003);
-  tabGeom2.translate(0.06, -0.49, 0.005);
+  // Top BMS (Battery Management System) Protection Board wrapped in amber Kapton tape
+  const bmsGeom = new RoundedBoxGeometry(0.31, 0.07, 0.018, 3, 0.01);
+  const bmsMat = new THREE.MeshStandardMaterial({
+    color: 0xD9822B, // Translucent amber Kapton polyimide
+    roughness: 0.35,
+    metalness: 0.10,
+    transparent: true,
+    opacity: 0.92,
+  });
+  const bmsMesh = new THREE.Mesh(bmsGeom, bmsMat);
+  bmsMesh.position.set(0, 0.44, 0.005);
+  batteryGroup.add(bmsMesh);
+
+  // Dual Laser-Welded Nickel Foil Tabs connecting pouch to BMS
+  const nickelMat = new THREE.MeshStandardMaterial({ color: 0xD1D5DB, metalness: 1.0, roughness: 0.25 });
+  const nTab1 = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.004), nickelMat);
+  nTab1.position.set(-0.08, 0.46, 0.014);
+  const nTab2 = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.004), nickelMat);
+  nTab2.position.set(0.08, 0.46, 0.014);
+  batteryGroup.add(nTab1);
+  batteryGroup.add(nTab2);
+
+  // Gold Spring Connector Tab (#D4AF37) at top
+  const batConnGeom = new THREE.BoxGeometry(0.045, 0.055, 0.008);
+  const batConnMat = new THREE.MeshStandardMaterial({
+    color: 0xD4AF37,
+    metalness: 1.0,
+    roughness: 0.22,
+  });
+  const batConnMesh = new THREE.Mesh(batConnGeom, batConnMat);
+  batConnMesh.position.set(-0.10, 0.495, 0.010);
+  batteryGroup.add(batConnMesh);
+
+  // Dual Stretch-Release Pull Tabs at base with directional chevrons
+  const pullTabMat = new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.85 });
+  const tabGeom1 = new THREE.BoxGeometry(0.07, 0.09, 0.004);
+  tabGeom1.translate(-0.065, -0.495, 0.005);
+  const tabGeom2 = new THREE.BoxGeometry(0.07, 0.09, 0.004);
+  tabGeom2.translate(0.065, -0.495, 0.005);
   const mergedTabs = BufferGeometryUtils.mergeGeometries([tabGeom1, tabGeom2]);
   const pullTabsMesh = new THREE.Mesh(mergedTabs, pullTabMat);
   batteryGroup.add(pullTabsMesh);
-
-  // Gold connector tab (#C9852B) at top
-  const batConnGeom = new THREE.BoxGeometry(0.04, 0.06, 0.006);
-  const batConnMat = new THREE.MeshStandardMaterial({
-    color: 0xC9852B,
-    metalness: 1.0,
-    roughness: 0.3,
-  });
-  const batConnMesh = new THREE.Mesh(batConnGeom, batConnMat);
-  batConnMesh.position.set(-0.11, 0.48, 0.006);
-  batteryGroup.add(batConnMesh);
 
   const batteryOutline = addEdgeOutline(batteryGeom, batteryGroup);
   batteryGroup.position.set(-0.14, -0.06, 0);
   innerGroup.add(batteryGroup);
 
-  // C. Mainboard (PCB)
+  // C. Hyper-Realistic Main Logic Board (PCB, Processor SoC, 40+ SMD passives, Cans)
   const boardGroup = new THREE.Group();
   boardGroup.name = 'board';
 
-  const boardGeom = new RoundedBoxGeometry(0.66, 0.58, 0.012, 4, 0.04);
+  // Stepped Multi-layer Logic Board Substrate
+  const boardGeom = new RoundedBoxGeometry(0.66, 0.58, 0.014, 4, 0.04);
   const boardMat = new THREE.MeshStandardMaterial({
-    color: 0x0E1912,
-    roughness: 0.55,
+    color: 0x0D1C13,
+    roughness: 0.50,
+    metalness: 0.10,
     map: textures.pcbTexture,
   });
   const boardMesh = new THREE.Mesh(boardGeom, boardMat);
   boardGroup.add(boardMesh);
 
-  // 3 Metal Shield Cans (#8E9196, metalness 1, roughness 0.45, dot-grid bump map) - Merged
-  const canMat = new THREE.MeshStandardMaterial({
-    color: 0x8E9196,
+  // Copper Vapor Chamber Heat Pipe extending underneath the SoC & Board
+  const vaporPipeGeom = new THREE.BoxGeometry(0.48, 0.22, 0.005);
+  const vaporPipeMat = new THREE.MeshStandardMaterial({
+    color: 0xC87533, // High-polish stamped copper
     metalness: 1.0,
-    roughness: 0.45,
+    roughness: 0.22,
+  });
+  const vaporPipeMesh = new THREE.Mesh(vaporPipeGeom, vaporPipeMat);
+  vaporPipeMesh.position.set(0.04, -0.05, -0.008);
+  boardGroup.add(vaporPipeMesh);
+
+  // Main Processor SoC BGA Chip (DATA A18 PRO BIONIC 3nm)
+  const socGeom = new THREE.BoxGeometry(0.125, 0.125, 0.022);
+  const socMat = new THREE.MeshStandardMaterial({
+    color: 0x0A0B0E,
+    metalness: 0.40,
+    roughness: 0.18,
+    map: textures.socTexture,
+  });
+  const socMesh = new THREE.Mesh(socGeom, socMat);
+  socMesh.position.set(-0.15, -0.06, 0.016);
+  boardGroup.add(socMesh);
+
+  // NAND Flash Storage Chip (256GB NVMe)
+  const nandGeom = new THREE.BoxGeometry(0.11, 0.09, 0.018);
+  const nandMat = new THREE.MeshStandardMaterial({
+    color: 0x111216,
+    metalness: 0.35,
+    roughness: 0.28,
+  });
+  const nandMesh = new THREE.Mesh(nandGeom, nandMat);
+  nandMesh.position.set(0.02, -0.06, 0.014);
+  boardGroup.add(nandMesh);
+
+  // 3 Stamped Stainless Steel RF/EMI Shield Cans with Micro-Perforations
+  const canMat = new THREE.MeshStandardMaterial({
+    color: 0xA8ABB4,
+    metalness: 1.0,
+    roughness: 0.32,
     bumpMap: textures.shieldBumpTexture,
-    bumpScale: 0.005,
+    bumpScale: 0.006,
   });
 
-  const can1Geom = new THREE.BoxGeometry(0.24, 0.22, 0.016);
-  can1Geom.translate(0.14, 0.12, 0.012);
-  const can2Geom = new THREE.BoxGeometry(0.18, 0.16, 0.014);
-  can2Geom.translate(-0.14, 0.14, 0.011);
-  const can3Geom = new THREE.BoxGeometry(0.28, 0.14, 0.012);
-  can3Geom.translate(0.10, -0.12, 0.010);
+  const can1Geom = new THREE.BoxGeometry(0.24, 0.22, 0.018);
+  can1Geom.translate(0.14, 0.12, 0.013);
+  const can2Geom = new THREE.BoxGeometry(0.18, 0.16, 0.016);
+  can2Geom.translate(-0.14, 0.14, 0.012);
+  const can3Geom = new THREE.BoxGeometry(0.28, 0.14, 0.014);
+  can3Geom.translate(0.10, -0.15, 0.011);
   const mergedCansGeom = BufferGeometryUtils.mergeGeometries([can1Geom, can2Geom, can3Geom]);
   const cansMesh = new THREE.Mesh(mergedCansGeom, canMat);
   boardGroup.add(cansMesh);
 
-  // 10-12 Chips of varying heights with metallic top edges - Merged
-  const chipMat = new THREE.MeshStandardMaterial({
-    color: 0x0A0A0B,
-    roughness: 0.6,
+  // 35+ Physical 3D SMD Micro-Components (Capacitors, Resistors, Inductors) - Merged
+  const smdCapMat = new THREE.MeshStandardMaterial({
+    color: 0xC4A46C, // Tan/yellow ceramic capacitor package
+    metalness: 0.15,
+    roughness: 0.35,
   });
-  const chipPositions = [
-    { x: -0.16, y: -0.08, w: 0.09, h: 0.09, d: 0.018 },
-    { x: -0.05, y: -0.08, w: 0.07, h: 0.07, d: 0.014 },
-    { x: -0.18, y: -0.18, w: 0.06, h: 0.06, d: 0.012 },
-    { x: -0.08, y: -0.19, w: 0.08, h: 0.05, d: 0.013 },
-    { x: 0.24,  y: -0.20, w: 0.05, h: 0.05, d: 0.010 },
-    { x: 0.04,  y: 0.02,  w: 0.06, h: 0.06, d: 0.012 },
+
+  const smdPositions = [
+    // Caps around SoC
+    { x: -0.23, y: -0.01, w: 0.016, h: 0.024, d: 0.012 },
+    { x: -0.23, y: -0.05, w: 0.016, h: 0.024, d: 0.012 },
+    { x: -0.23, y: -0.09, w: 0.016, h: 0.024, d: 0.012 },
+    { x: -0.23, y: -0.13, w: 0.016, h: 0.024, d: 0.012 },
+    { x: -0.15, y: -0.14, w: 0.024, h: 0.016, d: 0.012 },
+    { x: -0.11, y: -0.14, w: 0.024, h: 0.016, d: 0.012 },
+    { x: -0.07, y: -0.14, w: 0.024, h: 0.016, d: 0.012 },
+    // Caps around NAND
+    { x: 0.02, y: -0.13, w: 0.020, h: 0.014, d: 0.011 },
+    { x: 0.06, y: -0.13, w: 0.020, h: 0.014, d: 0.011 },
+    { x: 0.09, y: -0.06, w: 0.014, h: 0.022, d: 0.011 },
+    { x: 0.09, y: -0.02, w: 0.014, h: 0.022, d: 0.011 },
+    // Power inductors (ferrite chokes)
+    { x: -0.05, y: 0.02, w: 0.032, h: 0.032, d: 0.016 },
+    { x: -0.01, y: 0.02, w: 0.032, h: 0.032, d: 0.016 },
+    { x: 0.03,  y: 0.02, w: 0.032, h: 0.032, d: 0.016 },
+    { x: 0.22,  y: -0.02, w: 0.028, h: 0.028, d: 0.015 },
+    { x: 0.22,  y: -0.06, w: 0.028, h: 0.028, d: 0.015 },
   ];
-  const chipGeoms = chipPositions.map((cp) => {
-    const g = new THREE.BoxGeometry(cp.w, cp.h, cp.d);
-    g.translate(cp.x, cp.y, cp.d / 2 + 0.006);
+
+  const smdGeoms = smdPositions.map((p) => {
+    const g = new THREE.BoxGeometry(p.w, p.h, p.d);
+    g.translate(p.x, p.y, p.d / 2 + 0.007);
     return g;
   });
-  const mergedChipsGeom = BufferGeometryUtils.mergeGeometries(chipGeoms);
-  const chipsMesh = new THREE.Mesh(mergedChipsGeom, chipMat);
-  boardGroup.add(chipsMesh);
+  const mergedSmdGeom = BufferGeometryUtils.mergeGeometries(smdGeoms);
+  const smdMesh = new THREE.Mesh(mergedSmdGeom, smdCapMat);
+  boardGroup.add(smdMesh);
 
-  // Laser-etched "DATA" on the main chip
-  const dataLabel = document.createElement('canvas');
-  dataLabel.width = 64;
-  dataLabel.height = 64;
-  const dCtx = dataLabel.getContext('2d');
-  dCtx.fillStyle = '#0A0A0B';
-  dCtx.fillRect(0, 0, 64, 64);
-  dCtx.fillStyle = '#B0B4BC';
-  dCtx.font = '700 16px "DM Mono", monospace';
-  dCtx.textAlign = 'center';
-  dCtx.fillText('DATA', 32, 38);
-  const dataTex = new THREE.CanvasTexture(dataLabel);
-  const dataMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.09 * 0.85, 0.09 * 0.85),
-    new THREE.MeshBasicMaterial({ map: dataTex })
-  );
-  dataMesh.position.set(-0.16, -0.08, 0.018 + 0.007);
-  boardGroup.add(dataMesh);
-
-  // 4 Gold-pinned connector blocks - Merged
-  const connBlockMat = new THREE.MeshStandardMaterial({ color: 0x18191C, roughness: 0.7 });
-  const cb1Geom = new THREE.BoxGeometry(0.045, 0.022, 0.012);
-  cb1Geom.translate(-0.25, -0.22, 0.01);
-  const cb2Geom = new THREE.BoxGeometry(0.045, 0.022, 0.012);
-  cb2Geom.translate(0.0, -0.24, 0.01);
-  const cb3Geom = new THREE.BoxGeometry(0.045, 0.022, 0.012);
-  cb3Geom.translate(0.24, 0.24, 0.01);
-  const cb4Geom = new THREE.BoxGeometry(0.045, 0.022, 0.012);
-  cb4Geom.translate(-0.24, 0.24, 0.01);
+  // 4 Board-to-Board FPC Micro-Connectors with Gold Pins
+  const connBlockMat = new THREE.MeshStandardMaterial({ color: 0x18191C, roughness: 0.65 });
+  const cb1Geom = new THREE.BoxGeometry(0.055, 0.024, 0.014);
+  cb1Geom.translate(-0.25, -0.22, 0.012);
+  const cb2Geom = new THREE.BoxGeometry(0.055, 0.024, 0.014);
+  cb2Geom.translate(0.0, -0.24, 0.012);
+  const cb3Geom = new THREE.BoxGeometry(0.055, 0.024, 0.014);
+  cb3Geom.translate(0.24, 0.24, 0.012);
+  const cb4Geom = new THREE.BoxGeometry(0.055, 0.024, 0.014);
+  cb4Geom.translate(-0.24, 0.24, 0.012);
   const mergedCbGeom = BufferGeometryUtils.mergeGeometries([cb1Geom, cb2Geom, cb3Geom, cb4Geom]);
   const cbMesh = new THREE.Mesh(mergedCbGeom, connBlockMat);
   boardGroup.add(cbMesh);
 
   // 6 Phillips screws on board
   const boardScrewPositions = [
-    { x: -0.28, y: 0.22, z: 0.012 },
-    { x: 0.28, y: 0.22, z: 0.012 },
-    { x: -0.28, y: -0.22, z: 0.012 },
-    { x: 0.28, y: -0.22, z: 0.012 },
-    { x: 0.0, y: 0.24, z: 0.012 },
-    { x: -0.06, y: 0.04, z: 0.012 },
+    { x: -0.28, y: 0.22, z: 0.014 },
+    { x: 0.28, y: 0.22, z: 0.014 },
+    { x: -0.28, y: -0.22, z: 0.014 },
+    { x: 0.28, y: -0.22, z: 0.014 },
+    { x: 0.0, y: 0.24, z: 0.014 },
+    { x: -0.06, y: 0.04, z: 0.014 },
   ];
   const boardScrews = createInstancedScrews(boardScrewPositions, isMobile);
   boardGroup.add(boardScrews);
@@ -610,60 +724,90 @@ export function createPhone({ isMobile = false } = {}) {
   boardGroup.position.set(0, 0.42, 0);
   innerGroup.add(boardGroup);
 
-  // D. Camera Unit
+  // D. Triple-Lens Pro Camera Unit with OIS Coils & Periscope Prism
   const cameraUnitGroup = new THREE.Group();
   cameraUnitGroup.name = 'cameraUnit';
 
-  const camPlateGeom = new RoundedBoxGeometry(0.28, 0.30, 0.022, 4, 0.04);
+  // Aerospace Titanium Camera Housing
+  const camPlateGeom = new RoundedBoxGeometry(0.29, 0.31, 0.024, 4, 0.04);
   const camPlateMat = new THREE.MeshStandardMaterial({
-    color: 0x1A1B1E,
-    metalness: 0.5,
-    roughness: 0.25,
+    color: 0x2A2C32,
+    metalness: 0.85,
+    roughness: 0.28,
   });
   const camPlateMesh = new THREE.Mesh(camPlateGeom, camPlateMat);
   cameraUnitGroup.add(camPlateMesh);
 
-  // 3 Triple Camera Lenses (barrels, metal rings, dark domes) - Merged
+  // Knurled Lens Rings
   const lensRingMat = new THREE.MeshStandardMaterial({
-    color: 0x8E9196,
+    color: 0xB5B9C2,
     metalness: 1.0,
-    roughness: 0.25,
-  });
-  const domeMat = new THREE.MeshStandardMaterial({
-    color: 0x050608,
-    roughness: 0.08,
-    metalness: 0.95,
+    roughness: 0.20,
   });
 
   const lensCoords = [
-    { x: -0.06, y: 0.065 },
-    { x: -0.06, y: -0.065 },
-    { x: 0.06, y: 0.0 },
+    { x: -0.062, y: 0.068 },
+    { x: -0.062, y: -0.068 },
+    { x: 0.068, y: 0.0 },
   ];
 
   const ringGeoms = lensCoords.map((lc) => {
-    const g = new THREE.TorusGeometry(0.042, 0.007, 12, isMobile ? 18 : 28);
-    g.translate(lc.x, lc.y, 0.015);
+    const g = new THREE.TorusGeometry(0.044, 0.007, 14, isMobile ? 18 : 32);
+    g.translate(lc.x, lc.y, 0.016);
     return g;
   });
   const mergedRingsGeom = BufferGeometryUtils.mergeGeometries(ringGeoms);
   const ringsMesh = new THREE.Mesh(mergedRingsGeom, lensRingMat);
   cameraUnitGroup.add(ringsMesh);
 
+  // Anti-reflective Coated Sapphire Optics Domes
+  const opticsMat = new THREE.MeshStandardMaterial({
+    color: 0x020306,
+    roughness: 0.04,
+    metalness: 0.95,
+    map: textures.cameraLensTexture,
+  });
+
   const domeGeoms = lensCoords.map((lc) => {
-    const g = new THREE.SphereGeometry(0.038, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-    g.translate(lc.x, lc.y, 0.014);
+    const g = new THREE.SphereGeometry(0.040, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+    g.translate(lc.x, lc.y, 0.015);
     return g;
   });
   const mergedDomesGeom = BufferGeometryUtils.mergeGeometries(domeGeoms);
-  const domesMesh = new THREE.Mesh(mergedDomesGeom, domeMat);
+  const domesMesh = new THREE.Mesh(mergedDomesGeom, opticsMat);
   cameraUnitGroup.add(domesMesh);
 
-  // LED Flash
-  const flashGeom = new THREE.CircleGeometry(0.016, 16);
+  // Copper OIS Suspension Voice-Coils around Main Lens
+  const oisCoilGeom = new THREE.TorusGeometry(0.048, 0.003, 8, 24);
+  const oisCoilMat = new THREE.MeshStandardMaterial({
+    color: 0xC87533, // Real copper voice coil wire
+    metalness: 1.0,
+    roughness: 0.22,
+  });
+  const oisCoilMesh = new THREE.Mesh(oisCoilGeom, oisCoilMat);
+  oisCoilMesh.position.set(-0.062, 0.068, 0.012);
+  cameraUnitGroup.add(oisCoilMesh);
+
+  // Periscope Prism Rectangular Opening for 5x Telephoto
+  const periscopeGeom = new RoundedBoxGeometry(0.055, 0.045, 0.012, 2, 0.008);
+  const periscopeMat = new THREE.MeshStandardMaterial({ color: 0x050608, roughness: 0.2, metalness: 0.8 });
+  const periscopeMesh = new THREE.Mesh(periscopeGeom, periscopeMat);
+  periscopeMesh.position.set(0.068, -0.075, 0.014);
+  cameraUnitGroup.add(periscopeMesh);
+
+  // LiDAR Optical Depth Sensor (Matte black sapphire window)
+  const lidarGeom = new THREE.CylinderGeometry(0.018, 0.018, 0.006, 16);
+  lidarGeom.rotateX(Math.PI / 2);
+  const lidarMat = new THREE.MeshStandardMaterial({ color: 0x040508, roughness: 0.08, metalness: 0.9 });
+  const lidarMesh = new THREE.Mesh(lidarGeom, lidarMat);
+  lidarMesh.position.set(0.068, 0.075, 0.014);
+  cameraUnitGroup.add(lidarMesh);
+
+  // Quad True Tone Dual-LED Flash with Fresnel Lens
+  const flashGeom = new THREE.CircleGeometry(0.018, 20);
   const flashMat = new THREE.MeshBasicMaterial({ color: 0xFFFBE6 });
   const flashMesh = new THREE.Mesh(flashGeom, flashMat);
-  flashMesh.position.set(0.06, 0.075, 0.013);
+  flashMesh.position.set(-0.062, 0.0, 0.015);
   cameraUnitGroup.add(flashMesh);
 
   const cameraOutline = addEdgeOutline(camPlateGeom, cameraUnitGroup);

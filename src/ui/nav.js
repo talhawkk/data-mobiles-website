@@ -1,47 +1,14 @@
 /**
  * Navigation Bar and Progress Indicator Controller
- * Includes theme switching (Light Studio <-> Obsidian Dark)
+ * Pristine Apple-Grade Light Studio Experience
  */
 export function initNav({ onNavigate }) {
   const brandLink = document.querySelector('.nav-brand');
   const navLinks = document.querySelectorAll('.nav-link');
   const progressFill = document.querySelector('.scroll-progress-fill');
-  const themeToggle = document.getElementById('theme-toggle');
-  const themeLabel = document.getElementById('theme-label');
-  const themeColorMeta = document.getElementById('theme-color-meta');
 
-  function getTheme() {
-    return document.documentElement.getAttribute('data-theme') || 'light';
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    try {
-      localStorage.setItem('theme', theme);
-    } catch (e) {}
-
-    if (themeLabel) {
-      themeLabel.textContent = theme === 'light' ? 'LIGHT' : 'DARK';
-    }
-    if (themeColorMeta) {
-      themeColorMeta.setAttribute('content', theme === 'light' ? '#F6F7FA' : '#0B0B0C');
-    }
-    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
-  }
-
-  // Initialize theme label on load
-  const initialTheme = getTheme();
-  if (themeLabel) {
-    themeLabel.textContent = initialTheme === 'light' ? 'LIGHT' : 'DARK';
-  }
-
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const current = getTheme();
-      const next = current === 'light' ? 'dark' : 'light';
-      applyTheme(next);
-    });
-  }
+  // Ensure theme is locked to pure white studio
+  document.documentElement.setAttribute('data-theme', 'light');
 
   if (brandLink) {
     brandLink.addEventListener('click', (e) => {
@@ -87,7 +54,5 @@ export function initNav({ onNavigate }) {
         progressFill.style.width = `${Math.min(100, Math.max(0, progress * 100))}%`;
       }
     },
-    getTheme,
-    setTheme: applyTheme,
   };
 }
