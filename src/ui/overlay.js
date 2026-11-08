@@ -230,6 +230,17 @@ export function initOverlay({ phone, camera, getSize }) {
     });
   }
 
+  const wifiPlanRows = document.querySelectorAll('.wifi-plan-row');
+  function setWifiPlan(planIndex) {
+    wifiPlanRows.forEach((row, idx) => {
+      if (idx === planIndex) {
+        row.classList.add('active');
+      } else {
+        row.classList.remove('active');
+      }
+    });
+  }
+
   function setSectionState(sectionName, opacity, visibility) {
     const el = sections[sectionName];
     if (el) {
@@ -250,6 +261,7 @@ export function initOverlay({ phone, camera, getSize }) {
     revealHero,
     setInspectLabel,
     setAccessoryBeat,
+    setWifiPlan,
     updateInspectPosition,
     setSectionState,
     sections,

@@ -40,11 +40,11 @@ function addEdgeOutline(geometry, parentGroup) {
 }
 
 /**
- * WiFi Scene (Procedural)
- * - router: box 1.1 x 0.16 x 0.7, 2 antenna cylinders, 3 blinking accent LEDs
- *   tilted 20 degrees toward the camera so it clearly reads as a router.
- * - 4 thin torus rings expanding from the antennas toward the camera, staggered and looping
- *   MeshBasicMaterial, transparent, depthWrite: false
+ * DATA - WiFi Scene Component (UPGRADE.md U7)
+ * 1. Router: matte #1A1B1E body (1.1 x 0.16 x 0.7), 2 jointed antennas, 3 accent LEDs (count 1, 2, 3 follows plan).
+ * 2. 4 accent rings, looping. Max size capped so no ring passes under top nav.
+ * 3. Data pulses: Points system (up to 40 particles: 12, 24, 40 by plan) travelling along QuadraticBezierCurve3.
+ * 4. Phone shows speed readout counting up to plan speed with signal bars.
  */
 export function createWifiScene() {
   const rootGroup = new THREE.Group();
@@ -60,11 +60,10 @@ export function createWifiScene() {
   // routerGroup holds the router body, antennas, and LEDs, tilted 20 degrees toward camera
   const routerGroup = new THREE.Group();
   routerGroup.name = 'routerAssembly';
-  // 20 degrees tilt toward camera (+0.35 rad around X)
   routerGroup.rotation.x = 20 * (Math.PI / 180);
   contentGroup.add(routerGroup);
 
-  // 1. Router Chassis: 1.1 x 0.16 x 0.7
+  // 1. Router Chassis: matte #1A1B1E body, 1.1 x 0.16 x 0.7
   const chassisShape = createRoundedRectShape(1.1, 0.7, 0.08);
   const chassisGeom = new THREE.ExtrudeGeometry(chassisShape, {
     depth: 0.16,
@@ -76,12 +75,11 @@ export function createWifiScene() {
   chassisGeom.center();
 
   const chassisMat = new THREE.MeshStandardMaterial({
-    color: 0x16181D,
-    roughness: 0.28,
-    metalness: 0.35,
+    color: 0x1A1B1E,
+    roughness: 0.45,
+    metalness: 0.15,
   });
   const chassisMesh = new THREE.Mesh(chassisGeom, chassisMat);
-  // Lay horizontally: X=1.1, Y=0.16, Z=0.7
   chassisMesh.rotation.x = Math.PI / 2;
   routerGroup.add(chassisMesh);
 
@@ -91,41 +89,57 @@ export function createWifiScene() {
   addEdgeOutline(chassisGeom, outlineGroup);
   routerGroup.add(outlineGroup);
 
-  // 2. Antennas: 2 cylinders at the back corners
+  // 2. Two Jointed Antennas at the back corners
   const antennaMat = new THREE.MeshStandardMaterial({
-    color: 0x1D1F26,
-    metalness: 0.85,
-    roughness: 0.22,
+    color: 0x15161A,
+    metalness: 0.8,
+    roughness: 0.25,
   });
-  const antennaGeom = new THREE.CylinderGeometry(0.016, 0.012, 0.72, 16);
 
-  const antenna1 = new THREE.Mesh(antennaGeom, antennaMat);
-  antenna1.position.set(-0.42, 0.38, -0.28);
-  antenna1.rotation.z = -0.08;
-  antenna1.rotation.x = -0.06;
+  function createJointedAntenna(xPos, angleZ) {
+    const jointGroup = new THREE.Group();
+    jointGroup.position.set(xPos, 0.08, -0.28);
 
-  const antenna2 = new THREE.Mesh(antennaGeom, antennaMat);
-  antenna2.position.set(0.42, 0.38, -0.28);
-  antenna2.rotation.z = 0.08;
-  antenna2.rotation.x = -0.06;
+    // Base collar
+    const baseCollar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.026, 0.026, 0.035, 16),
+      antennaMat
+    );
+    baseCollar.position.y = 0.018;
+    jointGroup.add(baseCollar);
 
-  // Base pivot nubs for antennas
-  const baseGeom = new THREE.CylinderGeometry(0.026, 0.026, 0.04, 16);
-  const base1 = new THREE.Mesh(baseGeom, antennaMat);
-  base1.position.set(-0.42, 0.08, -0.28);
-  const base2 = new THREE.Mesh(baseGeom, antennaMat);
-  base2.position.set(0.42, 0.08, -0.28);
+    // Knuckle pivot sphere
+    const knuckle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.022, 12, 12),
+      antennaMat
+    );
+    knuckle.position.y = 0.045;
+    jointGroup.add(knuckle);
 
-  routerGroup.add(antenna1, antenna2, base1, base2);
+    // Upper tilted antenna rod
+    const rodGeom = new THREE.CylinderGeometry(0.012, 0.016, 0.65, 16);
+    rodGeom.translate(0, 0.325, 0);
+    const rodMesh = new THREE.Mesh(rodGeom, antennaMat);
+    rodMesh.position.y = 0.045;
+    rodMesh.rotation.z = angleZ;
+    rodMesh.rotation.x = -0.06;
+    jointGroup.add(rodMesh);
 
-  // 3. Three Accent Blinking LEDs on front bevel
-  const ledGeom = new THREE.SphereGeometry(0.014, 8, 8);
+    return jointGroup;
+  }
+
+  const leftAntenna = createJointedAntenna(-0.42, -0.12);
+  const rightAntenna = createJointedAntenna(0.42, 0.12);
+  routerGroup.add(leftAntenna, rightAntenna);
+
+  // 3. Three Accent LEDs on front bevel (LED count 1, 2, 3 follows plan)
+  const ledGeom = new THREE.SphereGeometry(0.012, 8, 8);
   const leds = [];
   [-0.08, 0, 0.08].forEach((xPos) => {
     const ledMat = new THREE.MeshBasicMaterial({
       color: 0xC8FF2E,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.2,
     });
     const ledMesh = new THREE.Mesh(ledGeom, ledMat);
     ledMesh.position.set(xPos, 0.06, 0.35);
@@ -133,13 +147,19 @@ export function createWifiScene() {
     leds.push(ledMesh);
   });
 
-  // 4. Four Accent Torus Signal Rings
-  // Rings face the camera and expand forward from antennas toward viewer
+  // Current active plan: 0 (Home), 1 (Family), 2 (Max)
+  let activePlan = 0;
+
+  function setPlan(planIndex) {
+    activePlan = Math.max(0, Math.min(2, planIndex));
+  }
+
+  // 4. Four Accent Signal Rings (capped so no ring passes under top nav)
   const ringsGroup = new THREE.Group();
   ringsGroup.name = 'signalRings';
   contentGroup.add(ringsGroup);
 
-  const ringGeom = new THREE.TorusGeometry(0.28, 0.007, 12, 64);
+  const ringGeom = new THREE.TorusGeometry(0.22, 0.006, 12, 64);
   const rings = [];
   const ringCount = 4;
 
@@ -147,45 +167,100 @@ export function createWifiScene() {
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xC8FF2E,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.5,
       depthWrite: false,
     });
     const ringMesh = new THREE.Mesh(ringGeom, ringMat);
-    // Face the camera directly
     ringMesh.position.set(0, 0.38, -0.25);
     ringsGroup.add(ringMesh);
     rings.push({
       mesh: ringMesh,
-      offset: i / ringCount, // Stagger: 0, 0.25, 0.5, 0.75
+      offset: i / ringCount,
     });
   }
+
+  // 5. Data Pulses: Points system of up to 40 particles travelling along QuadraticBezierCurve3
+  const MAX_PULSES = 40;
+  const pulsePositions = new Float32Array(MAX_PULSES * 3);
+  const pulseGeom = new THREE.BufferGeometry();
+  pulseGeom.setAttribute('position', new THREE.BufferAttribute(pulsePositions, 3));
+  pulseGeom.setDrawRange(0, 12); // Default Home plan (12 pulses)
+
+  const pulseMat = new THREE.PointsMaterial({
+    color: 0xC8FF2E,
+    size: 0.045,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    opacity: 0.85,
+    depthWrite: false,
+  });
+  const pulsePoints = new THREE.Points(pulseGeom, pulseMat);
+  rootGroup.add(pulsePoints);
+
+  // Bezier curve from router to phone
+  let pulseCurve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(0.05, 0.35, 0.0),
+    new THREE.Vector3(0.20, 0.55, 0.25),
+    new THREE.Vector3(0.35, -0.15, 0.20)
+  );
+
+  function updatePulseCurve(routerPos, phonePos) {
+    if (!routerPos || !phonePos) return;
+    const midX = (routerPos.x + phonePos.x) * 0.5;
+    const midY = Math.max(routerPos.y, phonePos.y) + 0.30;
+    const midZ = Math.max(routerPos.z, phonePos.z) + 0.15;
+
+    pulseCurve.v0.set(routerPos.x, routerPos.y + 0.25, routerPos.z);
+    pulseCurve.v1.set(midX, midY, midZ);
+    pulseCurve.v2.set(phonePos.x, phonePos.y + 0.20, phonePos.z);
+  }
+
+  const tempPulseVec = new THREE.Vector3();
 
   function tick(elapsedTime, isFrozen = false) {
     if (isFrozen || !rootGroup.visible) return;
 
-    // Blinking LEDs
+    // LED count follows highlighted plan:
+    // Plan 0: 1 LED active
+    // Plan 1: 2 LEDs active
+    // Plan 2: 3 LEDs active
+    const activeLedsCount = activePlan + 1;
     leds.forEach((led, i) => {
-      const blink = Math.sin(elapsedTime * 7 + i * 2.1);
-      led.material.opacity = blink > 0.05 ? 0.95 : 0.2;
+      if (i < activeLedsCount) {
+        const blink = Math.sin(elapsedTime * 6 + i * 1.5);
+        led.material.opacity = blink > -0.2 ? 0.95 : 0.35;
+      } else {
+        led.material.opacity = 0.12;
+      }
     });
 
-    // 4 Accent Signal Rings expanding from antennas toward the camera
+    // 4 Signal Rings: capped so max scale stays <= 2.2 and never passes under top nav
     const cycleTime = 2.4;
     rings.forEach(({ mesh, offset }) => {
       const loopT = ((elapsedTime / cycleTime) + offset) % 1;
-      // Scale from 1.0 -> 4.2
-      const scale = 1.0 + loopT * 3.2;
+      // Scale from 1.0 -> 2.2 (capped to protect top nav)
+      const scale = 1.0 + loopT * 1.2;
       mesh.scale.set(scale, scale, scale);
-      // Advance toward the camera: from antenna plane z=-0.25 forward to z=0.65
-      mesh.position.z = -0.25 + loopT * 0.90;
-      mesh.position.y = 0.38 + loopT * 0.08;
-      // Fade 0.6 -> 0
-      mesh.material.opacity = (1 - loopT) * 0.6;
+      mesh.position.z = -0.25 + loopT * 0.50;
+      mesh.position.y = 0.38 + loopT * 0.04;
+      mesh.material.opacity = (1 - loopT) * 0.45;
     });
 
-    // Gentle organic float on contentGroup only (never overwrites rootGroup.position)
-    contentGroup.position.y = Math.sin(elapsedTime * 1.2) * 0.02;
-    contentGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.03;
+    // Data pulses along QuadraticBezierCurve3
+    const pulseCount = activePlan === 0 ? 12 : activePlan === 1 ? 24 : 40;
+    pulseGeom.setDrawRange(0, pulseCount);
+
+    const posAttr = pulseGeom.attributes.position;
+    for (let i = 0; i < pulseCount; i++) {
+      const t = (elapsedTime * 0.55 + i / pulseCount) % 1;
+      pulseCurve.getPoint(t, tempPulseVec);
+      posAttr.setXYZ(i, tempPulseVec.x, tempPulseVec.y, tempPulseVec.z);
+    }
+    posAttr.needsUpdate = true;
+
+    // Gentle organic float on contentGroup only
+    contentGroup.position.y = Math.sin(elapsedTime * 1.2) * 0.015;
+    contentGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.02;
   }
 
   function setProgress(progress) {
@@ -202,11 +277,13 @@ export function createWifiScene() {
 
   return {
     group: rootGroup,
+    setPlan,
+    updatePulseCurve,
     tick,
     setProgress,
     dispose() {
       rootGroup.traverse((child) => {
-        if (child.isMesh || child.isLineSegments) {
+        if (child.isMesh || child.isLineSegments || child.isPoints) {
           child.geometry.dispose();
           if (Array.isArray(child.material)) {
             child.material.forEach((m) => m.dispose());

@@ -198,12 +198,32 @@ export function initScroll({
         // wifi: 0.80 - 0.91
         const isWifi = p >= 0.80 && p < 0.91;
         overlayObj.setSectionState('wifi', isWifi ? 1 : 0, isWifi);
+        if (isWifi) {
+          let planIndex = 0;
+          let speedMbps = 10;
+          if (p < 0.835) {
+            planIndex = 0;
+            const t = Math.max(0, Math.min(1, (p - 0.80) / 0.035));
+            speedMbps = Math.round(2 + t * 8);
+          } else if (p < 0.875) {
+            planIndex = 1;
+            const t = Math.max(0, Math.min(1, (p - 0.835) / 0.04));
+            speedMbps = Math.round(10 + t * 10);
+          } else {
+            planIndex = 2;
+            const t = Math.max(0, Math.min(1, (p - 0.875) / 0.035));
+            speedMbps = Math.round(20 + t * 30);
+          }
+          overlayObj.setWifiPlan(planIndex);
+          wifiScene.setPlan(planIndex);
+          phone.renderScreenState('wifi', speedMbps);
+        }
 
         // finale: 0.91 - 1.00
         const isFinale = p >= 0.91;
         overlayObj.setSectionState('contact', isFinale ? 1 : 0, isFinale);
 
-        // Screen Texture Redraw States (UPGRADE.md U5 & U6)
+        // Screen Texture Redraw States (UPGRADE.md U5, U6 & U7)
         if (p < 0.56) {
           phone.renderScreenState('lock');
         } else if (p >= 0.56 && p < 0.60) {
@@ -217,7 +237,7 @@ export function initScroll({
           const chargePct = Math.round(12 + ((p - 0.77) / 0.03) * 88);
           phone.renderScreenState('charge', chargePct);
         } else if (p >= 0.80 && p < 0.91) {
-          phone.renderScreenState('wifi');
+          // Handled above in isWifi
         } else {
           phone.renderScreenState('boot');
         }

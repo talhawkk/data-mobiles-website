@@ -639,9 +639,17 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding-bottom: 12px;
+  padding: 10px 14px 10px 12px;
   border-bottom: 1px solid rgba(242, 239, 232, 0.1);
+  border-left: 2px solid transparent;
   max-width: 38vw;
+  transition: border-color 0.25s ease, background 0.25s ease, padding-left 0.25s ease;
+}
+
+.wifi-plan-row.active {
+  border-left: 2px solid var(--accent);
+  background: rgba(200, 255, 46, 0.05);
+  padding-left: 18px;
 }
 
 .wifi-plan-name {

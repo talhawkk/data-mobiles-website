@@ -86,6 +86,12 @@ export function createPhone({ isMobile = false } = {}) {
         return;
       }
       currentCheckProgress = roundedPct;
+    } else if (state === 'wifi') {
+      const roundedSpeed = Math.round(checkProgress || 50);
+      if (currentScreenState === 'wifi' && currentCheckProgress === roundedSpeed) {
+        return;
+      }
+      currentCheckProgress = roundedSpeed;
     } else if (state === currentScreenState && state !== 'lock') {
       return;
     }
@@ -250,19 +256,55 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.font = '500 22px "DM Mono", monospace';
       ctx.fillText('FAST CHARGING', 256, 735);
     } else if (state === 'wifi') {
-      ctx.fillStyle = '#08090C';
+      ctx.fillStyle = '#060709';
       ctx.fillRect(0, 0, 512, 1056);
+
+      const speedVal = Math.round(checkProgress || 50);
+
+      // Top status
+      ctx.fillStyle = '#8C8A84';
+      ctx.font = '500 18px "DM Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('DATA HOME WIFI', 256, 120);
+
+      // 4 Dynamic WiFi Signal Arcs radiating from center (256, 360)
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      [36, 62, 88, 114].forEach((r) => {
+        ctx.strokeStyle = '#C8FF2E';
+        ctx.beginPath();
+        ctx.arc(256, 360, r, -Math.PI * 0.75, -Math.PI * 0.25);
+        ctx.stroke();
+      });
+      // Center signal dot
       ctx.fillStyle = '#C8FF2E';
       ctx.beginPath();
-      ctx.arc(256, 480, 14, 0, Math.PI * 2);
+      ctx.arc(256, 360, 9, 0, Math.PI * 2);
       ctx.fill();
+
+      // Speed Readout
       ctx.fillStyle = '#F2EFE8';
-      ctx.font = '800 42px "Bricolage Grotesque", sans-serif';
+      ctx.font = '800 100px "Bricolage Grotesque", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('CONNECTED', 256, 590);
+      ctx.fillText(String(speedVal), 256, 540);
+
+      ctx.fillStyle = '#C8FF2E';
+      ctx.font = '700 28px "DM Mono", monospace';
+      ctx.fillText('MBPS', 256, 595);
+
+      // Plan Subline
       ctx.fillStyle = '#8C8A84';
       ctx.font = '500 20px "DM Mono", monospace';
-      ctx.fillText('DATA WIFI 50 MBPS', 256, 636);
+      ctx.fillText('FAST · ULTRA LOW LATENCY', 256, 660);
+
+      // 4 Stepped Signal Bars (214 to 286)
+      for (let b = 0; b < 4; b++) {
+        const bh = 14 + b * 10;
+        ctx.fillStyle = '#C8FF2E';
+        ctx.beginPath();
+        ctx.roundRect(214 + b * 22, 760 - bh, 14, bh, 3);
+        ctx.fill();
+      }
     }
 
     screenTexture.needsUpdate = true;
