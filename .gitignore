@@ -2,4 +2,7 @@ node_modules
 dist
 .DS_Store
 recordings/
+SPEC.md
+TEARDOWN.md
+UPGRADE.md
 
