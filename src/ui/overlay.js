@@ -33,6 +33,40 @@ export function initOverlay({ phone, camera, getSize }) {
     splitInstances.push(split);
   });
 
+  // Prepare word split on rebuild title and subline (U5 Item 3)
+  const rebuildTitle = document.querySelector('.rebuild-title');
+  const rebuildSubline = document.querySelector('.rebuild-subline');
+
+  if (rebuildTitle) {
+    const splitTitle = new SplitText(rebuildTitle, {
+      type: 'words',
+      wordsClass: 'word-mask',
+    });
+    splitTitle.words.forEach((word) => {
+      const inner = document.createElement('span');
+      inner.className = 'word-mask-inner';
+      inner.innerHTML = word.innerHTML;
+      word.innerHTML = '';
+      word.appendChild(inner);
+    });
+    splitInstances.push(splitTitle);
+  }
+
+  if (rebuildSubline) {
+    const splitSubline = new SplitText(rebuildSubline, {
+      type: 'words',
+      wordsClass: 'word-mask',
+    });
+    splitSubline.words.forEach((word) => {
+      const inner = document.createElement('span');
+      inner.className = 'word-mask-inner';
+      inner.innerHTML = word.innerHTML;
+      word.innerHTML = '';
+      word.appendChild(inner);
+    });
+    splitInstances.push(splitSubline);
+  }
+
   // Section references
   const sections = {
     hero: document.querySelector('.section-hero'),

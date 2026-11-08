@@ -70,9 +70,19 @@ export function createPhone({ isMobile = false } = {}) {
   });
 
   let currentScreenState = 'lock';
+  let currentCheckProgress = -1;
   let lastDrawnMinute = -1;
 
-  function renderScreenState(state) {
+  function renderScreenState(state, checkProgress = 1) {
+    if (state === 'fixed') {
+      const roundedCp = Math.round(checkProgress * 40) / 40;
+      if (currentScreenState === 'fixed' && Math.abs(currentCheckProgress - roundedCp) < 0.01) {
+        return;
+      }
+      currentCheckProgress = roundedCp;
+    } else if (state === currentScreenState && state !== 'lock') {
+      return;
+    }
     currentScreenState = state;
     ctx.clearRect(0, 0, 512, 1056);
 
@@ -135,15 +145,56 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.roundRect(196, 980, 120, 6, 3);
       ctx.stroke();
     } else if (state === 'fixed') {
-      ctx.fillStyle = '#0B0D10';
+      ctx.fillStyle = '#060709';
       ctx.fillRect(0, 0, 512, 1056);
-      ctx.fillStyle = '#C8FF2E';
+
+      // Check mark badge / stroke (U5 Item 1)
+      const cp = Math.max(0, Math.min(1, checkProgress !== undefined ? checkProgress : 1));
+
+      // Draw glowing background ring
+      ctx.save();
+      ctx.strokeStyle = 'rgba(200, 255, 46, 0.25)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(256, 420, 52, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw check mark stroke-by-stroke
+      if (cp > 0.001) {
+        ctx.strokeStyle = '#C8FF2E';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const p1 = { x: 226, y: 418 };
+        const p2 = { x: 248, y: 442 };
+        const p3 = { x: 290, y: 396 };
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+
+        if (cp <= 0.35) {
+          const t = cp / 0.35;
+          ctx.lineTo(p1.x + (p2.x - p1.x) * t, p1.y + (p2.y - p1.y) * t);
+        } else {
+          ctx.lineTo(p2.x, p2.y);
+          const t = (cp - 0.35) / 0.65;
+          ctx.lineTo(p2.x + (p3.x - p2.x) * t, p2.y + (p3.y - p2.y) * t);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // "Fixed." title
+      ctx.fillStyle = '#F2EFE8';
       ctx.font = '800 76px "Bricolage Grotesque", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Fixed.', 256, 500);
-      ctx.fillStyle = '#F2EFE8';
-      ctx.font = '500 22px "DM Mono", monospace';
-      ctx.fillText('READY FOR PICKUP', 256, 560);
+      ctx.fillText('Fixed.', 256, 540);
+
+      // Subline
+      ctx.fillStyle = '#C8FF2E';
+      ctx.font = '500 20px "DM Mono", monospace';
+      ctx.fillText('MOST REPAIRS · SAME DAY', 256, 595);
     } else if (state === 'wifi') {
       ctx.fillStyle = '#08090C';
       ctx.fillRect(0, 0, 512, 1056);
@@ -666,6 +717,40 @@ export function createPhone({ isMobile = false } = {}) {
   phoneGroup.add(wideShadowMesh);
 
   // ===================================================================
+  // 9. REBUILD EFFECTS: SHOCKWAVE RING & SCREEN FLASH (UPGRADE.md U5)
+  // ===================================================================
+  // Additive accent ring expanding 0 -> 3 units at contact
+  const shockwaveGeom = new THREE.RingGeometry(0.04, 0.12, 64);
+  const shockwaveMat = new THREE.MeshBasicMaterial({
+    color: 0xC8FF2E,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const shockwaveMesh = new THREE.Mesh(shockwaveGeom, shockwaveMat);
+  shockwaveMesh.name = 'shockwaveRing';
+  shockwaveMesh.position.set(0, 0, 0.05);
+  shockwaveMesh.visible = false;
+  phoneGroup.add(shockwaveMesh);
+
+  // White flash plane over OLED screen (0.2 opacity flash at contact)
+  const screenFlashGeom = new THREE.PlaneGeometry(0.68, 1.48);
+  const screenFlashMat = new THREE.MeshBasicMaterial({
+    color: 0xFFFFFF,
+    transparent: true,
+    opacity: 0,
+    side: THREE.FrontSide,
+    depthWrite: false,
+  });
+  const screenFlashMesh = new THREE.Mesh(screenFlashGeom, screenFlashMat);
+  screenFlashMesh.name = 'screenFlash';
+  screenFlashMesh.position.set(0, 0, -0.012);
+  screenFlashMesh.visible = false;
+  screenGroup.add(screenFlashMesh);
+
+  // ===================================================================
   // REAL ANATOMY POSITIONS (Rest vs Exploded)
   // Ordered strictly according to layer stack (outermost back to innermost front)
   // At explode=0: phone is closed and flush within 0.001
@@ -919,6 +1004,15 @@ export function createPhone({ isMobile = false } = {}) {
     return { x, y, visible: anchorVec.z < 1 };
   }
 
+  function setOutlinesOpacity(opacity) {
+    allParts.forEach(({ outline }) => {
+      if (outline) {
+        outline.material.opacity = opacity;
+        outline.visible = opacity > 0.01;
+      }
+    });
+  }
+
   // Initial update
   setExplodeProgress(0);
 
@@ -934,6 +1028,11 @@ export function createPhone({ isMobile = false } = {}) {
     frameGroup,
     tools,
     ribbons,
+    shockwaveMesh,
+    screenFlashMesh,
+    setOutlinesOpacity,
+    updateRibbonAnchors,
+    allParts,
     renderScreenState,
     setExplodeProgress,
     setActivePart,
@@ -944,6 +1043,10 @@ export function createPhone({ isMobile = false } = {}) {
       screenTexture.dispose();
       shadowTexture.dispose();
       textures.dispose();
+      shockwaveGeom.dispose();
+      shockwaveMat.dispose();
+      screenFlashGeom.dispose();
+      screenFlashMat.dispose();
       Object.values(ribbons).forEach((r) => r.dispose());
       phoneGroup.traverse((child) => {
         if (child.isMesh || child.isLineSegments || child.isInstancedMesh) {

@@ -67,6 +67,19 @@
   will-change: transform;
 }
 
+/* SplitText Word Masking (U5 Rebuild Word Animation) */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  margin-right: 0.25em;
+}
+
+.word-mask-inner {
+  display: inline-block;
+  will-change: transform;
+}
+
 /* 1px Scroll Progress Bar */
 .scroll-progress-line {
   position: fixed;

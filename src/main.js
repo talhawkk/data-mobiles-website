@@ -99,13 +99,33 @@ function boot() {
       const spacer = document.getElementById('scroll-spacer');
       if (spacer) {
         const maxScroll = spacer.offsetHeight - window.innerHeight;
-        window.scrollTo(0, maxScroll * p);
-      }
-      if (scrollObj && scrollObj.masterTl) {
-        scrollObj.masterTl.progress(p);
+        const targetY = maxScroll * p;
+        if (scrollObj && scrollObj.lenis) {
+          scrollObj.lenis.scrollTo(targetY, { immediate: true });
+        } else {
+          window.scrollTo(0, targetY);
+        }
+        if (scrollObj && scrollObj.masterTl) {
+          const st = scrollObj.masterTl.scrollTrigger;
+          if (st) {
+            st.scroll(targetY);
+            st.update();
+            const tw = st.getTween();
+            if (tw) tw.totalProgress(1);
+          }
+          scrollObj.masterTl.progress(p);
+        }
       }
       // Wait two animation frames
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (scrollObj && scrollObj.masterTl) {
+        const st = scrollObj.masterTl.scrollTrigger;
+        if (st) {
+          const tw = st.getTween();
+          if (tw) tw.totalProgress(1);
+        }
+        scrollObj.masterTl.progress(p);
+      }
       return {
         progress: p,
         drawCalls: rendererObj ? rendererObj.renderer.info.render.calls : 0,
