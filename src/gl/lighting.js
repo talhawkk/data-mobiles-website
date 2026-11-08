@@ -1,65 +1,36 @@
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 /**
- * DATA - Scene Studio Lighting Architecture (UPGRADE.md U4 Item 1)
- * Builds custom studio PMREM environment from a small dark room
- * containing three emissive softbox planes:
- * 1. Large key (top-left, warm-white #FFF5E8)
- * 2. Narrow strip (right, accent #C8FF2E)
- * 3. Small kicker (bottom, cool-white #DDE2EC)
- * Replaces RoomEnvironment. scene.environmentIntensity = 1.0.
+ * DATA - Scene Lighting Architecture
+ * Uses RoomEnvironment for physically balanced reflections and ambient lighting.
+ * scene.environmentIntensity = 1.0.
  */
 export function setupLighting(scene, renderer) {
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader();
 
-  // 1. Build Studio Scene
-  const studioScene = new THREE.Scene();
-  studioScene.background = new THREE.Color(0x060709);
+  // (d) Replace custom studio environment with RoomEnvironment
+  const roomEnv = new RoomEnvironment();
+  const envMap = pmremGenerator.fromScene(roomEnv).texture;
+  roomEnv.dispose();
 
-  // Softbox 1: Large Key top-left (warm-white emissive)
-  const keyGeom = new THREE.PlaneGeometry(4.0, 4.0);
-  const keyMat = new THREE.MeshBasicMaterial({ color: 0xFFF5E8, side: THREE.DoubleSide });
-  const keySoftbox = new THREE.Mesh(keyGeom, keyMat);
-  keySoftbox.position.set(-3.2, 3.5, 2.4);
-  keySoftbox.lookAt(0, 0, 0);
-  studioScene.add(keySoftbox);
-
-  // Softbox 2: Narrow Strip right (accent #C8FF2E emissive)
-  const stripGeom = new THREE.PlaneGeometry(1.0, 5.5);
-  const stripMat = new THREE.MeshBasicMaterial({ color: 0xC8FF2E, side: THREE.DoubleSide });
-  const stripSoftbox = new THREE.Mesh(stripGeom, stripMat);
-  stripSoftbox.position.set(3.2, 1.2, -1.2);
-  stripSoftbox.lookAt(0, 0, 0);
-  studioScene.add(stripSoftbox);
-
-  // Softbox 3: Small Kicker bottom (cool-white emissive)
-  const kickerGeom = new THREE.PlaneGeometry(2.4, 1.2);
-  const kickerMat = new THREE.MeshBasicMaterial({ color: 0xDDE2EC, side: THREE.DoubleSide });
-  const kickerSoftbox = new THREE.Mesh(kickerGeom, kickerMat);
-  kickerSoftbox.position.set(0, -3.2, 1.2);
-  kickerSoftbox.lookAt(0, 0, 0);
-  studioScene.add(kickerSoftbox);
-
-  // Generate PMREM texture
-  const envMap = pmremGenerator.fromScene(studioScene, 0.04).texture;
+  // (e) scene.environment is assigned and scene.environmentIntensity is 1.0 (or slightly higher for visibility)
   scene.environment = envMap;
-  scene.environmentIntensity = 1.0;
-
-  // Cleanup temporary studio meshes & geometries
-  keyGeom.dispose();
-  keyMat.dispose();
-  stripGeom.dispose();
-  stripMat.dispose();
-  kickerGeom.dispose();
-  kickerMat.dispose();
+  scene.environmentIntensity = 1.35;
 
   // 2. Directional Lights
-  // Key Light: warm-white, top-left-front, intensity 2.2
-  const keyLight = new THREE.DirectionalLight(0xFFF5E6, 2.2);
-  keyLight.position.set(-2.5, 4.0, 3.5);
+  // Key Light: warm-white, top-left-front, intensity 2.6
+  const keyLight = new THREE.DirectionalLight(0xFFF5E6, 2.6);
+  keyLight.position.set(-1.2, 3.5, 3.5);
   keyLight.castShadow = false;
   scene.add(keyLight);
+
+  // Fill Light: soft cool-white from front-right to illuminate stage (right 58vw)
+  const fillLight = new THREE.DirectionalLight(0xD8DEEB, 1.8);
+  fillLight.position.set(2.5, 1.6, 3.2);
+  fillLight.castShadow = false;
+  scene.add(fillLight);
 
   // Rim Light: #C8FF2E accent, back-right, intensity 4.5
   const rimLight = new THREE.DirectionalLight(0xC8FF2E, 4.5);
@@ -69,6 +40,7 @@ export function setupLighting(scene, renderer) {
 
   return {
     keyLight,
+    fillLight,
     rimLight,
     envMap,
     dispose() {

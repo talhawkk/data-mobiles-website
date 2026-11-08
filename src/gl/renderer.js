@@ -101,7 +101,8 @@ export function initRenderer(canvasElement) {
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  // (c) Tone mapping applied exactly once, exposure adjusted for visibility
+  renderer.toneMappingExposure = 1.25;
   renderer.shadowMap.enabled = false; // Strictly banned by spec
   renderer.info.autoReset = false; // Controlled frame reset so composer pass counts are accurate
 
@@ -118,8 +119,8 @@ export function initRenderer(canvasElement) {
   // 2. Scene & Camera
   const scene = new THREE.Scene();
 
-  // Depth: FogExp2 so far parts fade into dark (TEARDOWN.md Part T2)
-  scene.fog = new THREE.FogExp2(0x0B0B0C, 0.18);
+  // (a) scene.fog off
+  scene.fog = null;
 
   const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
 
@@ -523,9 +524,8 @@ export function initRenderer(canvasElement) {
     accessories.tick(idleState.time, idleFrozen);
     wifiScene.tick(idleState.time, idleFrozen);
 
-    // Render: Tier 0/1 desktop uses composer, Tier 2 and all touch devices bypass composer
-    const tier = quality.getTier();
-    const shouldUseComposer = !isTouch && tier < 2;
+    // (b) composer/post-processing off (render directly)
+    const shouldUseComposer = false;
 
     if (shouldUseComposer && composer) {
       bloomPass.enabled = (tier === 0);

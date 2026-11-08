@@ -75,7 +75,7 @@ export function createWifiScene() {
   chassisGeom.center();
 
   const chassisMat = new THREE.MeshStandardMaterial({
-    color: 0x1A1B1E,
+    color: 0x2A2C32,
     roughness: 0.45,
     metalness: 0.15,
   });

@@ -41,7 +41,7 @@ export function createAccessories() {
 
   // Common materials
   const matteMat = new THREE.MeshStandardMaterial({
-    color: 0x1A1C22,
+    color: 0x2E323E,
     roughness: 0.35,
     metalness: 0.15,
   });
@@ -78,7 +78,7 @@ export function createAccessories() {
   caseShellGeom.center();
 
   const caseShellMat = new THREE.MeshStandardMaterial({
-    color: 0x242832,
+    color: 0x383E4E,
     roughness: 0.40,
     metalness: 0.10,
     transparent: true,

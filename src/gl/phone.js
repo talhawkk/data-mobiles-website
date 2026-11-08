@@ -17,7 +17,7 @@ function addEdgeOutline(geometry, parentGroup) {
   const edgesMat = new THREE.LineBasicMaterial({
     color: 0xC8FF2E,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.50,
   });
   const edgesMesh = new THREE.LineSegments(edgesGeom, edgesMat);
   edgesMesh.name = 'edgeOutline';
@@ -43,6 +43,12 @@ function addEdgeOutline(geometry, parentGroup) {
 export function createPhone({ isMobile = false } = {}) {
   const phoneGroup = new THREE.Group();
   phoneGroup.name = 'phoneRoot';
+
+  // Inner model group rotated by Math.PI so front of phone faces +Z by default
+  const innerGroup = new THREE.Group();
+  innerGroup.name = 'phoneInner';
+  innerGroup.rotation.y = Math.PI;
+  phoneGroup.add(innerGroup);
 
   // --- PROCEDURAL TEXTURES ---
   const textures = createProceduralTextures(isMobile);
@@ -120,10 +126,12 @@ export function createPhone({ isMobile = false } = {}) {
       }
       lastDrawnMinute = currentMinute;
 
-      const grad = ctx.createLinearGradient(0, 0, 0, 1056);
-      grad.addColorStop(0, '#0E1015');
-      grad.addColorStop(0.5, '#151821');
-      grad.addColorStop(1, '#090A0D');
+      const grad = ctx.createRadialGradient(256, 380, 40, 256, 420, 440);
+      grad.addColorStop(0, '#546A94');
+      grad.addColorStop(0.30, '#3E4E6E');
+      grad.addColorStop(0.60, '#262F44');
+      grad.addColorStop(0.82, '#161A26');
+      grad.addColorStop(1, '#0B0D12');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 1056);
 
@@ -157,7 +165,13 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.roundRect(196, 980, 120, 6, 3);
       ctx.stroke();
     } else if (state === 'fixed') {
-      ctx.fillStyle = '#060709';
+      const grad = ctx.createRadialGradient(256, 420, 40, 256, 440, 440);
+      grad.addColorStop(0, '#546A94');
+      grad.addColorStop(0.30, '#3E4E6E');
+      grad.addColorStop(0.60, '#262F44');
+      grad.addColorStop(0.82, '#161A26');
+      grad.addColorStop(1, '#0B0D12');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 1056);
 
       // Check mark badge / stroke (U5 Item 1)
@@ -208,7 +222,12 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.font = '500 20px "DM Mono", monospace';
       ctx.fillText('MOST REPAIRS · SAME DAY', 256, 595);
     } else if (state === 'charge') {
-      ctx.fillStyle = '#060709';
+      const grad = ctx.createRadialGradient(256, 420, 20, 256, 420, 340);
+      grad.addColorStop(0, '#3A4864');
+      grad.addColorStop(0.35, '#222838');
+      grad.addColorStop(0.70, '#141720');
+      grad.addColorStop(1, '#0C0D12');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 1056);
 
       const pct = Math.max(12, Math.min(100, Math.round(checkProgress || 12)));
@@ -256,7 +275,12 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.font = '500 22px "DM Mono", monospace';
       ctx.fillText('FAST CHARGING', 256, 735);
     } else if (state === 'wifi') {
-      ctx.fillStyle = '#060709';
+      const grad = ctx.createRadialGradient(256, 420, 20, 256, 420, 340);
+      grad.addColorStop(0, '#3A4864');
+      grad.addColorStop(0.35, '#222838');
+      grad.addColorStop(0.70, '#141720');
+      grad.addColorStop(1, '#0C0D12');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 1056);
 
       const speedVal = Math.round(checkProgress || 50);
@@ -365,7 +389,7 @@ export function createPhone({ isMobile = false } = {}) {
   screenGroup.add(displayFlexMesh);
 
   const screenOutline = addEdgeOutline(screenGeom, screenGroup);
-  phoneGroup.add(screenGroup);
+  innerGroup.add(screenGroup);
 
   // ===================================================================
   // 2. LAYER 4: MIDFRAME
@@ -376,8 +400,8 @@ export function createPhone({ isMobile = false } = {}) {
 
   const frameGeom = new RoundedBoxGeometry(0.72, 1.52, 0.08, 5, 0.08);
   const frameMat = new THREE.MeshStandardMaterial({
-    color: 0x9A9DA5,
-    metalness: 1.0,
+    color: 0xB5B8C2,
+    metalness: 0.88,
     roughness: 0.32,
     roughnessMap: textures.brushedTexture,
   });
@@ -395,7 +419,7 @@ export function createPhone({ isMobile = false } = {}) {
   frameGroup.add(antennaMesh);
 
   const frameOutline = addEdgeOutline(frameGeom, frameGroup);
-  phoneGroup.add(frameGroup);
+  innerGroup.add(frameGroup);
 
   // ===================================================================
   // 3. LAYER 3: INTERNALS (Bottom Assembly, Battery, Board, Camera, Ribbons)
@@ -443,7 +467,7 @@ export function createPhone({ isMobile = false } = {}) {
   portGroup.add(motorMesh);
 
   const portOutline = addEdgeOutline(subBoardGeom, portGroup);
-  phoneGroup.add(portGroup);
+  innerGroup.add(portGroup);
 
   // B. Battery
   const batteryGroup = new THREE.Group();
@@ -481,7 +505,7 @@ export function createPhone({ isMobile = false } = {}) {
 
   const batteryOutline = addEdgeOutline(batteryGeom, batteryGroup);
   batteryGroup.position.set(-0.14, -0.06, 0);
-  phoneGroup.add(batteryGroup);
+  innerGroup.add(batteryGroup);
 
   // C. Mainboard (PCB)
   const boardGroup = new THREE.Group();
@@ -584,7 +608,7 @@ export function createPhone({ isMobile = false } = {}) {
 
   const boardOutline = addEdgeOutline(boardGeom, boardGroup);
   boardGroup.position.set(0, 0.42, 0);
-  phoneGroup.add(boardGroup);
+  innerGroup.add(boardGroup);
 
   // D. Camera Unit
   const cameraUnitGroup = new THREE.Group();
@@ -644,7 +668,7 @@ export function createPhone({ isMobile = false } = {}) {
 
   const cameraOutline = addEdgeOutline(camPlateGeom, cameraUnitGroup);
   cameraUnitGroup.position.set(-0.18, 0.52, 0);
-  phoneGroup.add(cameraUnitGroup);
+  innerGroup.add(cameraUnitGroup);
 
   // ===================================================================
   // 4. LAYER 2: COVER PLATE & WIRELESS COIL
@@ -686,7 +710,7 @@ export function createPhone({ isMobile = false } = {}) {
   coverPlateGroup.add(plateScrews);
 
   const plateOutline = addEdgeOutline(plateGeom, coverPlateGroup);
-  phoneGroup.add(coverPlateGroup);
+  innerGroup.add(coverPlateGroup);
 
   // ===================================================================
   // 5. LAYER 1: BACK COVER (Glass)
@@ -730,7 +754,7 @@ export function createPhone({ isMobile = false } = {}) {
   backCoverGroup.add(adhesiveMesh);
 
   const backCoverOutline = addEdgeOutline(backCoverGeom, backCoverGroup);
-  phoneGroup.add(backCoverGroup);
+  innerGroup.add(backCoverGroup);
 
   // ===================================================================
   // 6. DYNAMIC FLEX RIBBONS (FlexRibbon Class)
@@ -743,16 +767,16 @@ export function createPhone({ isMobile = false } = {}) {
     plateBoard: new FlexRibbon({ width: 0.032, segments: 24 }),
   };
 
-  phoneGroup.add(ribbons.boardBattery.group);
-  phoneGroup.add(ribbons.boardPort.group);
-  phoneGroup.add(ribbons.boardDisplay.group);
-  phoneGroup.add(ribbons.plateBoard.group);
+  innerGroup.add(ribbons.boardBattery.group);
+  innerGroup.add(ribbons.boardPort.group);
+  innerGroup.add(ribbons.boardDisplay.group);
+  innerGroup.add(ribbons.plateBoard.group);
 
   // ===================================================================
   // 7. WORKSHOP TOOLS: SPUDGER & PRECISION SCREWDRIVER
   // ===================================================================
   const tools = createWorkshopTools();
-  phoneGroup.add(tools.toolsGroup);
+  innerGroup.add(tools.toolsGroup);
 
   // ===================================================================
   // 8. TWO-LAYER CONTACT SHADOW (UPGRADE.md U4 Item 4)
@@ -829,7 +853,7 @@ export function createPhone({ isMobile = false } = {}) {
   shockwaveMesh.name = 'shockwaveRing';
   shockwaveMesh.position.set(0, 0, 0.05);
   shockwaveMesh.visible = false;
-  phoneGroup.add(shockwaveMesh);
+  innerGroup.add(shockwaveMesh);
 
   // White flash plane over OLED screen (0.2 opacity flash at contact)
   const screenFlashGeom = new THREE.PlaneGeometry(0.68, 1.48);
@@ -998,7 +1022,8 @@ export function createPhone({ isMobile = false } = {}) {
           }
           const baseColor = originalColors.get(child);
           if (partKey && !isActive) {
-            child.material.color.copy(baseColor).lerp(dimColor, 0.70);
+            // (f) Inactive-part dimming: at most 30% toward background
+            child.material.color.copy(baseColor).lerp(dimColor, 0.25);
           } else {
             child.material.color.copy(baseColor);
           }
