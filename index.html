@@ -283,32 +283,62 @@
       </div>
     </section>
 
-    <!-- CONTACT SECTION -->
+    <!-- CONTACT / FINALE SECTION -->
     <section class="section-overlay section-contact" aria-label="Contact">
-      <div class="grid-container">
+      <div class="grid-container finale-container">
         <div class="contact-content">
-          <span class="mono-label accent">VISIT OR CALL</span>
-          <h2 class="display-title split-text">Tell us what's broken.</h2>
-          <a
-            href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20help%20with%20my%20phone."
-            target="_blank"
-            rel="noopener noreferrer"
-            class="contact-cta-btn"
-          >
-            Chat on WhatsApp &rarr;
-          </a>
-          <div class="contact-meta">
-            <div class="contact-meta-row">
-              <span class="mono-label">ADDRESS:</span>
-              <a href="https://maps.google.com/?q=Main+Market+Gulberg+Lahore" target="_blank" rel="noopener noreferrer" class="contact-meta-link">Shop 12, Main Market, Lahore</a>
-            </div>
-            <div class="contact-meta-row">
-              <span class="mono-label">HOURS:</span>
-              <span class="contact-meta-link" style="cursor: default;">10 AM - 10 PM, daily</span>
-            </div>
+          <div class="status-chip finale-status-chip" id="finale-status-chip">
+            <span class="status-pulse-dot"></span>
+            <span class="status-chip-text" id="finale-status-text">Open now &middot; until 10 PM</span>
+          </div>
+          <span class="mono-label accent" style="margin-top: 16px;">VISIT OR CALL</span>
+          <h2 class="display-title split-text" style="margin-top: 8px;">Tell us what's broken.</h2>
+          <div class="finale-cta-group">
+            <a
+              href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20help%20with%20my%20phone."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contact-cta-btn magnetic-btn"
+              id="finale-primary-cta"
+            >
+              <span>Chat on WhatsApp &rarr;</span>
+            </a>
+            <a href="tel:+923001234567" class="contact-tel-link">
+              Or call +92 300 1234567
+            </a>
           </div>
         </div>
       </div>
+
+      <!-- One-line Marquee (DM Mono, 40px/s, direction follows scroll) -->
+      <div class="finale-marquee-wrapper" aria-hidden="true">
+        <div class="finale-marquee-track" id="finale-marquee-track">
+          <span class="marquee-item">MOBILES &middot; REPAIRS &middot; ACCESSORIES &middot; HOME WIFI &middot;&nbsp;</span>
+          <span class="marquee-item">MOBILES &middot; REPAIRS &middot; ACCESSORIES &middot; HOME WIFI &middot;&nbsp;</span>
+          <span class="marquee-item">MOBILES &middot; REPAIRS &middot; ACCESSORIES &middot; HOME WIFI &middot;&nbsp;</span>
+          <span class="marquee-item">MOBILES &middot; REPAIRS &middot; ACCESSORIES &middot; HOME WIFI &middot;&nbsp;</span>
+        </div>
+      </div>
+
+      <!-- Oversized DATA Wordmark at Bottom (34vw, 65% visible, fill --bg-2, 1px stroke, pointer glow mask) -->
+      <div class="finale-wordmark-wrapper" aria-hidden="true">
+        <span class="finale-wordmark base">DATA</span>
+        <span class="finale-wordmark glow" id="finale-wordmark-glow">DATA</span>
+      </div>
+
+      <!-- Footer Line (1 row: (c) 2026 DATA, address, hours, Back to top) -->
+      <footer class="finale-footer-bar">
+        <div class="finale-footer-meta">
+          <span>&copy; 2026 DATA</span>
+          <span class="meta-dot">&middot;</span>
+          <span>Shop 12, Main Market, Lahore</span>
+          <span class="meta-dot">&middot;</span>
+          <span>10 AM &ndash; 10 PM, daily</span>
+        </div>
+        <button type="button" class="finale-back-to-top" id="back-to-top-btn" aria-label="Back to top">
+          Back to top &uarr;
+        </button>
+      </footer>
     </section>
   </main>
 

@@ -223,6 +223,20 @@ export function initScroll({
         const isFinale = p >= 0.91;
         overlayObj.setSectionState('contact', isFinale ? 1 : 0, isFinale);
 
+        // Hide floating WhatsApp button during finale to avoid double CTA (U8 & U9)
+        const floatingWa = document.querySelector('.floating-whatsapp');
+        if (floatingWa) {
+          floatingWa.style.opacity = isFinale ? '0' : '1';
+          floatingWa.style.pointerEvents = isFinale ? 'none' : 'auto';
+          floatingWa.style.transition = 'opacity 0.25s ease';
+        }
+
+        // Marquee direction follows scroll (U8 Item 5)
+        const marqueeTrack = document.getElementById('finale-marquee-track');
+        if (marqueeTrack) {
+          marqueeTrack.style.animationDirection = self.direction === -1 ? 'reverse' : 'normal';
+        }
+
         // Screen Texture Redraw States (UPGRADE.md U5, U6 & U7)
         if (p < 0.56) {
           phone.renderScreenState('lock');
