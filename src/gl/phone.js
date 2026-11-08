@@ -80,6 +80,12 @@ export function createPhone({ isMobile = false } = {}) {
         return;
       }
       currentCheckProgress = roundedCp;
+    } else if (state === 'charge') {
+      const roundedPct = Math.round(checkProgress || 12);
+      if (currentScreenState === 'charge' && currentCheckProgress === roundedPct) {
+        return;
+      }
+      currentCheckProgress = roundedPct;
     } else if (state === currentScreenState && state !== 'lock') {
       return;
     }
@@ -195,6 +201,54 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.fillStyle = '#C8FF2E';
       ctx.font = '500 20px "DM Mono", monospace';
       ctx.fillText('MOST REPAIRS · SAME DAY', 256, 595);
+    } else if (state === 'charge') {
+      ctx.fillStyle = '#060709';
+      ctx.fillRect(0, 0, 512, 1056);
+
+      const pct = Math.max(12, Math.min(100, Math.round(checkProgress || 12)));
+
+      // Battery Outline Box (center: 256, 380)
+      ctx.strokeStyle = '#8C8A84';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.roundRect(176, 320, 160, 90, 16);
+      ctx.stroke();
+
+      // Battery positive terminal nub
+      ctx.fillStyle = '#8C8A84';
+      ctx.beginPath();
+      ctx.roundRect(338, 345, 12, 40, [0, 6, 6, 0]);
+      ctx.fill();
+
+      // Battery Fill Bar (based on pct)
+      const fillW = Math.max(8, ((pct - 12) / 88) * 144);
+      ctx.fillStyle = '#C8FF2E';
+      ctx.beginPath();
+      ctx.roundRect(184, 328, fillW, 74, 10);
+      ctx.fill();
+
+      // Bolt icon
+      ctx.fillStyle = '#F2EFE8';
+      ctx.beginPath();
+      ctx.moveTo(260, 480);
+      ctx.lineTo(240, 530);
+      ctx.lineTo(256, 530);
+      ctx.lineTo(248, 570);
+      ctx.lineTo(276, 516);
+      ctx.lineTo(258, 516);
+      ctx.closePath();
+      ctx.fill();
+
+      // Percentage Text
+      ctx.fillStyle = '#F2EFE8';
+      ctx.font = '800 84px "Bricolage Grotesque", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${pct}%`, 256, 680);
+
+      // Subline
+      ctx.fillStyle = '#C8FF2E';
+      ctx.font = '500 22px "DM Mono", monospace';
+      ctx.fillText('FAST CHARGING', 256, 735);
     } else if (state === 'wifi') {
       ctx.fillStyle = '#08090C';
       ctx.fillRect(0, 0, 512, 1056);

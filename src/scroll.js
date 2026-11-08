@@ -187,6 +187,13 @@ export function initScroll({
         // accessories: 0.66 - 0.80
         const isAccessories = p >= 0.66 && p < 0.80;
         overlayObj.setSectionState('accessories', isAccessories ? 1 : 0, isAccessories);
+        if (isAccessories) {
+          let beat = 0;
+          if (p >= 0.77) beat = 3;
+          else if (p >= 0.73) beat = 2;
+          else if (p >= 0.70) beat = 1;
+          overlayObj.setAccessoryBeat(beat);
+        }
 
         // wifi: 0.80 - 0.91
         const isWifi = p >= 0.80 && p < 0.91;
@@ -196,16 +203,19 @@ export function initScroll({
         const isFinale = p >= 0.91;
         overlayObj.setSectionState('contact', isFinale ? 1 : 0, isFinale);
 
-        // Screen Texture Redraw States (UPGRADE.md U5)
+        // Screen Texture Redraw States (UPGRADE.md U5 & U6)
         if (p < 0.56) {
           phone.renderScreenState('lock');
         } else if (p >= 0.56 && p < 0.60) {
           phone.renderScreenState('off');
         } else if (p >= 0.60 && p < 0.612) {
           phone.renderScreenState('boot');
-        } else if (p >= 0.612 && p < 0.80) {
+        } else if (p >= 0.612 && p < 0.77) {
           const checkProgress = Math.max(0, Math.min(1, (p - 0.612) / 0.023));
           phone.renderScreenState('fixed', checkProgress);
+        } else if (p >= 0.77 && p < 0.80) {
+          const chargePct = Math.round(12 + ((p - 0.77) / 0.03) * 88);
+          phone.renderScreenState('charge', chargePct);
         } else if (p >= 0.80 && p < 0.91) {
           phone.renderScreenState('wifi');
         } else {

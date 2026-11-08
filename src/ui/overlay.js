@@ -219,6 +219,17 @@ export function initOverlay({ phone, camera, getSize }) {
     }
   }
 
+  const accRailItems = document.querySelectorAll('.acc-rail-item');
+  function setAccessoryBeat(beatIndex) {
+    accRailItems.forEach((item, idx) => {
+      if (idx === beatIndex) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
   function setSectionState(sectionName, opacity, visibility) {
     const el = sections[sectionName];
     if (el) {
@@ -238,6 +249,7 @@ export function initOverlay({ phone, camera, getSize }) {
   return {
     revealHero,
     setInspectLabel,
+    setAccessoryBeat,
     updateInspectPosition,
     setSectionState,
     sections,

@@ -550,22 +550,65 @@
   pointer-events: auto;
 }
 
-.accessories-pills {
+/* Accessories Index Rail (UPGRADE.md U6) */
+.accessories-rail {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 24px;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 32px;
 }
 
-.accessory-pill {
+.acc-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-family: var(--font-mono);
-  font-size: var(--text-label);
-  letter-spacing: 0.12em;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.acc-rail-num {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.acc-rail-text {
   text-transform: uppercase;
-  padding: 8px 16px;
-  border: 1px solid rgba(242, 239, 232, 0.15);
-  color: var(--text);
-  background: rgba(20, 20, 22, 0.6);
+}
+
+.acc-rail-line {
+  height: 1px;
+  width: 0px;
+  background: var(--accent);
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.acc-rail-item.active {
+  color: var(--accent);
+}
+
+.acc-rail-item.active .acc-rail-line {
+  width: 48px;
+}
+
+@media (max-width: 1023px) {
+  .accessories-content {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    align-self: flex-end;
+    padding-bottom: calc(20px + var(--sab));
+  }
+  .accessories-rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .acc-rail-item.active .acc-rail-line {
+    width: 24px;
+  }
 }
 
 @media (max-width: 1023px) {

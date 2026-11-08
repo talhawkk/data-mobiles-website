@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 /**
  * Creates a 2D rounded rectangle shape
@@ -25,11 +26,12 @@ function createRoundedRectShape(width, height, radius) {
 }
 
 /**
- * Procedural Accessories
- * - charger brick (rounded box + 2 prongs)
- * - cable (TubeGeometry on CatmullRomCurve3, radius 0.02)
- * - earbud case (rounded capsule)
- * - phone case (rounded frame)
+ * DATA - Procedural Accessories (UPGRADE.md U6)
+ * Four distinct items:
+ * 1. Case: ExtrudeGeometry rounded shell with hole, lime inner edge (#C8FF2E). Slides onto phone from behind.
+ * 2. Earbuds: Capsule case with hinged lid (opens 70 deg), 2 earbuds float & orbit, accent LED.
+ * 3. Charger: Rounded-box brick with 2 metal prongs.
+ * 4. Cable: TubeGeometry (radius 0.02) drawing itself via setDrawRange to phone port.
  */
 export function createAccessories() {
   const rootGroup = new THREE.Group();
@@ -39,164 +41,265 @@ export function createAccessories() {
 
   // Common materials
   const matteMat = new THREE.MeshStandardMaterial({
-    color: 0x1E1F24,
+    color: 0x1A1C22,
     roughness: 0.35,
     metalness: 0.15,
   });
 
   const metalMat = new THREE.MeshStandardMaterial({
-    color: 0xD0D2D8,
-    roughness: 0.2,
+    color: 0xE2E4EC,
+    roughness: 0.15,
     metalness: 0.95,
   });
 
-  const accentMat = new THREE.MeshBasicMaterial({
+  const limeMat = new THREE.MeshBasicMaterial({
     color: 0xC8FF2E,
   });
 
-  // --- 1. CHARGER BRICK ---
+  // ===================================================================
+  // 1. BEAT 01: PHONE CASE (0.66 - 0.70)
+  // Rounded-rectangle shell, ExtrudeGeometry with hole, lime inner edge
+  // ===================================================================
+  const caseGroup = new THREE.Group();
+  caseGroup.name = 'accessoryCase';
+  caseGroup.visible = false;
+
+  const outerShape = createRoundedRectShape(0.78, 1.58, 0.09);
+  const innerHole = createRoundedRectShape(0.725, 1.525, 0.08);
+  outerShape.holes.push(innerHole);
+
+  const caseShellGeom = new THREE.ExtrudeGeometry(outerShape, {
+    depth: 0.088,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.004,
+    bevelThickness: 0.004,
+  });
+  caseShellGeom.center();
+
+  const caseShellMat = new THREE.MeshStandardMaterial({
+    color: 0x242832,
+    roughness: 0.40,
+    metalness: 0.10,
+    transparent: true,
+    opacity: 0.92,
+  });
+  const caseMesh = new THREE.Mesh(caseShellGeom, caseShellMat);
+  caseGroup.add(caseMesh);
+
+  // Lime inner edge highlight (#C8FF2E)
+  const limeEdgeShape = createRoundedRectShape(0.74, 1.54, 0.082);
+  const limeEdgeHole = createRoundedRectShape(0.722, 1.522, 0.078);
+  limeEdgeShape.holes.push(limeEdgeHole);
+  const limeEdgeGeom = new THREE.ExtrudeGeometry(limeEdgeShape, {
+    depth: 0.086,
+    bevelEnabled: false,
+  });
+  limeEdgeGeom.center();
+  const limeEdgeMesh = new THREE.Mesh(limeEdgeGeom, limeMat);
+  caseGroup.add(limeEdgeMesh);
+
+  rootGroup.add(caseGroup);
+
+  // ===================================================================
+  // 2. BEAT 02: EARBUDS (0.70 - 0.73)
+  // Capsule case with lid hinged open 70 deg, 2 orbiting earbuds, accent LED
+  // ===================================================================
+  const earbudSystemGroup = new THREE.Group();
+  earbudSystemGroup.name = 'accessoryEarbuds';
+  earbudSystemGroup.visible = false;
+
+  // Case Body (lower half)
+  const bodyGeom = new RoundedBoxGeometry(0.38, 0.28, 0.22, 4, 0.06);
+  bodyGeom.translate(0, -0.14, 0);
+  const bodyMesh = new THREE.Mesh(bodyGeom, matteMat);
+  earbudSystemGroup.add(bodyMesh);
+
+  // Accent LED on front body
+  const ledMesh = new THREE.Mesh(new THREE.SphereGeometry(0.008, 8, 8), limeMat);
+  ledMesh.position.set(0, -0.10, 0.114);
+  earbudSystemGroup.add(ledMesh);
+
+  // Hinged Lid (pivots at rear edge)
+  const lidPivot = new THREE.Group();
+  lidPivot.position.set(0, 0.0, -0.10);
+
+  const lidGeom = new RoundedBoxGeometry(0.38, 0.20, 0.22, 4, 0.06);
+  lidGeom.translate(0, 0.10, 0.10);
+  const lidMesh = new THREE.Mesh(lidGeom, matteMat);
+  lidPivot.add(lidMesh);
+  earbudSystemGroup.add(lidPivot);
+
+  // Two Sculpted Earbuds (base pod + stem)
+  function createEarbudMesh() {
+    const grp = new THREE.Group();
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.038, 16, 16), metalMat);
+    head.scale.set(1.0, 1.2, 0.9);
+    grp.add(head);
+
+    const stemGeom = new THREE.CylinderGeometry(0.012, 0.010, 0.14, 12);
+    stemGeom.translate(0, -0.08, 0.015);
+    const stem = new THREE.Mesh(stemGeom, matteMat);
+    grp.add(stem);
+
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.014, 8, 8), limeMat);
+    tip.position.set(0, -0.15, 0.015);
+    grp.add(tip);
+
+    return grp;
+  }
+
+  const earbud1 = createEarbudMesh();
+  const earbud2 = createEarbudMesh();
+  earbudSystemGroup.add(earbud1, earbud2);
+
+  // Position earbuds in stage zone
+  earbudSystemGroup.position.set(0.35, 0.15, 0.1);
+  rootGroup.add(earbudSystemGroup);
+
+  // ===================================================================
+  // 3. BEAT 03: CHARGER BRICK (0.73 - 0.77)
+  // Rounded-box brick with 2 metal prongs
+  // ===================================================================
   const chargerGroup = new THREE.Group();
   chargerGroup.name = 'accessoryCharger';
+  chargerGroup.visible = false;
 
-  const brickShape = createRoundedRectShape(0.24, 0.24, 0.04);
-  const brickGeom = new THREE.ExtrudeGeometry(brickShape, {
-    depth: 0.32,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    bevelSize: 0.005,
-    bevelThickness: 0.005,
-  });
-  brickGeom.center();
+  const brickGeom = new RoundedBoxGeometry(0.26, 0.26, 0.36, 4, 0.04);
   const brickMesh = new THREE.Mesh(brickGeom, matteMat);
   chargerGroup.add(brickMesh);
 
-  // 2 Metallic Prongs
-  const prongGeom = new THREE.CylinderGeometry(0.015, 0.015, 0.14, 16);
+  // 2 Metal Prongs
+  const prongGeom = new THREE.CylinderGeometry(0.014, 0.014, 0.15, 12);
   prongGeom.rotateX(Math.PI / 2);
   const prong1 = new THREE.Mesh(prongGeom, metalMat);
-  prong1.position.set(-0.06, 0, 0.22);
+  prong1.position.set(-0.06, 0.0, 0.24);
   const prong2 = prong1.clone();
-  prong2.position.set(0.06, 0, 0.22);
+  prong2.position.set(0.06, 0.0, 0.24);
   chargerGroup.add(prong1, prong2);
 
-  // --- 2. CABLE ---
+  // USB-C port cutout on rear
+  const usbSlotGeom = new THREE.BoxGeometry(0.06, 0.02, 0.02);
+  const usbSlotMesh = new THREE.Mesh(usbSlotGeom, limeMat);
+  usbSlotMesh.position.set(0.0, 0.0, -0.185);
+  chargerGroup.add(usbSlotMesh);
+
+  chargerGroup.position.set(0.40, -0.05, 0.15);
+  rootGroup.add(chargerGroup);
+
+  // ===================================================================
+  // 4. BEAT 04: CABLE (0.77 - 0.80)
+  // TubeGeometry (radius 0.02) drawing itself to phone's port via setDrawRange
+  // ===================================================================
   const cableGroup = new THREE.Group();
   cableGroup.name = 'accessoryCable';
+  cableGroup.visible = false;
 
-  const curvePoints = [
-    new THREE.Vector3(-0.35, -0.2, 0),
-    new THREE.Vector3(-0.15, 0.25, 0.15),
-    new THREE.Vector3(0.2, 0.1, -0.1),
-    new THREE.Vector3(0.35, -0.25, 0.05),
+  // Spline points from charger USB-C port to phone bottom port
+  const cablePoints = [
+    new THREE.Vector3(0.40, -0.05, 0.0),
+    new THREE.Vector3(0.45, -0.38, 0.12),
+    new THREE.Vector3(0.28, -0.68, 0.08),
+    new THREE.Vector3(0.12, -0.74, 0.02),
+    new THREE.Vector3(0.00, -0.76, 0.0),
   ];
-  const curve = new THREE.CatmullRomCurve3(curvePoints);
-  const cableGeom = new THREE.TubeGeometry(curve, 48, 0.02, 12, false);
+  const cableCurve = new THREE.CatmullRomCurve3(cablePoints);
+  const cableGeom = new THREE.TubeGeometry(cableCurve, 64, 0.016, 12, false);
+  const totalIndices = cableGeom.index ? cableGeom.index.count : 0;
+  cableGeom.setDrawRange(0, 0); // Initially un-drawn
+
   const cableMat = new THREE.MeshStandardMaterial({
-    color: 0x16171A,
+    color: 0x15161A,
     roughness: 0.5,
-    metalness: 0.1,
+    metalness: 0.2,
   });
   const cableMesh = new THREE.Mesh(cableGeom, cableMat);
   cableGroup.add(cableMesh);
 
-  // Connector heads at cable ends
-  const headGeom = new THREE.BoxGeometry(0.05, 0.04, 0.1);
-  const headMesh1 = new THREE.Mesh(headGeom, metalMat);
-  headMesh1.position.copy(curvePoints[0]);
-  headMesh1.lookAt(curvePoints[1]);
-  const headMesh2 = new THREE.Mesh(headGeom, metalMat);
-  headMesh2.position.copy(curvePoints[curvePoints.length - 1]);
-  headMesh2.lookAt(curvePoints[curvePoints.length - 2]);
-  cableGroup.add(headMesh1, headMesh2);
+  // Connector plug at charger end
+  const plugGeom = new THREE.BoxGeometry(0.04, 0.03, 0.06);
+  const plugMesh1 = new THREE.Mesh(plugGeom, metalMat);
+  plugMesh1.position.copy(cablePoints[0]);
+  plugMesh1.lookAt(cablePoints[1]);
+  cableGroup.add(plugMesh1);
 
-  // --- 3. EARBUD CASE ---
-  const earbudGroup = new THREE.Group();
-  earbudGroup.name = 'accessoryEarbuds';
+  // Connector plug at phone port end
+  const plugMesh2 = new THREE.Mesh(plugGeom, metalMat);
+  plugMesh2.position.copy(cablePoints[cablePoints.length - 1]);
+  plugMesh2.lookAt(new THREE.Vector3(0, -0.6, 0));
+  plugMesh2.visible = false;
+  cableGroup.add(plugMesh2);
 
-  const podGeom = new THREE.CapsuleGeometry(0.12, 0.18, 16, 16);
-  podGeom.rotateZ(Math.PI / 2);
-  const podMesh = new THREE.Mesh(podGeom, matteMat);
-  earbudGroup.add(podMesh);
-
-  // Subtle accent status LED
-  const ledGeom = new THREE.SphereGeometry(0.012, 8, 8);
-  const ledMesh = new THREE.Mesh(ledGeom, accentMat);
-  ledMesh.position.set(0, 0, 0.12);
-  earbudGroup.add(ledMesh);
-
-  // --- 4. PHONE CASE ---
-  const caseGroup = new THREE.Group();
-  caseGroup.name = 'accessoryPhoneCase';
-
-  const outerShape = createRoundedRectShape(0.76, 1.56, 0.10);
-  const innerHole = createRoundedRectShape(0.68, 1.48, 0.08);
-  outerShape.holes.push(innerHole);
-
-  const caseGeom = new THREE.ExtrudeGeometry(outerShape, {
-    depth: 0.045,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    bevelSize: 0.003,
-    bevelThickness: 0.003,
-  });
-  caseGeom.center();
-
-  const caseMat = new THREE.MeshStandardMaterial({
-    color: 0x242830,
-    roughness: 0.4,
-    metalness: 0.05,
-    transparent: true,
-    opacity: 0.88,
-  });
-  const caseMesh = new THREE.Mesh(caseGeom, caseMat);
-  caseGroup.add(caseMesh);
-
-  // Place individual accessories in orbital spatial positions
-  chargerGroup.position.set(-1.1, 0.4, -0.3);
-  cableGroup.position.set(0.9, -0.5, 0.2);
-  earbudGroup.position.set(1.1, 0.6, -0.2);
-  caseGroup.position.set(-0.8, -0.6, 0.1);
-
-  rootGroup.add(chargerGroup);
   rootGroup.add(cableGroup);
-  rootGroup.add(earbudGroup);
-  rootGroup.add(caseGroup);
 
-  const items = [
-    { group: chargerGroup, speed: 0.7, rotSpeed: 0.4, basePos: chargerGroup.position.clone() },
-    { group: cableGroup, speed: 0.5, rotSpeed: 0.3, basePos: cableGroup.position.clone() },
-    { group: earbudGroup, speed: 0.9, rotSpeed: 0.6, basePos: earbudGroup.position.clone() },
-    { group: caseGroup, speed: 0.4, rotSpeed: 0.2, basePos: caseGroup.position.clone() },
-  ];
+  // -------------------------------------------------------------------
+  // Dynamic Beat Animation Controller
+  // -------------------------------------------------------------------
+  function setCableProgress(p) {
+    if (!cableGeom.index) return;
+    p = Math.max(0, Math.min(1, p));
+    const count = Math.floor(totalIndices * p);
+    cableGeom.setDrawRange(0, count);
+    plugMesh2.visible = p > 0.95;
+  }
+
+  function setLidAngle(degrees) {
+    const rad = (degrees * Math.PI) / 180;
+    lidPivot.rotation.x = -rad;
+  }
+
+  function setEarbudsOrbit(t) {
+    // Earbud 1 orbit
+    earbud1.position.set(
+      Math.sin(t * 2) * 0.16,
+      0.14 + Math.cos(t * 1.5) * 0.08,
+      Math.cos(t * 2) * 0.12
+    );
+    earbud1.rotation.set(t * 1.2, t * 1.5, 0.2);
+
+    // Earbud 2 orbit (opposite phase)
+    earbud2.position.set(
+      -Math.sin(t * 2) * 0.16,
+      0.16 - Math.cos(t * 1.5) * 0.08,
+      -Math.cos(t * 2) * 0.12
+    );
+    earbud2.rotation.set(-t * 1.1, -t * 1.4, -0.2);
+  }
 
   function tick(elapsedTime, isFrozen = false) {
     if (isFrozen || !rootGroup.visible) return;
 
-    items.forEach((item, idx) => {
-      const t = elapsedTime * item.speed + idx;
-      item.group.position.y = item.basePos.y + Math.sin(t) * 0.06;
-      item.group.position.x = item.basePos.x + Math.cos(t * 0.8) * 0.04;
-      item.group.rotation.y += 0.005 * item.rotSpeed;
-      item.group.rotation.x = Math.sin(t * 0.5) * 0.15;
-    });
+    // Subtle ambient float for active items in stage
+    if (chargerGroup.visible) {
+      chargerGroup.position.y = -0.05 + Math.sin(elapsedTime * 1.8) * 0.015;
+    }
+    if (earbudSystemGroup.visible) {
+      earbudSystemGroup.position.y = 0.15 + Math.sin(elapsedTime * 2.0) * 0.015;
+    }
   }
 
-  function setProgress(progress) {
-    if (progress <= 0.001) {
-      rootGroup.visible = false;
+  function setVisibility(visible) {
+    rootGroup.visible = visible;
+    if (!visible) {
       rootGroup.scale.set(0.001, 0.001, 0.001);
-      return;
+      caseGroup.visible = false;
+      earbudSystemGroup.visible = false;
+      chargerGroup.visible = false;
+      cableGroup.visible = false;
     }
-
-    rootGroup.visible = true;
-    const s = Math.max(0.001, progress);
-    rootGroup.scale.set(s, s, s);
   }
 
   return {
     group: rootGroup,
+    caseGroup,
+    earbudSystemGroup,
+    chargerGroup,
+    cableGroup,
+    setCableProgress,
+    setLidAngle,
+    setEarbudsOrbit,
+    setVisibility,
     tick,
-    setProgress,
     dispose() {
       rootGroup.traverse((child) => {
         if (child.isMesh) {
