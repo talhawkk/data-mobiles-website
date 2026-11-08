@@ -9,7 +9,7 @@ gsap.registerPlugin(SplitText);
  * Manages DOM text reveals, SplitText line masks,
  * and 3D projected inspect labels.
  */
-export function initOverlay({ phone, camera, getSize }) {
+export function initOverlay({ phone, camera, getSize, onNavigate }) {
   // 1. Prepare SplitText on headings and sublines
   const splitTargets = document.querySelectorAll('.split-text');
   const splitInstances = [];
@@ -82,6 +82,47 @@ export function initOverlay({ phone, camera, getSize }) {
   const anchorDot = document.querySelector('.inspect-anchor-dot');
   const anchorNum = document.querySelector('.inspect-anchor-num');
   const railItems = document.querySelectorAll('.rail-item');
+
+  // Interactive Index Rail Navigation (UPGRADE.md U3)
+  const INSPECT_PROGRESS_MAP = {
+    battery: 0.23,
+    board: 0.30,
+    camera: 0.37,
+    port: 0.44,
+    screen: 0.52,
+  };
+
+  railItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = item.dataset.id;
+      if (id && INSPECT_PROGRESS_MAP[id] !== undefined && typeof onNavigate === 'function') {
+        onNavigate(INSPECT_PROGRESS_MAP[id]);
+      }
+    });
+  });
+
+  const accRailItems = document.querySelectorAll('.acc-rail-item');
+  const ACC_PROGRESS_MAP = [0.68, 0.72, 0.75, 0.78];
+  accRailItems.forEach((item, idx) => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof onNavigate === 'function') {
+        onNavigate(ACC_PROGRESS_MAP[idx] || 0.68);
+      }
+    });
+  });
+
+  const wifiPlanRows = document.querySelectorAll('.wifi-plan-row');
+  const WIFI_PROGRESS_MAP = [0.83, 0.86, 0.89];
+  wifiPlanRows.forEach((row, idx) => {
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof onNavigate === 'function') {
+        onNavigate(WIFI_PROGRESS_MAP[idx] || 0.83);
+      }
+    });
+  });
 
   let activeInspectId = null;
   let isInspectVisible = false;
@@ -241,7 +282,6 @@ export function initOverlay({ phone, camera, getSize }) {
     }
   }
 
-  const accRailItems = document.querySelectorAll('.acc-rail-item');
   function setAccessoryBeat(beatIndex) {
     accRailItems.forEach((item, idx) => {
       if (idx === beatIndex) {
@@ -252,7 +292,6 @@ export function initOverlay({ phone, camera, getSize }) {
     });
   }
 
-  const wifiPlanRows = document.querySelectorAll('.wifi-plan-row');
   function setWifiPlan(planIndex) {
     wifiPlanRows.forEach((row, idx) => {
       if (idx === planIndex) {

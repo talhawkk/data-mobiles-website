@@ -12,7 +12,7 @@ TARGET_PCT_60 = 6.0
 
 CHROME_PATH = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
-async def measure(label="Current"):
+async def measure(label="Current", theme="light"):
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             executable_path=CHROME_PATH if os.path.exists(CHROME_PATH) else None,
@@ -24,6 +24,8 @@ async def measure(label="Current"):
         page.on('console', lambda msg: print(f"[BROWSER {msg.type.upper()}] {msg.text}") if msg.type in ['error', 'warning'] else None)
         
         await page.goto('http://127.0.0.1:3000/?tier=0', wait_until='networkidle')
+        if theme == 'dark':
+            await page.evaluate("() => { document.documentElement.setAttribute('data-theme', 'dark'); window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: 'dark' } })); }")
         await page.wait_for_timeout(2500) # Preloader finish
         
         results = []
@@ -72,5 +74,6 @@ async def measure(label="Current"):
         return results
 
 if __name__ == '__main__':
-    label = sys.argv[1] if len(sys.argv) > 1 else "Baseline"
-    asyncio.run(measure(label))
+    label = sys.argv[1] if len(sys.argv) > 1 else "Light Studio"
+    theme = sys.argv[2] if len(sys.argv) > 2 else ("dark" if "dark" in label.lower() else "light")
+    asyncio.run(measure(label, theme))

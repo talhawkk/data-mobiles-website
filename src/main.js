@@ -51,21 +51,24 @@ function boot() {
     document.body.classList.add('no-webgl');
   }
 
+  let scrollObj = null;
+  const navigateFn = (progress) => {
+    if (scrollObj) {
+      scrollObj.scrollToProgress(progress);
+    }
+  };
+
   // 2. Initialize Overlay Controller
   const overlayObj = initOverlay({
     phone: rendererObj?.phone,
     camera: rendererObj?.camera,
     getSize: rendererObj?.getSize || (() => ({ width: window.innerWidth, height: window.innerHeight })),
+    onNavigate: navigateFn,
   });
 
   // 3. Navigation Controller
-  let scrollObj = null;
   const navObj = initNav({
-    onNavigate: (progress) => {
-      if (scrollObj) {
-        scrollObj.scrollToProgress(progress);
-      }
-    },
+    onNavigate: navigateFn,
   });
 
   // 4. Custom Follower Cursor

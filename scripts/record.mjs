@@ -174,29 +174,9 @@ h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 print(f"Total raw frames: {total_frames} at {fps:.1f} FPS")
 
-# 1. Scan to find the exact frame where the Hero phone appears (brightness / content change)
-# Preloader / blank screen has very low average brightness (< 1.5).
-# When Hero phone is revealed, average brightness exceeds 4.0 and phone edges are visible.
-start_frame = 0
-frame_idx = 0
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    mean_val = np.mean(gray)
-    # Check when hero phone or preloader wipe is active
-    if mean_val > 4.5:
-        # Found hero reveal point! Start 5 frames before for a clean opening
-        start_frame = max(0, frame_idx - 5)
-        print(f"Hero start detected at frame {start_frame} ({start_frame/fps:.2f}s)")
-        break
-    frame_idx += 1
-
-# If not detected dynamically, fallback to 2.5s
-if start_frame == 0:
-    start_frame = int(2.4 * fps)
-    print(f"Using default start frame {start_frame}")
+# Start exactly when preloader wipe completes and hero is active (2.4s)
+start_frame = int(2.4 * fps)
+print(f"Hero start at frame {start_frame} ({start_frame/fps:.2f}s)")
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out_720 = cv2.VideoWriter(output_720p, fourcc, fps, (w, h))

@@ -25,8 +25,8 @@ const PostProcessShader = {
     tDiffuse: { value: null },
     uTime: { value: 0 },
     uResolution: { value: new THREE.Vector2(1, 1) },
-    uVignette: { value: 0.35 },
-    uGrain: { value: 0.04 },
+    uVignette: { value: 0.0 },
+    uGrain: { value: 0.02 },
     uAberration: { value: 0.0 },
   },
   vertexShader: /* glsl */ `
@@ -524,7 +524,7 @@ export function initRenderer(canvasElement) {
     accessories.tick(idleState.time, idleFrozen);
     wifiScene.tick(idleState.time, idleFrozen);
 
-    // (b) composer/post-processing off (render directly)
+    // (b) composer/post-processing off (render directly for maximum clarity and visibility)
     const shouldUseComposer = false;
 
     if (shouldUseComposer && composer) {

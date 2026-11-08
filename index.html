@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>DATA | Mobiles, Repairs &amp; WiFi, Lahore</title>
   <meta name="description" content="Phone accessories, fast repairs, and local high-speed WiFi in Main Market, Lahore.">
-  <meta name="theme-color" content="#0B0B0C">
+  <meta name="theme-color" content="#F6F7FA" id="theme-color-meta">
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Open Graph / Meta -->
   <meta property="og:type" content="website">
@@ -87,11 +96,34 @@
     <a href="#" class="nav-brand" aria-label="DATA Home">
       DATA<span>.</span>
     </a>
-    <nav class="nav-links" aria-label="Main navigation">
-      <a href="#repairs" class="nav-link">Repairs</a>
-      <a href="#accessories" class="nav-link">Accessories</a>
-      <a href="#wifi" class="nav-link">WiFi</a>
-    </nav>
+    <div class="nav-right-group">
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#repairs" class="nav-link">Repairs</a>
+        <a href="#accessories" class="nav-link">Accessories</a>
+        <a href="#wifi" class="nav-link">WiFi</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Switch theme" title="Toggle theme">
+        <span class="theme-icon sun" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </span>
+        <span class="theme-icon moon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </span>
+        <span class="theme-toggle-text" id="theme-label">LIGHT</span>
+      </button>
+    </div>
   </header>
 
   <!-- Floating WhatsApp CTA Button -->

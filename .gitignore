@@ -3,6 +3,7 @@ dist
 .DS_Store
 recordings/
 screenshots/
+tmp_measure/
 SPEC.md
 TEARDOWN.md
 UPGRADE.md

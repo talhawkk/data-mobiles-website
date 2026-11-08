@@ -995,7 +995,25 @@ export function createPhone({ isMobile = false } = {}) {
 
   // Active Part Isolation, Outlines & Material Dimming
   const originalColors = new Map();
-  const dimColor = new THREE.Color(0x0B0B0C);
+  const dimColor = new THREE.Color(0xE0E3EB);
+
+  function applyPhoneTheme(theme) {
+    if (theme === 'light') {
+      dimColor.setHex(0xE0E3EB);
+      allParts.forEach(({ outline }) => {
+        if (outline) outline.material.color.setHex(0x16A34A);
+      });
+    } else {
+      dimColor.setHex(0x0B0B0C);
+      allParts.forEach(({ outline }) => {
+        if (outline) outline.material.color.setHex(0xC8FF2E);
+      });
+    }
+  }
+
+  const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  applyPhoneTheme(initialTheme);
+  window.addEventListener('themechange', (e) => applyPhoneTheme(e.detail?.theme || 'light'));
 
   function setActivePart(partKey) {
     allParts.forEach(({ group, key, outline }) => {
