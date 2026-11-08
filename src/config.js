@@ -71,6 +71,7 @@ export const copy = {
       eyebrow: 'POWER', // DUMMY: confirm with shop
       title: 'Battery', // DUMMY: confirm with shop
       body: 'Full day power again.', // DUMMY: confirm with shop
+      symptoms: ['Drains fast', 'Swollen'], // DUMMY: confirm with shop
     },
     board: {
       id: 'board',
@@ -79,6 +80,7 @@ export const copy = {
       eyebrow: 'CIRCUIT', // DUMMY: confirm with shop
       title: 'Board', // DUMMY: confirm with shop
       body: 'Dead phone? We try.', // DUMMY: confirm with shop
+      symptoms: ['No power', 'Water damage'], // DUMMY: confirm with shop
     },
     camera: {
       id: 'camera',
@@ -87,6 +89,7 @@ export const copy = {
       eyebrow: 'OPTICS', // DUMMY: confirm with shop
       title: 'Camera', // DUMMY: confirm with shop
       body: 'Sharp again.', // DUMMY: confirm with shop
+      symptoms: ['Blurry', 'Cracked lens'], // DUMMY: confirm with shop
     },
     port: {
       id: 'port',
@@ -95,6 +98,7 @@ export const copy = {
       eyebrow: 'CHARGING', // DUMMY: confirm with shop
       title: 'Port', // DUMMY: confirm with shop
       body: 'Charges like new.', // DUMMY: confirm with shop
+      symptoms: ["Won't charge", 'Loose cable'], // DUMMY: confirm with shop
     },
     screen: {
       id: 'screen',
@@ -103,6 +107,7 @@ export const copy = {
       eyebrow: 'DISPLAY', // DUMMY: confirm with shop
       title: 'Screen', // DUMMY: confirm with shop
       body: 'Cracked? Replaced today.', // DUMMY: confirm with shop
+      symptoms: ['Cracked', 'Dead touch'], // DUMMY: confirm with shop
     },
   },
   rebuild: {

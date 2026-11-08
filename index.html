@@ -121,38 +121,95 @@
 
     <!-- INSPECT LABELS SECTION (Active during exploded phone view) -->
     <section class="section-overlay section-inspect" aria-label="Repairs Inspection">
+      <!-- Index Rail on left edge (01 - 05 in DM Mono) -->
+      <nav class="inspect-index-rail" aria-label="Component Index">
+        <div class="rail-item" data-id="battery">
+          <span class="rail-num">01</span>
+          <span class="rail-line"></span>
+          <span class="rail-label">BATTERY</span>
+        </div>
+        <div class="rail-item" data-id="board">
+          <span class="rail-num">02</span>
+          <span class="rail-line"></span>
+          <span class="rail-label">BOARD</span>
+        </div>
+        <div class="rail-item" data-id="camera">
+          <span class="rail-num">03</span>
+          <span class="rail-line"></span>
+          <span class="rail-label">CAMERA</span>
+        </div>
+        <div class="rail-item" data-id="port">
+          <span class="rail-num">04</span>
+          <span class="rail-line"></span>
+          <span class="rail-label">PORT</span>
+        </div>
+        <div class="rail-item" data-id="screen">
+          <span class="rail-num">05</span>
+          <span class="rail-line"></span>
+          <span class="rail-label">SCREEN</span>
+        </div>
+      </nav>
+
+      <!-- SVG for 24px Elbow Leader Line and 3D Part Anchor Marker -->
       <svg class="inspect-line-svg" aria-hidden="true">
-        <line class="inspect-leader-line" x1="0" y1="0" x2="0" y2="0" />
+        <path class="inspect-elbow-line" d="M 0 0 L 0 0" />
+        <circle class="inspect-anchor-dot" cx="-100" cy="-100" r="3.5" />
+        <text class="inspect-anchor-num" x="-100" y="-100">01</text>
       </svg>
 
-      <div class="inspect-label-card" data-id="screen">
-        <span class="mono-label accent">DISPLAY</span>
-        <h3 class="display-title split-text" style="font-size: 2rem; margin: 4px 0;">Screen</h3>
-        <p class="body-subline split-text">Cracked? Replaced today.</p>
-      </div>
-
+      <!-- 01 Battery -->
       <div class="inspect-label-card" data-id="battery">
-        <span class="mono-label accent">POWER</span>
-        <h3 class="display-title split-text" style="font-size: 2rem; margin: 4px 0;">Battery</h3>
-        <p class="body-subline split-text">Full day power again.</p>
+        <span class="mono-label accent">01 // POWER</span>
+        <h3 class="display-title split-text">Battery</h3>
+        <p class="body-subline">Full day power again.</p>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">Drains fast</span>
+          <span class="symptom-tag">Swollen</span>
+        </div>
       </div>
 
-      <div class="inspect-label-card" data-id="port">
-        <span class="mono-label accent">CHARGING</span>
-        <h3 class="display-title split-text" style="font-size: 2rem; margin: 4px 0;">Port</h3>
-        <p class="body-subline split-text">Charges like new.</p>
-      </div>
-
-      <div class="inspect-label-card" data-id="camera">
-        <span class="mono-label accent">OPTICS</span>
-        <h3 class="display-title split-text" style="font-size: 2rem; margin: 4px 0;">Camera</h3>
-        <p class="body-subline split-text">Sharp again.</p>
-      </div>
-
+      <!-- 02 Board -->
       <div class="inspect-label-card" data-id="board">
-        <span class="mono-label accent">CIRCUIT</span>
-        <h3 class="display-title split-text" style="font-size: 2rem; margin: 4px 0;">Board</h3>
-        <p class="body-subline split-text">Dead phone? We try.</p>
+        <span class="mono-label accent">02 // CIRCUIT</span>
+        <h3 class="display-title split-text">Board</h3>
+        <p class="body-subline">Dead phone? We try.</p>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">No power</span>
+          <span class="symptom-tag">Water damage</span>
+        </div>
+      </div>
+
+      <!-- 03 Camera -->
+      <div class="inspect-label-card" data-id="camera">
+        <span class="mono-label accent">03 // OPTICS</span>
+        <h3 class="display-title split-text">Camera</h3>
+        <p class="body-subline">Sharp again.</p>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">Blurry</span>
+          <span class="symptom-tag">Cracked lens</span>
+        </div>
+      </div>
+
+      <!-- 04 Port -->
+      <div class="inspect-label-card" data-id="port">
+        <span class="mono-label accent">04 // CHARGING</span>
+        <h3 class="display-title split-text">Port</h3>
+        <p class="body-subline">Charges like new.</p>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">Won't charge</span>
+          <span class="symptom-tag">Loose cable</span>
+        </div>
+      </div>
+
+      <!-- 05 Screen -->
+      <div class="inspect-label-card" data-id="screen">
+        <span class="mono-label accent">05 // DISPLAY</span>
+        <h3 class="display-title split-text">Screen</h3>
+        <p class="body-subline">Cracked? Replaced today.</p>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">Cracked</span>
+          <span class="symptom-tag">Dead touch</span>
+        </div>
       </div>
     </section>
 

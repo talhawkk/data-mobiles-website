@@ -353,9 +353,61 @@
   }
 }
 
-/* Inspect Section & Labels */
+/* Inspect Section & Labels (TEARDOWN.md Part T2) */
 .section-inspect {
   pointer-events: none;
+}
+
+/* Index Rail on left edge (01-05 in DM Mono) */
+.inspect-index-rail {
+  position: absolute;
+  left: calc(var(--container-pad) - 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.rail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.35;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  user-select: none;
+}
+
+.rail-item.active {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.rail-num {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.rail-line {
+  display: inline-block;
+  width: 0px;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rail-item.active .rail-line {
+  width: 28px;
+}
+
+.rail-label {
+  letter-spacing: 0.10em;
+  font-weight: 500;
 }
 
 .inspect-label-card {
@@ -365,18 +417,45 @@
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   /* Desktop: text column 0 to 38vw left */
-  max-width: 38vw;
-  min-width: 200px;
-  /* No background box, no backdrop-filter — accent left bar only */
+  max-width: 34vw;
+  min-width: 220px;
+  /* No filled box (transparent background, accent left bar only) */
   border-left: 2px solid var(--accent);
-  padding-left: 16px;
+  padding-left: 18px;
   padding-top: 4px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
 .inspect-label-card.active {
   opacity: 1;
   visibility: visible;
+}
+
+.inspect-label-card .display-title {
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  margin: 6px 0 10px;
+}
+
+/* Symptom Tags (outlined chips, 1px) */
+.inspect-symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.symptom-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(200, 255, 46, 0.45);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  background: rgba(11, 11, 12, 0.5);
+  backdrop-filter: blur(4px);
 }
 
 .inspect-line-svg {
@@ -389,14 +468,37 @@
   z-index: 15;
 }
 
-.inspect-leader-line {
+.inspect-elbow-line {
   stroke: var(--accent);
   stroke-width: 1px;
-  stroke-dasharray: 4 2;
   fill: none;
 }
 
+.inspect-anchor-dot {
+  fill: var(--accent);
+}
+
+.inspect-anchor-num {
+  fill: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  dominant-baseline: middle;
+}
+
 @media (max-width: 1023px) {
+  .inspect-index-rail {
+    position: fixed;
+    top: auto;
+    bottom: calc(130px + var(--sab));
+    left: var(--container-pad);
+    transform: none;
+    flex-direction: row;
+    gap: 12px;
+  }
+  .rail-label {
+    display: none;
+  }
   .inspect-label-card {
     position: fixed;
     bottom: calc(20px + var(--sab));

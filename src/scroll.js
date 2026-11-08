@@ -117,20 +117,46 @@ export function initScroll({
           rendererObj.setHeroGlowOpacity(heroOpacity * 0.12);
         }
 
-        // inspect: 0.20 - 0.56
+        // inspect: 0.20 - 0.56 (TEARDOWN.md Part T2: 5 windows with 0.01 gap to eliminate ghosts)
         const isInspect = p >= 0.19 && p <= 0.56;
         overlayObj.setSectionState('inspect', isInspect ? 1 : 0, isInspect);
 
         if (isInspect) {
-          // 01 Battery 0.20-0.27, 02 Board 0.27-0.34, 03 Camera 0.34-0.41, 04 Port 0.41-0.48, 05 Screen 0.48-0.56
-          if (p >= 0.20 && p < 0.27) overlayObj.setInspectLabel('battery');
-          else if (p >= 0.27 && p < 0.34) overlayObj.setInspectLabel('board');
-          else if (p >= 0.34 && p < 0.41) overlayObj.setInspectLabel('camera');
-          else if (p >= 0.41 && p < 0.48) overlayObj.setInspectLabel('port');
-          else if (p >= 0.48 && p <= 0.56) overlayObj.setInspectLabel('screen');
-          else overlayObj.setInspectLabel(null);
+          // 01 Battery 0.20-0.26, 02 Board 0.27-0.33, 03 Camera 0.34-0.40, 04 Port 0.41-0.47, 05 Screen 0.48-0.55
+          if (p >= 0.20 && p < 0.260) {
+            phone.setActivePart('battery');
+            overlayObj.setInspectLabel('battery');
+            phone.batteryGroup.getWorldPosition(debugPhoneVec);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 4.0);
+          } else if (p >= 0.270 && p < 0.330) {
+            phone.setActivePart('board');
+            overlayObj.setInspectLabel('board');
+            phone.boardGroup.getWorldPosition(debugPhoneVec);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 4.0);
+          } else if (p >= 0.340 && p < 0.400) {
+            phone.setActivePart('cameraUnit');
+            overlayObj.setInspectLabel('camera');
+            phone.cameraUnitGroup.getWorldPosition(debugPhoneVec);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 4.0);
+          } else if (p >= 0.410 && p < 0.470) {
+            phone.setActivePart('port');
+            overlayObj.setInspectLabel('port');
+            phone.portGroup.getWorldPosition(debugPhoneVec);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 4.0);
+          } else if (p >= 0.480 && p <= 0.550) {
+            phone.setActivePart('screen');
+            overlayObj.setInspectLabel('screen');
+            phone.screenGroup.getWorldPosition(debugPhoneVec);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 3.5);
+          } else {
+            phone.setActivePart(null);
+            overlayObj.setInspectLabel(null);
+            if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 0.0);
+          }
         } else {
+          phone.setActivePart(null);
           overlayObj.setInspectLabel(null);
+          if (typeof rendererObj.setInspectSpotTarget === 'function') rendererObj.setInspectSpotTarget(debugPhoneVec, 0.0);
         }
 
         // rebuild: 0.56 - 0.66

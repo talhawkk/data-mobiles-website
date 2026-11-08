@@ -40,6 +40,9 @@ export function initRenderer(canvasElement) {
   // 2. Scene & Camera
   const scene = new THREE.Scene();
 
+  // Depth: FogExp2 so far parts fade into dark (TEARDOWN.md Part T2)
+  scene.fog = new THREE.FogExp2(0x0B0B0C, 0.18);
+
   const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
 
   function updateCameraForViewport(w, h) {
@@ -73,6 +76,16 @@ export function initRenderer(canvasElement) {
   const lighting = setupLighting(scene, renderer);
   // Initial environment rotation for sweep
   scene.environmentRotation.set(0, -0.7, 0);
+
+  // Inspection SpotLight (TEARDOWN.md Part T2: disabled on mobile)
+  let inspectSpotLight = null;
+  if (!isMobile) {
+    inspectSpotLight = new THREE.SpotLight(0xFFFFFF, 0, 8, 0.5, 0.8, 1);
+    inspectSpotLight.position.set(-1.6, 2.2, 3.2);
+    inspectSpotLight.castShadow = false;
+    scene.add(inspectSpotLight);
+    scene.add(inspectSpotLight.target);
+  }
 
   // Soft Radial Glow Plane behind the phone (Hero 0-0.10)
   // Accent #C8FF2E at 12% opacity so dark phone separates from dark background
@@ -193,6 +206,7 @@ export function initRenderer(canvasElement) {
   // 11. State & Ticker Loop (Strictly GSAP ticker, no requestAnimationFrame)
   let isScrolling = false;
   let scrollTimeout = null;
+  const baseCamPos = { x: 0, y: 0 };
   const idleState = {
     time: 0,
     baseY: 0,
@@ -326,6 +340,15 @@ export function initRenderer(canvasElement) {
       }
     }
 
+    // Handheld feel: micro camera drift (amplitude 0.002 units, halved on touch)
+    if (!idleFrozen) {
+      const driftAmp = isTouch ? 0.001 : 0.002;
+      const driftX = (Math.sin(idleState.time * 1.8) + Math.sin(idleState.time * 0.7)) * driftAmp;
+      const driftY = (Math.cos(idleState.time * 1.4) + Math.sin(idleState.time * 2.3)) * driftAmp;
+      camera.position.x = baseCamPos.x + driftX;
+      camera.position.y = baseCamPos.y + driftY;
+    }
+
     // Tick sub-scenes
     accessories.tick(idleState.time, idleFrozen);
     wifiScene.tick(idleState.time, idleFrozen);
@@ -360,6 +383,17 @@ export function initRenderer(canvasElement) {
     markScrolling,
     setScrollProgress: (p) => {
       currentScrollProgress = p;
+    },
+    setBaseCamPos: (x, y) => {
+      baseCamPos.x = x;
+      baseCamPos.y = y;
+    },
+    setInspectSpotTarget: (targetPos, intensity = 4.0) => {
+      if (inspectSpotLight) {
+        inspectSpotLight.target.position.copy(targetPos);
+        inspectSpotLight.intensity = intensity;
+        inspectSpotLight.target.updateMatrixWorld();
+      }
     },
     triggerRevealAnimation,
     compileSceneAsync: async () => {

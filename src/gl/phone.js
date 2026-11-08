@@ -751,18 +751,89 @@ export function createPhone({ isMobile = false } = {}) {
     shadowMesh.material.opacity = THREE.MathUtils.lerp(0.7, 0.2, t);
   }
 
-  // Active Part Isolation & Outlines
+  // Active Part Isolation, Outlines & Material Dimming
+  const originalColors = new Map();
+  const dimColor = new THREE.Color(0x0B0B0C);
+
   function setActivePart(partKey) {
     allParts.forEach(({ group, key, outline }) => {
       const isActive = key === partKey;
       if (isActive) {
         group.scale.set(1.04, 1.04, 1.04);
-        if (outline) outline.material.opacity = 0.9;
+        if (outline) {
+          outline.material.opacity = 0.9;
+          outline.visible = true;
+        }
       } else {
         group.scale.set(1.0, 1.0, 1.0);
-        if (outline) outline.material.opacity = partKey ? 0.15 : 0.35;
+        if (outline) {
+          outline.material.opacity = 0.0;
+          outline.visible = false;
+        }
       }
+
+      // Material Dimming: Inactive parts dimmed 70% toward #0B0B0C
+      group.traverse((child) => {
+        if (child.isMesh && child.material && child.material.color && child.name !== 'screenFront') {
+          if (!originalColors.has(child)) {
+            originalColors.set(child, child.material.color.clone());
+          }
+          const baseColor = originalColors.get(child);
+          if (partKey && !isActive) {
+            child.material.color.copy(baseColor).lerp(dimColor, 0.70);
+          } else {
+            child.material.color.copy(baseColor);
+          }
+        }
+      });
     });
+  }
+
+  // Dot product of part outward normal and view direction (must be > 0.2 to show label)
+  const tempNormal = new THREE.Vector3();
+  const tempViewDir = new THREE.Vector3();
+  const tempPartPos = new THREE.Vector3();
+  const tempCamPos = new THREE.Vector3();
+  const tempQuat = new THREE.Quaternion();
+
+  function getPartFacingDot(partName, camera) {
+    let targetGroup = phoneGroup;
+    const localNormal = new THREE.Vector3(0, 0, 1); // standard outward normal on back parts
+
+    switch (partName) {
+      case 'screen':
+        targetGroup = screenGroup;
+        localNormal.set(0, 0, -1); // screen front face normal
+        break;
+      case 'battery':
+        targetGroup = batteryGroup;
+        break;
+      case 'port':
+        targetGroup = portGroup;
+        localNormal.set(0, -0.6, 0.8).normalize();
+        break;
+      case 'camera':
+      case 'cameraUnit':
+        targetGroup = cameraUnitGroup;
+        break;
+      case 'board':
+        targetGroup = boardGroup;
+        break;
+      case 'cover':
+      case 'coverPlate':
+      case 'backCover':
+        targetGroup = backCoverGroup;
+        break;
+    }
+
+    targetGroup.getWorldQuaternion(tempQuat);
+    tempNormal.copy(localNormal).applyQuaternion(tempQuat).normalize();
+
+    camera.getWorldPosition(tempCamPos);
+    targetGroup.getWorldPosition(tempPartPos);
+    tempViewDir.subVectors(tempCamPos, tempPartPos).normalize();
+
+    return tempNormal.dot(tempViewDir);
   }
 
   function getPartScreenPosition(partName, camera, width, height) {
@@ -830,6 +901,8 @@ export function createPhone({ isMobile = false } = {}) {
     setExplodeProgress,
     setActivePart,
     getPartScreenPosition,
+    getPartFacingDot,
+    restPositions,
     dispose() {
       screenTexture.dispose();
       shadowTexture.dispose();

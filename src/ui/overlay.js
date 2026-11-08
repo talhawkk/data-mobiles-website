@@ -44,7 +44,10 @@ export function initOverlay({ phone, camera, getSize }) {
   };
 
   const labelCards = document.querySelectorAll('.inspect-label-card');
-  const leaderLine = document.querySelector('.inspect-leader-line');
+  const elbowLine = document.querySelector('.inspect-elbow-line');
+  const anchorDot = document.querySelector('.inspect-anchor-dot');
+  const anchorNum = document.querySelector('.inspect-anchor-num');
+  const railItems = document.querySelectorAll('.rail-item');
 
   let activeInspectId = null;
   let isInspectVisible = false;
@@ -74,10 +77,19 @@ export function initOverlay({ phone, camera, getSize }) {
     }
   }
 
-  // Update visible inspect label
+  // Update visible inspect label & rail item
   function setInspectLabel(id) {
     if (activeInspectId === id) return;
     activeInspectId = id;
+
+    // Highlight active index rail item
+    railItems.forEach((item) => {
+      if (item.dataset.id === id) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
 
     labelCards.forEach((card) => {
       if (card.dataset.id === id) {
@@ -86,27 +98,43 @@ export function initOverlay({ phone, camera, getSize }) {
         gsap.fromTo(
           inners,
           { yPercent: 110 },
-          { yPercent: 0, duration: 0.7, ease: 'expo.out' }
+          { yPercent: 0, duration: 0.6, ease: 'expo.out' }
         );
       } else {
         card.classList.remove('active');
       }
     });
 
-    if (!id && leaderLine) {
-      leaderLine.setAttribute('x1', '0');
-      leaderLine.setAttribute('y1', '0');
-      leaderLine.setAttribute('x2', '0');
-      leaderLine.setAttribute('y2', '0');
+    if (!id) {
+      if (elbowLine) elbowLine.setAttribute('d', 'M 0 0 L 0 0');
+      if (anchorDot) anchorDot.setAttribute('cx', '-100');
+      if (anchorNum) anchorNum.setAttribute('x', '-100');
     }
   }
 
-  // Per-frame projection of active inspect label
+  // Per-frame projection of active inspect label, 24px elbow line, and anchor marker
   function updateInspectPosition() {
     if (!isInspectVisible || !activeInspectId) return;
 
     const labelDef = INSPECT_LABELS.find((l) => l.id === activeInspectId);
     if (!labelDef) return;
+
+    // Check dot product: part must face camera (dot > 0.2)
+    if (phone && typeof phone.getPartFacingDot === 'function') {
+      const dot = phone.getPartFacingDot(labelDef.part, camera);
+      if (dot <= 0.2) {
+        // Part is facing away from camera, hide label card and leader line
+        const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
+        if (activeCard) {
+          activeCard.style.opacity = '0';
+          activeCard.style.visibility = 'hidden';
+        }
+        if (elbowLine) elbowLine.setAttribute('d', 'M 0 0 L 0 0');
+        if (anchorDot) anchorDot.setAttribute('cx', '-100');
+        if (anchorNum) anchorNum.setAttribute('x', '-100');
+        return;
+      }
+    }
 
     const { width, height } = getSize();
     const isMobile = width < 1024;
@@ -118,23 +146,41 @@ export function initOverlay({ phone, camera, getSize }) {
     const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
     if (!activeCard) return;
 
+    activeCard.style.opacity = '1';
+    activeCard.style.visibility = 'visible';
+
     if (!isMobile) {
       // Desktop: label in left column (x from 0 to 38vw per layout contract).
-      const cardWidth = activeCard.offsetWidth || Math.min(width * 0.38, 480);
-      const cardX = 40; // fixed left margin inside 38vw column
-      const cardY = Math.min(height - 180, Math.max(100, screenPos.y - 40));
+      const cardWidth = activeCard.offsetWidth || 340;
+      const cardX = Math.max(50, Math.min(width * 0.08, 100)); // offset past rail
+      const cardY = Math.min(height - 240, Math.max(120, screenPos.y - 60));
 
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;
 
-      if (leaderLine) {
-        // Leader line: from 3D part anchor → the RIGHT edge of the label card
-        const lineEndX = cardX + cardWidth;
-        const lineEndY = cardY + 20;
-        leaderLine.setAttribute('x1', screenPos.x.toFixed(1));
-        leaderLine.setAttribute('y1', screenPos.y.toFixed(1));
-        leaderLine.setAttribute('x2', lineEndX.toFixed(1));
-        leaderLine.setAttribute('y2', lineEndY.toFixed(1));
+      // Draw 24px horizontal elbow leader line to the right edge of label card
+      const labelRightEdgeX = cardX + cardWidth;
+      const labelRightEdgeY = cardY + 28;
+
+      if (elbowLine) {
+        const pX = screenPos.x;
+        const pY = screenPos.y;
+        const elbowX = pX - 24; // 24px horizontal toward label
+        elbowLine.setAttribute(
+          'd',
+          `M ${pX.toFixed(1)} ${pY.toFixed(1)} L ${elbowX.toFixed(1)} ${pY.toFixed(1)} L ${labelRightEdgeX.toFixed(1)} ${labelRightEdgeY.toFixed(1)}`
+        );
+      }
+
+      if (anchorDot) {
+        anchorDot.setAttribute('cx', screenPos.x.toFixed(1));
+        anchorDot.setAttribute('cy', screenPos.y.toFixed(1));
+      }
+
+      if (anchorNum) {
+        anchorNum.setAttribute('x', (screenPos.x + 8).toFixed(1));
+        anchorNum.setAttribute('y', (screenPos.y - 8).toFixed(1));
+        anchorNum.textContent = labelDef.number || '01';
       }
     }
   }
