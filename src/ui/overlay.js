@@ -109,7 +109,7 @@ export function initOverlay({ phone, camera, getSize }) {
     if (!labelDef) return;
 
     const { width, height } = getSize();
-    const isMobile = width <= 768;
+    const isMobile = width < 1024;
 
     // Project 3D part anchor to 2D screen space
     const screenPos = phone.getPartScreenPosition(labelDef.part, camera, width, height);
@@ -119,17 +119,16 @@ export function initOverlay({ phone, camera, getSize }) {
     if (!activeCard) return;
 
     if (!isMobile) {
-      // Desktop: label always in left column (phone is shifted right into right 55%).
-      // Max width is 26vw; we pin the card at a fixed left margin.
-      const cardWidth = activeCard.offsetWidth || Math.min(width * 0.26, 340);
-      const cardX = 40; // fixed left margin — stays well inside left 45%
+      // Desktop: label in left column (x from 0 to 38vw per layout contract).
+      const cardWidth = activeCard.offsetWidth || Math.min(width * 0.38, 480);
+      const cardX = 40; // fixed left margin inside 38vw column
       const cardY = Math.min(height - 180, Math.max(100, screenPos.y - 40));
 
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;
 
       if (leaderLine) {
-        // Leader line: from the 3D part anchor → the RIGHT edge of the label card
+        // Leader line: from 3D part anchor → the RIGHT edge of the label card
         const lineEndX = cardX + cardWidth;
         const lineEndY = cardY + 20;
         leaderLine.setAttribute('x1', screenPos.x.toFixed(1));

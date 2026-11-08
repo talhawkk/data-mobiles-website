@@ -262,7 +262,8 @@
 }
 
 .hero-content {
-  grid-column: 1 / span 6;
+  grid-column: 1 / span 5;
+  max-width: 38vw;
   z-index: 10;
   pointer-events: auto;
 }
@@ -271,11 +272,12 @@
   font-size: clamp(3.5rem, 9vw, 9rem);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .hero-content {
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
+    max-width: 100%;
     align-self: flex-end;
-    padding-bottom: calc(80px + var(--sab));
+    padding-bottom: calc(20px + var(--sab));
   }
 }
 
@@ -290,8 +292,8 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  /* Desktop: left column, max 26vw wide */
-  max-width: 26vw;
+  /* Desktop: text column 0 to 38vw left */
+  max-width: 38vw;
   min-width: 200px;
   /* No background box, no backdrop-filter — accent left bar only */
   border-left: 2px solid var(--accent);
@@ -322,14 +324,13 @@
   fill: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .inspect-label-card {
     position: fixed;
-    bottom: 12svh;
+    bottom: calc(20px + var(--sab));
     left: var(--container-pad);
     right: auto;
-    /* Stay in left half so it never overlaps the phone bounding box */
-    max-width: calc(50vw - var(--container-pad) - 8px);
+    max-width: calc(100vw - (var(--container-pad) * 2));
     min-width: 0;
   }
   .inspect-line-svg {
@@ -339,22 +340,25 @@
 
 /* Rebuild Section */
 .rebuild-content {
-  grid-column: 1 / span 6;
+  grid-column: 1 / span 5;
+  max-width: 38vw;
   z-index: 10;
   pointer-events: auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .rebuild-content {
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
+    max-width: 100%;
     align-self: flex-end;
-    padding-bottom: calc(80px + var(--sab));
+    padding-bottom: calc(20px + var(--sab));
   }
 }
 
 /* Accessories Section */
 .accessories-content {
-  grid-column: 8 / span 5;
+  grid-column: 1 / span 5;
+  max-width: 38vw;
   z-index: 10;
   pointer-events: auto;
 }
@@ -377,17 +381,19 @@
   background: rgba(20, 20, 22, 0.6);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .accessories-content {
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
+    max-width: 100%;
     align-self: flex-end;
-    padding-bottom: calc(80px + var(--sab));
+    padding-bottom: calc(20px + var(--sab));
   }
 }
 
 /* WiFi Section */
 .wifi-content {
-  grid-column: 1 / span 6;
+  grid-column: 1 / span 5;
+  max-width: 38vw;
   z-index: 10;
   pointer-events: auto;
 }
@@ -405,7 +411,7 @@
   align-items: baseline;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(242, 239, 232, 0.1);
-  max-width: 420px;
+  max-width: 38vw;
 }
 
 .wifi-plan-name {
@@ -429,17 +435,22 @@
   color: var(--muted);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .wifi-content {
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
+    max-width: 100%;
     align-self: flex-end;
-    padding-bottom: calc(80px + var(--sab));
+    padding-bottom: calc(20px + var(--sab));
+  }
+  .wifi-plan-row {
+    max-width: 100%;
   }
 }
 
 /* Contact Section */
 .contact-content {
-  grid-column: 1 / span 7;
+  grid-column: 1 / span 5;
+  max-width: 38vw;
   z-index: 10;
   pointer-events: auto;
 }

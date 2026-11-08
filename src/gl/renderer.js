@@ -46,17 +46,19 @@ export function initRenderer(canvasElement) {
     const aspect = w / h;
     camera.aspect = aspect;
 
-    if (aspect < 1) {
-      // Portrait: fov 50, distance so phone height (1.52) occupies ~62% of viewport
+    if (w >= 1024) {
+      // Desktop: fov 38, centered in stage via setViewOffset (stage is right 58vw)
+      camera.fov = 38;
+      camera.position.set(0, 0, 3.2);
+      camera.setViewOffset(w, h, -0.21 * w, 0, w, h);
+    } else {
+      // Mobile portrait (<1024): fov 50, stage is top 58svh (phone height ~46% of viewport)
       camera.fov = 50;
-      const targetVisibleHeight = 1.52 / 0.62; // ~2.45
+      const targetVisibleHeight = 1.52 / 0.62;
       const radFov = (50 * Math.PI) / 180;
       const dist = targetVisibleHeight / (2 * Math.tan(radFov / 2));
       camera.position.set(0, 0, Math.max(dist, 2.6));
-    } else {
-      // Desktop: fov 38, centered
-      camera.fov = 38;
-      camera.position.set(0, 0, 3.2);
+      camera.setViewOffset(w, h, 0, 0.21 * h, w, h);
     }
     camera.updateProjectionMatrix();
   }
@@ -175,6 +177,33 @@ export function initRenderer(canvasElement) {
     baseRotY: 0,
   };
 
+  // 12. Debug HUD for ?debug=1 (progress, fps, draw calls, triangles, tier)
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const isDebugMode = urlParams?.get('debug') === '1';
+  let hudEl = null;
+
+  if (isDebugMode) {
+    hudEl = document.createElement('div');
+    hudEl.id = 'debug-hud';
+    hudEl.style.cssText = [
+      'position: fixed',
+      'top: 16px',
+      'right: 16px',
+      'z-index: 99999',
+      'background: rgba(11, 11, 12, 0.90)',
+      'border: 1px solid rgba(200, 255, 46, 0.4)',
+      'color: #C8FF2E',
+      'font-family: "DM Mono", monospace',
+      'font-size: 11px',
+      'line-height: 1.5',
+      'padding: 8px 12px',
+      'pointer-events: none',
+      'border-radius: 2px',
+      'letter-spacing: 0.05em',
+    ].join(';');
+    document.body.appendChild(hudEl);
+  }
+
   function markScrolling() {
     isScrolling = true;
     if (scrollTimeout) clearTimeout(scrollTimeout);
@@ -206,6 +235,18 @@ export function initRenderer(canvasElement) {
 
     // Render
     renderer.render(scene, camera);
+
+    // Update Debug HUD if active
+    if (hudEl) {
+      const fps = Math.round(1 / Math.max(dt, 0.001));
+      const calls = renderer.info.render.calls;
+      const tris = renderer.info.render.triangles;
+      const tier = quality.getTier();
+      const prog = typeof window !== 'undefined' && window.__DATA_DEBUG__?.masterTl
+        ? window.__DATA_DEBUG__.masterTl.progress().toFixed(3)
+        : '0.000';
+      hudEl.innerHTML = `PROG: ${prog} | FPS: ${fps}<br>CALLS: ${calls} | TRIS: ${tris}<br>TIER: ${tier}`;
+    }
   }
 
   gsap.ticker.add(onTick);
@@ -230,6 +271,9 @@ export function initRenderer(canvasElement) {
     dispose() {
       gsap.ticker.remove(onTick);
       observer.disconnect();
+      if (hudEl && hudEl.parentNode) {
+        hudEl.parentNode.removeChild(hudEl);
+      }
       glowGeom.dispose();
       glowMat.dispose();
       glowTexture.dispose();

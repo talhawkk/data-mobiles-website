@@ -91,6 +91,26 @@ function boot() {
       getDrawCalls: () => rendererObj.renderer.info.render.calls,
       getTriangles: () => rendererObj.renderer.info.render.triangles,
     };
+
+    // U1 Requirement: window.__seek(p) scrolls to progress p, waits two frames, resolves
+    window.__seek = async function (p) {
+      p = Math.max(0, Math.min(1, Number(p)));
+      const spacer = document.getElementById('scroll-spacer');
+      if (spacer) {
+        const maxScroll = spacer.offsetHeight - window.innerHeight;
+        window.scrollTo(0, maxScroll * p);
+      }
+      if (scrollObj && scrollObj.masterTl) {
+        scrollObj.masterTl.progress(p);
+      }
+      // Wait two animation frames
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return {
+        progress: p,
+        drawCalls: rendererObj ? rendererObj.renderer.info.render.calls : 0,
+        triangles: rendererObj ? rendererObj.renderer.info.render.triangles : 0,
+      };
+    };
   }
 
   // 6. Preloader Entrance

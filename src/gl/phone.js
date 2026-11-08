@@ -58,7 +58,40 @@ export function createPhone({ isMobile = false } = {}) {
   const screenTexture = new THREE.CanvasTexture(screenCanvas);
   screenTexture.colorSpace = THREE.SRGBColorSpace;
 
-  function renderScreenState(state = 'lock') {
+  // Time and Date formatters for live lock screen in Asia/Karachi
+  const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Karachi',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Karachi',
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  let lastLockMinuteKey = '';
+  let currentRenderedState = '';
+
+  function renderScreenState(state = 'lock', force = false) {
+    const now = new Date();
+    const liveTimeStr = timeFormatter.format(now);
+    const liveDateStr = dateFormatter.format(now);
+    const currentMinuteKey = `${liveTimeStr}_${liveDateStr}`;
+
+    // Redraw at most once per minute for lock state unless state changed or forced
+    if (state === 'lock' && currentRenderedState === 'lock' && currentMinuteKey === lastLockMinuteKey && !force) {
+      return;
+    }
+
+    currentRenderedState = state;
+    if (state === 'lock') {
+      lastLockMinuteKey = currentMinuteKey;
+    }
+
     ctx.clearRect(0, 0, 512, 1056);
 
     if (state === 'off') {
@@ -100,11 +133,11 @@ export function createPhone({ isMobile = false } = {}) {
       ctx.fillStyle = '#F2EFE8';
       ctx.font = '800 110px "Bricolage Grotesque", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('10:42', 256, 320);
+      ctx.fillText(liveTimeStr, 256, 320);
 
       ctx.fillStyle = '#8C8A84';
       ctx.font = '600 22px "Bricolage Grotesque", sans-serif';
-      ctx.fillText('Friday, November 8', 256, 380);
+      ctx.fillText(liveDateStr, 256, 380);
 
       ctx.fillStyle = '#303036';
       ctx.fillRect(176, 990, 160, 6);
@@ -156,7 +189,7 @@ export function createPhone({ isMobile = false } = {}) {
 
       ctx.fillStyle = '#8C8A84';
       ctx.font = '500 20px "DM Mono", monospace';
-      ctx.fillText('DATA FIBER 50 MBPS', 256, 636);
+      ctx.fillText('DATA WIFI 50 MBPS', 256, 636);
     }
 
     screenTexture.needsUpdate = true;

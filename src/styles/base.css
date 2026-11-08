@@ -65,14 +65,14 @@ html, body {
 #scroll-spacer {
   position: relative;
   width: 100%;
-  height: 900vh;
+  height: 1200vh;
   pointer-events: none;
   visibility: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   #scroll-spacer {
-    height: 700svh;
+    height: 1000svh;
   }
 }
 
