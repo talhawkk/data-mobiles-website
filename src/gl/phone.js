@@ -608,33 +608,62 @@ export function createPhone({ isMobile = false } = {}) {
   phoneGroup.add(tools.toolsGroup);
 
   // ===================================================================
-  // 8. CONTACT SHADOW
+  // 8. TWO-LAYER CONTACT SHADOW (UPGRADE.md U4 Item 4)
+  // Tight dark core + Wide soft ambient shadow that widens as phone lifts
   // ===================================================================
-  const shadowCanvas = document.createElement('canvas');
-  shadowCanvas.width = 256;
-  shadowCanvas.height = 256;
-  const sCtx = shadowCanvas.getContext('2d');
-  const sGrad = sCtx.createRadialGradient(128, 128, 10, 128, 128, 120);
-  sGrad.addColorStop(0, 'rgba(0, 0, 0, 0.65)');
-  sGrad.addColorStop(0.4, 'rgba(0, 0, 0, 0.35)');
-  sGrad.addColorStop(0.8, 'rgba(0, 0, 0, 0.08)');
-  sGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  sCtx.fillStyle = sGrad;
-  sCtx.fillRect(0, 0, 256, 256);
+  // Layer A: Tight Dark Core
+  const tightCanvas = document.createElement('canvas');
+  tightCanvas.width = 256;
+  tightCanvas.height = 256;
+  const tCtx = tightCanvas.getContext('2d');
+  const tGrad = tCtx.createRadialGradient(128, 128, 8, 128, 128, 100);
+  tGrad.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+  tGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.50)');
+  tGrad.addColorStop(0.7, 'rgba(0, 0, 0, 0.15)');
+  tGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  tCtx.fillStyle = tGrad;
+  tCtx.fillRect(0, 0, 256, 256);
 
-  const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
-  const shadowGeom = new THREE.PlaneGeometry(1.4, 1.4);
-  const shadowMat = new THREE.MeshBasicMaterial({
-    map: shadowTexture,
+  const tightTexture = new THREE.CanvasTexture(tightCanvas);
+  const tightGeom = new THREE.PlaneGeometry(0.8, 1.4);
+  const tightMat = new THREE.MeshBasicMaterial({
+    map: tightTexture,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.85,
     depthWrite: false,
   });
-  const shadowMesh = new THREE.Mesh(shadowGeom, shadowMat);
-  shadowMesh.name = 'contactShadow';
-  shadowMesh.rotation.x = -Math.PI / 2;
-  shadowMesh.position.set(0, -0.82, 0);
-  phoneGroup.add(shadowMesh);
+  const tightShadowMesh = new THREE.Mesh(tightGeom, tightMat);
+  tightShadowMesh.name = 'tightShadow';
+  tightShadowMesh.rotation.x = -Math.PI / 2;
+  tightShadowMesh.position.set(0, -0.81, 0);
+  phoneGroup.add(tightShadowMesh);
+
+  // Layer B: Wide Soft Ambient Shadow
+  const wideCanvas = document.createElement('canvas');
+  wideCanvas.width = 256;
+  wideCanvas.height = 256;
+  const wCtx = wideCanvas.getContext('2d');
+  const wGrad = wCtx.createRadialGradient(128, 128, 12, 128, 128, 124);
+  wGrad.addColorStop(0, 'rgba(0, 0, 0, 0.40)');
+  wGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.22)');
+  wGrad.addColorStop(0.7, 'rgba(0, 0, 0, 0.06)');
+  wGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  wCtx.fillStyle = wGrad;
+  wCtx.fillRect(0, 0, 256, 256);
+
+  const wideTexture = new THREE.CanvasTexture(wideCanvas);
+  const wideGeom = new THREE.PlaneGeometry(1.6, 2.2);
+  const wideMat = new THREE.MeshBasicMaterial({
+    map: wideTexture,
+    transparent: true,
+    opacity: 0.55,
+    depthWrite: false,
+  });
+  const wideShadowMesh = new THREE.Mesh(wideGeom, wideMat);
+  wideShadowMesh.name = 'wideShadow';
+  wideShadowMesh.rotation.x = -Math.PI / 2;
+  wideShadowMesh.position.set(0, -0.815, 0);
+  phoneGroup.add(wideShadowMesh);
 
   // ===================================================================
   // REAL ANATOMY POSITIONS (Rest vs Exploded)
@@ -748,7 +777,15 @@ export function createPhone({ isMobile = false } = {}) {
     });
 
     updateRibbonAnchors();
-    shadowMesh.material.opacity = THREE.MathUtils.lerp(0.7, 0.2, t);
+
+    // Contact shadows: tight dark core fades, wide soft shadow widens as phone lifts
+    tightShadowMesh.material.opacity = THREE.MathUtils.lerp(0.85, 0.08, t);
+    const tightScale = THREE.MathUtils.lerp(1.0, 0.65, t);
+    tightShadowMesh.scale.set(tightScale, tightScale, 1.0);
+
+    wideShadowMesh.material.opacity = THREE.MathUtils.lerp(0.55, 0.20, t);
+    const wideScale = THREE.MathUtils.lerp(1.0, 1.65, t); // widens as phone lifts
+    wideShadowMesh.scale.set(wideScale, wideScale, 1.0);
   }
 
   // Active Part Isolation, Outlines & Material Dimming

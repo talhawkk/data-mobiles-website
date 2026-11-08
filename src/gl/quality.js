@@ -9,10 +9,11 @@
  */
 
 export class QualityManager {
-  constructor({ renderer, lighting, onFreezeIdle }) {
+  constructor({ renderer, lighting, onFreezeIdle, onTierChange }) {
     this.renderer = renderer;
     this.lighting = lighting;
     this.onFreezeIdle = onFreezeIdle;
+    this.onTierChange = onTierChange;
 
     this.frameTimes = [];
     this.maxFrames = 60;
@@ -26,11 +27,11 @@ export class QualityManager {
     if (forcedTierParam !== null && ['0', '1', '2'].includes(forcedTierParam)) {
       this.currentTier = parseInt(forcedTierParam, 10);
       this.isForced = true;
-      this.applyTierSettings(this.currentTier);
     } else {
       this.currentTier = isMobile ? 2 : 0;
       this.isForced = false;
     }
+    this.applyTierSettings(this.currentTier);
 
     this.idleFrozen = false;
     this.lastTime = performance.now();
@@ -50,6 +51,9 @@ export class QualityManager {
       case 2:
         this.renderer.setPixelRatio(Math.min(dpr, 1.0));
         break;
+    }
+    if (typeof this.onTierChange === 'function') {
+      this.onTierChange(tier);
     }
   }
 

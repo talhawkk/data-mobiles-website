@@ -58,6 +58,27 @@ export function initScroll({
     ScrollTrigger.normalizeScroll(true);
   }
 
+  // Velocity driver loop (UPGRADE.md U4 Item 3)
+  // Scroll velocity from Lenis (desktop) or ScrollTrigger getVelocity() (touch), smoothed with gsap.quickTo
+  // Drives chromatic aberration (clamped at 0.0025), camera roll up to 1.2 deg, phone tilt up to 3 deg
+  gsap.ticker.add(() => {
+    let vel = 0;
+    if (lenis && isFinePointer) {
+      vel = (lenis.velocity || 0) * 60;
+    } else if (typeof ScrollTrigger.getVelocity === 'function') {
+      vel = ScrollTrigger.getVelocity();
+    }
+
+    // Deadband: below 15 px/s is treated as idle (0)
+    if (Math.abs(vel) < 15) {
+      vel = 0;
+    }
+
+    if (typeof rendererObj.updateScrollVelocity === 'function') {
+      rendererObj.updateScrollVelocity(vel);
+    }
+  });
+
   // 2. Base Camera Initial Position
   const initialCamZ = camera.position.z;
 
