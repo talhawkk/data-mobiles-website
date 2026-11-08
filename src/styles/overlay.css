@@ -286,12 +286,14 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  max-width: 320px;
-  background: rgba(20, 20, 22, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 16px 20px;
+  /* Desktop: left column, max 26vw wide */
+  max-width: 26vw;
+  min-width: 200px;
+  /* No background box, no backdrop-filter — accent left bar only */
   border-left: 2px solid var(--accent);
+  padding-left: 16px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .inspect-label-card.active {
@@ -322,7 +324,9 @@
     bottom: 12svh;
     left: var(--container-pad);
     right: auto;
-    max-width: calc(100vw - (var(--container-pad) * 2));
+    /* Stay in left half so it never overlaps the phone bounding box */
+    max-width: calc(50vw - var(--container-pad) - 8px);
+    min-width: 0;
   }
   .inspect-line-svg {
     display: none;

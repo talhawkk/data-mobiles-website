@@ -119,22 +119,23 @@ export function initOverlay({ phone, camera, getSize }) {
     if (!activeCard) return;
 
     if (!isMobile) {
-      // Desktop: position card dynamically to either side of the part anchor
-      const isPartOnRight = screenPos.x >= width * 0.48;
-      const cardX = isPartOnRight
-        ? Math.max(40, screenPos.x - 360)
-        : Math.min(width - 360, screenPos.x + 100);
-      const cardY = Math.min(height - 180, Math.max(120, screenPos.y - 40));
+      // Desktop: label always in left column (phone is shifted right into right 55%).
+      // Max width is 26vw; we pin the card at a fixed left margin.
+      const cardWidth = activeCard.offsetWidth || Math.min(width * 0.26, 340);
+      const cardX = 40; // fixed left margin — stays well inside left 45%
+      const cardY = Math.min(height - 180, Math.max(100, screenPos.y - 40));
 
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;
 
       if (leaderLine) {
-        const lineTargetX = isPartOnRight ? cardX + 320 : cardX;
+        // Leader line: from the 3D part anchor → the RIGHT edge of the label card
+        const lineEndX = cardX + cardWidth;
+        const lineEndY = cardY + 20;
         leaderLine.setAttribute('x1', screenPos.x.toFixed(1));
         leaderLine.setAttribute('y1', screenPos.y.toFixed(1));
-        leaderLine.setAttribute('x2', lineTargetX.toFixed(1));
-        leaderLine.setAttribute('y2', (cardY + 36).toFixed(1));
+        leaderLine.setAttribute('x2', lineEndX.toFixed(1));
+        leaderLine.setAttribute('y2', lineEndY.toFixed(1));
       }
     }
   }

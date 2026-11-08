@@ -145,14 +145,27 @@ export function initScroll({
       progress: 1.0,
       duration: 18,
       onUpdate: () => {
-        phone.setExplodeProgress(phoneExplodeObj.progress);
+        phone.setExplodeProgress(phoneExplodeObj.progress, false);
       },
     },
     10
   );
 
   // B. Inspect Phase (28 -> 52)
-  // Camera glides through parts as phone rotates towards front screen
+  // Camera glides toward assembly; phone shifts right (desktop) so label can sit left.
+  // 20-degree orbit: phone.group.rotation.y sweeps +0.35 rad across the 24-unit range.
+  const isMobile = window.innerWidth <= 768;
+  const inspectPhoneX = isMobile ? 0 : 0.42;
+
+  masterTl.to(
+    phone.group.position,
+    {
+      x: inspectPhoneX,
+      duration: 24,
+    },
+    28
+  );
+
   masterTl.to(
     camera.position,
     {
@@ -166,7 +179,7 @@ export function initScroll({
   masterTl.to(
     phone.group.rotation,
     {
-      y: Math.PI - 0.15,
+      y: Math.PI - 0.15 + 0.35, // base + 20° orbit across inspect range
       x: 0.05,
       duration: 24,
     },
@@ -175,17 +188,18 @@ export function initScroll({
 
   // C. Rebuild Phase (52 -> 66)
   // Parts snap back together, phone turns completely to face camera, screen says "Fixed."
-  const isMobile = window.innerWidth <= 768;
   const rebuildPhoneX = isMobile ? 0 : 0.62;
   const rebuildPhoneY = isMobile ? 0.35 : 0;
 
+  // rebuildObj goes 1→0 so setExplodeProgress(t, true) can interpret t as "how open"
+  const rebuildObj = { progress: 1 };
   masterTl.to(
-    phoneExplodeObj,
+    rebuildObj,
     {
       progress: 0,
       duration: 14,
       onUpdate: () => {
-        phone.setExplodeProgress(phoneExplodeObj.progress);
+        phone.setExplodeProgress(rebuildObj.progress, true);
       },
     },
     52
