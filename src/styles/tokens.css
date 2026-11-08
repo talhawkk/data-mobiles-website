@@ -1,0 +1,39 @@
+:root {
+  /* Color Palette */
+  --bg: #0B0B0C;
+  --bg-2: #141416;
+  --text: #F2EFE8;
+  --muted: #8C8A84;
+  --accent: #C8FF2E;
+
+  /* Typography */
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* Type Scales */
+  --text-wordmark: clamp(6rem, 28vw, 30rem);
+  --text-heading: clamp(2.5rem, 7vw, 7rem);
+  --text-body: clamp(1rem, 1.2vw, 1.125rem);
+  --text-label: 12.5px;
+
+  /* Grid & Spacing */
+  --grid-cols: 12;
+  --grid-gutter: 40px;
+  --container-pad: 40px;
+
+  /* Motion Easings */
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-power3-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Safe Area Variables */
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sat: env(safe-area-inset-top, 0px);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --grid-cols: 4;
+    --grid-gutter: 20px;
+    --container-pad: 20px;
+  }
+}
