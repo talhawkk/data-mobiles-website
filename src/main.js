@@ -11,6 +11,7 @@ import { initCursor } from './ui/cursor.js';
 import { initNav } from './ui/nav.js';
 import { initOverlay } from './ui/overlay.js';
 import { initScroll } from './scroll.js';
+import { getOpenStatus } from './config.js';
 
 /**
  * Checks for WebGL2 capability
@@ -113,9 +114,37 @@ function boot() {
     };
   }
 
-  // 6. Preloader Entrance
-  initPreloader(() => {
-    overlayObj.revealHero();
+  // 6. Initialize Status Chip (U2 Item 2)
+  const status = getOpenStatus();
+  const chipEl = document.getElementById('hero-status-chip');
+  if (chipEl) {
+    const dot = chipEl.querySelector('.status-dot');
+    const label = chipEl.querySelector('.status-label');
+    if (label) label.textContent = status.label;
+    if (dot && !status.open) {
+      dot.style.background = '#FF4D4D';
+      dot.style.boxShadow = '0 0 8px rgba(255, 77, 77, 0.6)';
+    }
+  }
+
+  // 7. Preloader Entrance & Compilation Wait (U2 Item 1 & 3)
+  const compilePromise = rendererObj && typeof rendererObj.compileSceneAsync === 'function'
+    ? rendererObj.compileSceneAsync()
+    : Promise.resolve();
+
+  const readyPromise = Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    compilePromise,
+  ]);
+
+  initPreloader({
+    readyPromise,
+    onComplete: () => {
+      if (rendererObj && typeof rendererObj.triggerRevealAnimation === 'function') {
+        rendererObj.triggerRevealAnimation();
+      }
+      overlayObj.revealHero();
+    },
   });
 }
 

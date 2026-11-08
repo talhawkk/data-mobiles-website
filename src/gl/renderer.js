@@ -48,15 +48,19 @@ export function initRenderer(canvasElement) {
 
     if (w >= 1024) {
       // Desktop: fov 38, centered in stage via setViewOffset (stage is right 58vw)
+      // Hero phone height is strictly 62% of viewport height (phone height = 1.52)
       camera.fov = 38;
-      camera.position.set(0, 0, 3.2);
+      const targetVisibleHeight = 1.52 / 0.62;
+      const radFov = (38 * Math.PI) / 360;
+      const dist = targetVisibleHeight / (2 * Math.tan(radFov));
+      camera.position.set(0, 0, dist);
       camera.setViewOffset(w, h, -0.21 * w, 0, w, h);
     } else {
-      // Mobile portrait (<1024): fov 50, stage is top 58svh (phone height ~46% of viewport)
+      // Mobile portrait (<1024): fov 50, stage is top 58svh (phone height at most 46svh tall)
       camera.fov = 50;
-      const targetVisibleHeight = 1.52 / 0.62;
-      const radFov = (50 * Math.PI) / 180;
-      const dist = targetVisibleHeight / (2 * Math.tan(radFov / 2));
+      const targetVisibleHeight = 1.52 / 0.46;
+      const radFov = (50 * Math.PI) / 360;
+      const dist = targetVisibleHeight / (2 * Math.tan(radFov));
       camera.position.set(0, 0, Math.max(dist, 2.6));
       camera.setViewOffset(w, h, 0, 0.21 * h, w, h);
     }
@@ -65,8 +69,10 @@ export function initRenderer(canvasElement) {
 
   updateCameraForViewport(width, height);
 
-  // 3. Lighting
+  // 3. Lighting & Environment Setup
   const lighting = setupLighting(scene, renderer);
+  // Initial environment rotation for sweep
+  scene.environmentRotation.set(0, -0.7, 0);
 
   // Soft Radial Glow Plane behind the phone (Hero 0-0.10)
   // Accent #C8FF2E at 12% opacity so dark phone separates from dark background
@@ -95,9 +101,18 @@ export function initRenderer(canvasElement) {
   heroGlowMesh.position.set(0, 0, -0.15);
   scene.add(heroGlowMesh);
 
-  // 4. Phone Component
+  // 4. Phone Component & Idle / Tilt Wrappers
   const phone = createPhone({ isMobile });
-  scene.add(phone.group);
+
+  const idleWrapper = new THREE.Group();
+  idleWrapper.name = 'idleWrapper';
+  scene.add(idleWrapper);
+
+  const tiltGroup = new THREE.Group();
+  tiltGroup.name = 'tiltGroup';
+  idleWrapper.add(tiltGroup);
+
+  tiltGroup.add(phone.group);
 
   // 5. Accessories Component
   const accessories = createAccessories();
@@ -117,19 +132,26 @@ export function initRenderer(canvasElement) {
     },
   });
 
-  // 8. Desktop Pointer Parallax (+/- 2 degrees = +/- 0.035 rad)
-  let quickParallaxX = null;
-  let quickParallaxY = null;
-  if (!isMobile && window.matchMedia('(pointer: fine)').matches) {
-    quickParallaxX = gsap.quickTo(camera.rotation, 'y', { duration: 0.8, ease: 'power3.out' });
-    quickParallaxY = gsap.quickTo(camera.rotation, 'x', { duration: 0.8, ease: 'power3.out' });
+  // 8. Desktop Pointer Tilt up to 6 degrees via gsap.quickTo
+  let currentScrollProgress = 0;
+  const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  let quickTiltX = null;
+  let quickTiltY = null;
+  if (!isTouch && window.matchMedia('(pointer: fine)').matches) {
+    quickTiltX = gsap.quickTo(tiltGroup.rotation, 'x', { duration: 0.6, ease: 'power2.out' });
+    quickTiltY = gsap.quickTo(tiltGroup.rotation, 'y', { duration: 0.6, ease: 'power2.out' });
 
     window.addEventListener('mousemove', (e) => {
+      if (currentScrollProgress > 0.08) {
+        quickTiltX(0);
+        quickTiltY(0);
+        return;
+      }
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      const maxAngle = (2 * Math.PI) / 180;
-      quickParallaxX(-normX * maxAngle);
-      quickParallaxY(-normY * maxAngle);
+      const maxTilt = (6 * Math.PI) / 180; // 6 degrees
+      quickTiltX(-normY * maxTilt);
+      quickTiltY(normX * maxTilt);
     });
   }
 
@@ -212,6 +234,27 @@ export function initRenderer(canvasElement) {
     }, 150);
   }
 
+  // Reveal Light Sweep Animation (U2 Item 3)
+  function triggerRevealAnimation() {
+    scene.environmentRotation.set(0, -0.7, 0);
+    gsap.to(scene.environmentRotation, {
+      y: 0.4,
+      duration: 2.4,
+      ease: 'expo.out',
+    });
+
+    const baseRim = lighting.rimLight.intensity;
+    gsap.fromTo(
+      lighting.rimLight,
+      { intensity: baseRim * 2 },
+      {
+        intensity: baseRim,
+        duration: 2.4,
+        ease: 'expo.out',
+      }
+    );
+  }
+
   // Ticker callback for GSAP
   function onTick(time, deltaTime) {
     if (!isPageVisible || !isCanvasIntersecting) return;
@@ -221,12 +264,35 @@ export function initRenderer(canvasElement) {
     const dt = deltaTime / 1000;
     idleState.time += dt;
 
-    // Idle motion:
-    // "phone floats y +/- 0.04 on a 4s sine and rotates 0.1 rad/s while not scrolling."
-    if (!idleFrozen && !isScrolling) {
-      const sineVal = Math.sin((idleState.time * 2 * Math.PI) / 4);
-      phone.group.position.y = idleState.baseY + sineVal * 0.04;
-      phone.group.rotation.y += 0.1 * dt;
+    // Idle motion & Hero sway/tilt (U2 Item 4):
+    // - Float and slow yaw
+    // - Desktop pointer tilt up to 6 degrees via gsap.quickTo
+    // - Touch: slow 8 degree sway
+    // - Smoothly fades out as scroll progresses beyond hero
+    const heroInfluence = Math.max(0, 1 - currentScrollProgress / 0.07);
+
+    if (!idleFrozen) {
+      if (heroInfluence > 0.001) {
+        // Vertical sinusoidal float (y +/- 0.035, 3.5s period)
+        const floatY = Math.sin(idleState.time * (Math.PI * 2 / 3.5)) * 0.035;
+        // Slow yaw (subtle +/- 0.05 rad (~3 deg), 5.0s period)
+        const slowYaw = Math.sin(idleState.time * (Math.PI * 2 / 5.0)) * 0.05;
+
+        idleWrapper.position.y = (idleState.baseY + floatY) * heroInfluence;
+        idleWrapper.rotation.y = slowYaw * heroInfluence;
+
+        // Touch: slow 8 degree sway (8 * Math.PI / 180 = ~0.1396 rad, 4.0s period)
+        if (isTouch) {
+          const touchSway = Math.sin(idleState.time * (Math.PI * 2 / 4.0)) * ((8 * Math.PI) / 180);
+          tiltGroup.rotation.y = touchSway * heroInfluence;
+        }
+      } else {
+        idleWrapper.position.y = 0;
+        idleWrapper.rotation.y = 0;
+        if (isTouch) {
+          tiltGroup.rotation.y = 0;
+        }
+      }
     }
 
     // Tick sub-scenes
@@ -259,7 +325,23 @@ export function initRenderer(canvasElement) {
     accessories,
     wifiScene,
     quality,
+    lighting,
     markScrolling,
+    setScrollProgress: (p) => {
+      currentScrollProgress = p;
+    },
+    triggerRevealAnimation,
+    compileSceneAsync: async () => {
+      if (typeof renderer.compileAsync === 'function') {
+        try {
+          await renderer.compileAsync(scene, camera);
+        } catch (e) {
+          renderer.compile(scene, camera);
+        }
+      } else {
+        renderer.compile(scene, camera);
+      }
+    },
     getSize: () => ({ width, height }),
     setHeroGlowOpacity: (opacity) => {
       glowMat.opacity = opacity;

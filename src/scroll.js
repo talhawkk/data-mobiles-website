@@ -78,6 +78,17 @@ export function initScroll({
         markScrolling();
         const p = self.progress;
 
+        if (typeof rendererObj.setScrollProgress === 'function') {
+          rendererObj.setScrollProgress(p);
+        }
+
+        // DATA watermark moves at 0.4x scroll speed (U2 Item 5)
+        const wordmark = document.querySelector('.hero-wordmark');
+        if (wordmark) {
+          const scrollY = window.scrollY || window.pageYOffset || 0;
+          wordmark.style.transform = `translate3d(0, ${scrollY * 0.4}px, 0)`;
+        }
+
         // Debug logging at timeline progress ~0.84 per requirement
         const tlProg = masterTl.progress();
         if (Math.abs(tlProg - 0.84) < 0.008 && Math.abs(tlProg - lastLoggedProgress) > 0.005) {

@@ -202,6 +202,8 @@
   justify-content: space-between;
   padding: 40px;
   pointer-events: auto;
+  clip-path: inset(0 0 0% 0);
+  will-change: clip-path;
 }
 
 .preloader-brand {
@@ -212,12 +214,17 @@
   line-height: 0.88;
   color: var(--text);
   display: flex;
+}
+
+.preloader-char-mask {
+  display: inline-block;
   overflow: hidden;
 }
 
 .preloader-char {
   display: inline-block;
   transform: translateY(110%);
+  will-change: transform;
 }
 
 .preloader-bottom {
@@ -228,11 +235,74 @@
   padding-top: 24px;
 }
 
+.preloader-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.preloader-line-track {
+  width: 140px;
+  height: 1px;
+  background: rgba(242, 239, 232, 0.15);
+  overflow: hidden;
+  position: relative;
+}
+
+.preloader-line-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--accent);
+  will-change: width;
+}
+
 .preloader-counter {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: right;
+}
+
+/* Status Chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(242, 239, 232, 0.05);
+  border: 1px solid rgba(242, 239, 232, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: fit-content;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(200, 255, 46, 0.6);
+  animation: status-pulse 2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.45;
+  }
 }
 
 /* Hero Section */
@@ -257,8 +327,10 @@
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 0.88;
-  color: rgba(242, 239, 232, 0.04);
+  color: rgba(242, 239, 232, 0.05);
+  opacity: 0.05;
   user-select: none;
+  will-change: transform;
 }
 
 .hero-content {
@@ -269,7 +341,7 @@
 }
 
 .hero-content .display-title {
-  font-size: clamp(3.5rem, 9vw, 9rem);
+  font-size: clamp(2.75rem, 7vw, 7.5rem);
 }
 
 @media (max-width: 1023px) {

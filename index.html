@@ -58,14 +58,19 @@
   <!-- Preloader Screen -->
   <div id="preloader" role="dialog" aria-label="Loading site">
     <div class="preloader-brand" aria-label="DATA">
-      <span class="preloader-char">D</span>
-      <span class="preloader-char">A</span>
-      <span class="preloader-char">T</span>
-      <span class="preloader-char">A</span>
+      <span class="preloader-char-mask"><span class="preloader-char">D</span></span>
+      <span class="preloader-char-mask"><span class="preloader-char">A</span></span>
+      <span class="preloader-char-mask"><span class="preloader-char">T</span></span>
+      <span class="preloader-char-mask"><span class="preloader-char">A</span></span>
     </div>
     <div class="preloader-bottom">
       <span class="mono-label accent">LAHORE // 042</span>
-      <span id="preloader-counter" class="preloader-counter">000%</span>
+      <div class="preloader-progress-wrap">
+        <div class="preloader-line-track">
+          <div class="preloader-line-fill"></div>
+        </div>
+        <span id="preloader-counter" class="preloader-counter">000</span>
+      </div>
     </div>
   </div>
 
@@ -103,6 +108,10 @@
       </div>
       <div class="grid-container">
         <div class="hero-content">
+          <div class="status-chip" id="hero-status-chip">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-label">Open now · until 10 PM</span>
+          </div>
           <span class="mono-label accent">MAIN MARKET, LAHORE</span>
           <h2 class="display-title split-text">Mobiles.<br>Repairs.<br>WiFi.</h2>
           <p class="body-subline">Screens, batteries, accessories and home WiFi.</p>
