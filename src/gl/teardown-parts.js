@@ -552,25 +552,33 @@ export function createWirelessCoil(isMobile = false) {
  */
 export function createInstancedScrews(positions, isMobile = false) {
   const count = positions.length;
-  const headGeom = new THREE.CylinderGeometry(0.016, 0.016, 0.008, isMobile ? 8 : 12);
+  const headGeom = new THREE.CylinderGeometry(0.016, 0.016, 0.008, isMobile ? 8 : 14);
   headGeom.rotateX(Math.PI / 2);
   const headMat = new THREE.MeshStandardMaterial({
-    color: 0xB8BAC2,
-    metalness: 1.0,
-    roughness: 0.30,
+    color: 0xD4D8E2,
+    metalness: 0.98,
+    roughness: 0.18,
   });
 
   const instancedMesh = new THREE.InstancedMesh(headGeom, headMat, count);
   instancedMesh.name = 'instancedScrews';
 
   const dummy = new THREE.Object3D();
-  positions.forEach((pos, i) => {
-    dummy.position.set(pos.x, pos.y, pos.z);
-    dummy.rotation.set(0, 0, (i * 0.5) % Math.PI);
-    dummy.updateMatrix();
-    instancedMesh.setMatrixAt(i, dummy.matrix);
-  });
-  instancedMesh.instanceMatrix.needsUpdate = true;
+  function setLiftProgress(lift = 0) {
+    const t = Math.max(0, Math.min(1, lift));
+    positions.forEach((pos, i) => {
+      const stagger = (i / count) * 0.25;
+      const progress = Math.max(0, Math.min(1, (t - stagger) / (1 - stagger || 1)));
+      const zOffset = progress * 0.24;
+      dummy.position.set(pos.x, pos.y, pos.z + zOffset);
+      dummy.rotation.set(0, 0, (i * 0.5) + progress * Math.PI * 4);
+      dummy.updateMatrix();
+      instancedMesh.setMatrixAt(i, dummy.matrix);
+    });
+    instancedMesh.instanceMatrix.needsUpdate = true;
+  }
+  setLiftProgress(0);
+  instancedMesh.setLiftProgress = setLiftProgress;
 
   return instancedMesh;
 }

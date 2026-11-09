@@ -53,88 +53,115 @@ export function build(tl, ctx) {
     7
   );
 
-  // 2. 0.10 - 0.13 (10 to 13): Back cover peels (pivoting at top edge up to 35 deg = -0.61 rad)
-  tl.to(
-    phone.backCoverGroup.rotation,
-    {
-      x: -0.61, // 35 degrees lift
-      duration: 3,
-      ease: 'power2.inOut',
-    },
-    10
-  );
-
+  // 2. 0.10 - 0.13 (10 to 13): Back cover unseals (perimeter adhesive seal break, micro-lift, then 32 deg peel)
   tl.to(
     phone.backCoverGroup.position,
     {
-      z: 0.38,
+      z: 0.04, // subtle adhesive seal break
+      duration: 1.0,
+      ease: 'power1.out',
+    },
+    10
+  );
+  tl.to(
+    phone.backCoverGroup.position,
+    {
+      z: 0.42,
       y: 0.08,
-      duration: 3,
+      duration: 2.0,
       ease: 'power2.inOut',
     },
-    10
+    11.0
   );
-
-  // 3. 0.13 - 0.15 (13 to 15): Back cover drifts toward camera & right, exits frame
-  tl.to(
-    phone.backCoverGroup.position,
-    {
-      x: 1.65,
-      z: 1.55,
-      y: -0.15,
-      duration: 2,
-      ease: 'power2.in',
-    },
-    13
-  );
-
   tl.to(
     phone.backCoverGroup.rotation,
     {
-      y: 0.21, // 12 degrees
-      z: 0.18,
-      duration: 2,
+      x: -0.56, // 32 degrees lift
+      duration: 2.0,
+      ease: 'power2.inOut',
+    },
+    11.0
+  );
+
+  // 3. 0.13 - 0.155 (13 to 15.5): Back cover drifts toward camera & right with natural aerodynamic sweep
+  tl.to(
+    phone.backCoverGroup.position,
+    {
+      x: 1.85,
+      z: 1.65,
+      y: -0.15,
+      duration: 2.5,
       ease: 'power2.in',
     },
-    13
+    13.0
   );
-  tl.set(phone.backCoverGroup, { visible: false }, 15);
+  tl.to(
+    phone.backCoverGroup.rotation,
+    {
+      y: 0.24, // 14 degrees
+      z: 0.18,
+      duration: 2.5,
+      ease: 'power2.in',
+    },
+    13.0
+  );
+  tl.set(phone.backCoverGroup, { visible: false }, 15.5);
 
-  // 4. 0.15 - 0.19 (15 to 19): Cover plate smooth micro-lift before release
+  // 3b. 0.14 - 0.18 (14 to 18): 12 CNC Precision Screws spin out (4 turns) and rise +0.24 units into magnetic suspension
+  const screwLiftObj = { t: 0 };
+  tl.to(
+    screwLiftObj,
+    {
+      t: 1.0,
+      duration: 4.0,
+      ease: 'power2.out',
+      onUpdate: () => {
+        if (phone.boardScrews && phone.boardScrews.setLiftProgress) {
+          phone.boardScrews.setLiftProgress(screwLiftObj.t);
+        }
+        if (phone.plateScrews && phone.plateScrews.setLiftProgress) {
+          phone.plateScrews.setLiftProgress(screwLiftObj.t);
+        }
+      },
+    },
+    14.0
+  );
+
+  // 4. 0.15 - 0.185 (15 to 18.5): Cover plate smooth micro-lift before release
   tl.to(
     phone.coverPlateGroup.position,
     {
-      z: 0.065,
-      duration: 4,
+      z: 0.08,
+      y: 0.02,
+      duration: 3.5,
       ease: 'power1.inOut',
     },
-    15
+    15.0
   );
 
-  // 5. 0.19 - 0.20 (19 to 20): Cover plate with coil lifts, tilting 25 deg, exits left
+  // 5. 0.185 - 0.20 (18.5 to 20): Cover plate with wireless coil lifts, tilting 25 deg, exits left
   tl.to(
     phone.coverPlateGroup.position,
     {
-      x: -1.65,
-      z: 0.95,
+      x: -1.75,
+      z: 1.05,
       y: 0.12,
-      duration: 1.0,
+      duration: 1.5,
       ease: 'power2.in',
     },
-    19
+    18.5
   );
-  tl.set(phone.coverPlateGroup, { visible: false }, 20);
-
   tl.to(
     phone.coverPlateGroup.rotation,
     {
       x: -0.436, // 25 degrees
-      z: -0.12,
-      duration: 1.0,
+      z: -0.14,
+      duration: 1.5,
       ease: 'power2.in',
     },
-    19
+    18.5
   );
+  tl.set(phone.coverPlateGroup, { visible: false }, 20);
 
   // Plate ribbon connector pop (scale punch 1.0 -> 1.3 -> 1.0)
   tl.to(
@@ -184,11 +211,11 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 01: BATTERY (0.20 - 0.27, t: 20 to 27)
-  // Battery pulls toward camera (+0.28 in Z), rotates 16 deg around Y to show pull tabs
+  // Battery pulls toward camera (+0.32 in Z), rotates 14 deg around Y to show lithium pouch & pull tabs
   tl.to(
     phone.batteryGroup.position,
     {
-      z: 0.44 + 0.28,
+      z: 0.44 + 0.32,
       x: -0.06,
       duration: 3,
       ease: 'power2.out',
@@ -198,8 +225,9 @@ export function build(tl, ctx) {
   tl.to(
     phone.batteryGroup.rotation,
     {
-      y: 0.28, // 16 degrees around Y
+      y: 0.24, // 14 degrees around Y
       x: -0.06,
+      z: 0.02,
       duration: 3,
       ease: 'power2.out',
     },
@@ -210,7 +238,7 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.98,
+      z: initialCamZ * 0.97,
       y: -0.04,
       duration: 6,
       ease: 'none',
@@ -234,6 +262,7 @@ export function build(tl, ctx) {
     {
       y: 0.04,
       x: -0.03,
+      z: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -241,12 +270,13 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 02: BOARD (0.27 - 0.34, t: 27 to 34)
-  // Board pulls toward camera (+0.28 in Z), tilted to rake light across shield cans
+  // Board pulls toward camera (+0.32 in Z), tilted at oblique angle to rake studio key light across shield cans & gold ENIG traces
   tl.to(
     phone.boardGroup.position,
     {
-      z: 0.24 + 0.28,
+      z: 0.24 + 0.32,
       y: 0.44,
+      x: 0.02,
       duration: 3,
       ease: 'power2.out',
     },
@@ -255,19 +285,20 @@ export function build(tl, ctx) {
   tl.to(
     phone.boardGroup.rotation,
     {
-      x: 0.12,
-      y: -0.12,
+      x: 0.16,
+      y: -0.16,
+      z: 0.03,
       duration: 3,
       ease: 'power2.out',
     },
     27
   );
 
-  // Camera frames Board
+  // Camera macro frames Board
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.98,
+      z: initialCamZ * 0.96,
       y: 0.16,
       duration: 6,
       ease: 'none',
@@ -281,6 +312,7 @@ export function build(tl, ctx) {
     {
       z: 0.24,
       y: 0.44,
+      x: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -291,6 +323,7 @@ export function build(tl, ctx) {
     {
       x: 0.03,
       y: -0.03,
+      z: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -298,12 +331,12 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 03: CAMERA UNIT (0.34 - 0.41, t: 34 to 41)
-  // Camera unit pulls forward (+0.28 in Z), rotates to show triple lens rings
+  // Camera unit pulls forward (+0.34 in Z), rotates to catch circular specular glints on sapphire lenses
   tl.to(
     phone.cameraUnitGroup.position,
     {
-      z: 0.68 + 0.28,
-      x: -0.18,
+      z: 0.68 + 0.34,
+      x: -0.16,
       y: 0.54,
       duration: 3,
       ease: 'power2.out',
@@ -313,8 +346,9 @@ export function build(tl, ctx) {
   tl.to(
     phone.cameraUnitGroup.rotation,
     {
-      x: 0.08,
-      y: -0.10,
+      x: 0.14,
+      y: -0.14,
+      z: 0.05,
       duration: 3,
       ease: 'power2.out',
     },
@@ -324,7 +358,7 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.98,
+      z: initialCamZ * 0.96,
       y: 0.18,
       duration: 6,
       ease: 'none',
@@ -349,6 +383,7 @@ export function build(tl, ctx) {
     {
       x: 0.04,
       y: -0.04,
+      z: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -356,12 +391,13 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 04: PORT (0.41 - 0.48, t: 41 to 48)
-  // Port pulls forward (+0.28 in Z), tilted (rx: -0.25) to show USB-C slot
+  // Port pulls forward (+0.30 in Z), tilted down (rx: -0.32) to showcase CNC USB-C chamber, gold tongue, and Taptic Engine
   tl.to(
     phone.portGroup.position,
     {
-      z: 0.10 + 0.28,
-      y: -0.10,
+      z: 0.10 + 0.30,
+      y: -0.12,
+      x: 0.02,
       duration: 3,
       ease: 'power2.out',
     },
@@ -370,8 +406,9 @@ export function build(tl, ctx) {
   tl.to(
     phone.portGroup.rotation,
     {
-      x: -0.25, // tilt to show slot
-      y: 0.06,
+      x: -0.32, // tilt down to show slot & tongue
+      y: 0.08,
+      z: -0.02,
       duration: 3,
       ease: 'power2.out',
     },
@@ -381,7 +418,7 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.98,
+      z: initialCamZ * 0.96,
       y: -0.18,
       duration: 6,
       ease: 'none',
@@ -395,6 +432,7 @@ export function build(tl, ctx) {
     {
       z: 0.10,
       y: -0.06,
+      x: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -405,6 +443,7 @@ export function build(tl, ctx) {
     {
       x: 0.02,
       y: -0.02,
+      z: 0,
       duration: 1.0,
       ease: 'power2.inOut',
     },
@@ -412,12 +451,12 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 05: SCREEN (0.48 - 0.56, t: 48 to 56)
-  // Phone flips to front (yaw: 0), screen pulls forward toward camera, lock screen visible!
+  // Phone flips to front (yaw: 0), screen pulls forward toward camera, OLED lock screen visible!
   tl.to(
     phone.group.rotation,
     {
       y: 0.0,
-      x: 0.04,
+      x: 0.03,
       z: 0.0,
       duration: 3,
       ease: 'power2.inOut',
@@ -428,7 +467,7 @@ export function build(tl, ctx) {
   tl.to(
     phone.screenGroup.position,
     {
-      z: -0.35 - 0.08,
+      z: -0.35 - 0.10,
       x: -0.04,
       duration: 5,
       ease: 'power2.out',

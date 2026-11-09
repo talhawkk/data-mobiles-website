@@ -813,12 +813,25 @@ export function createPhone({ isMobile = false } = {}) {
   cameraUnitGroup.add(ringsMesh);
 
   // Anti-reflective Coated Sapphire Optics Domes
-  const opticsMat = new THREE.MeshStandardMaterial({
-    color: 0x020306,
-    roughness: 0.04,
-    metalness: 0.95,
-    map: textures.cameraLensTexture,
-  });
+  let opticsMat;
+  if (!isMobile && THREE.MeshPhysicalMaterial) {
+    opticsMat = new THREE.MeshPhysicalMaterial({
+      color: 0x010204,
+      roughness: 0.02,
+      metalness: 0.90,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.02,
+      ior: 1.76, // Real Sapphire Crystal IOR
+      map: textures.cameraLensTexture,
+    });
+  } else {
+    opticsMat = new THREE.MeshStandardMaterial({
+      color: 0x020306,
+      roughness: 0.04,
+      metalness: 0.95,
+      map: textures.cameraLensTexture,
+    });
+  }
 
   const domeGeoms = lensCoords.map((lc) => {
     const g = new THREE.SphereGeometry(0.040, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
@@ -1451,6 +1464,8 @@ export function createPhone({ isMobile = false } = {}) {
     frameGroup,
     tools,
     ribbons,
+    boardScrews,
+    plateScrews,
     shockwaveMesh,
     screenFlashMesh,
     setOutlinesOpacity,

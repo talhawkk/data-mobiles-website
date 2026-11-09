@@ -141,7 +141,26 @@ export function build(tl, ctx) {
     57.5
   );
 
-  // Part 6: Cover plate drops on and snaps connector (57.8 to 59.9)
+  // Part 6: Screws spin back into standoffs & Cover plate drops on and snaps connector (57.5 to 59.9)
+  const screwRebuildObj = { t: 1.0 };
+  tl.to(
+    screwRebuildObj,
+    {
+      t: 0.0,
+      duration: 2.3,
+      ease: 'power3.in',
+      onUpdate: () => {
+        if (phone.boardScrews && phone.boardScrews.setLiftProgress) {
+          phone.boardScrews.setLiftProgress(screwRebuildObj.t);
+        }
+        if (phone.plateScrews && phone.plateScrews.setLiftProgress) {
+          phone.plateScrews.setLiftProgress(screwRebuildObj.t);
+        }
+      },
+    },
+    57.5
+  );
+
   tl.set(phone.coverPlateGroup, { visible: true }, 57.8);
   tl.to(
     phone.coverPlateGroup.position,
