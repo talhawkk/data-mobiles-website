@@ -1,4 +1,4 @@
-import { playHapticTick, toggleSound, isSoundMuted } from './audio.js';
+import { playHapticTick } from './audio.js';
 
 /**
  * Navigation Bar and Progress Indicator Controller
@@ -8,25 +8,9 @@ export function initNav({ onNavigate }) {
   const brandLink = document.querySelector('.nav-brand');
   const navLinks = document.querySelectorAll('.nav-link');
   const progressFill = document.querySelector('.scroll-progress-fill');
-  const soundBtn = document.getElementById('sound-toggle-btn');
 
   // Ensure theme is locked to pure white studio
   document.documentElement.setAttribute('data-theme', 'light');
-
-  // Sound Feedback Toggle
-  if (soundBtn) {
-    const updateSoundUI = (muted) => {
-      soundBtn.classList.toggle('is-muted', muted);
-      soundBtn.setAttribute('aria-label', muted ? 'Unmute sound effects' : 'Mute sound effects');
-    };
-    updateSoundUI(isSoundMuted());
-
-    soundBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const enabled = toggleSound();
-      updateSoundUI(!enabled);
-    });
-  }
 
   if (brandLink) {
     brandLink.addEventListener('click', (e) => {
