@@ -154,7 +154,6 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
 
   // Update visible inspect label & rail item
   function setInspectLabel(id) {
-    if (activeInspectId === id) return;
     activeInspectId = id;
 
     // Highlight active index rail item
@@ -169,14 +168,20 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
     labelCards.forEach((card) => {
       if (card.dataset.id === id) {
         card.classList.add('active');
+        card.style.opacity = '1';
+        card.style.visibility = 'visible';
+        card.style.display = 'block';
         const inners = card.querySelectorAll('.line-mask-inner');
         gsap.fromTo(
           inners,
           { yPercent: 110 },
-          { yPercent: 0, duration: 0.6, ease: 'expo.out' }
+          { yPercent: 0, duration: 0.5, ease: 'expo.out' }
         );
       } else {
         card.classList.remove('active');
+        card.style.opacity = '0';
+        card.style.visibility = 'hidden';
+        card.style.display = 'none';
       }
     });
 
@@ -189,21 +194,44 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
 
   // Per-frame projection of active inspect label, 24px elbow line, and anchor marker
   function updateInspectPosition() {
-    if (!isInspectVisible || !activeInspectId) return;
+    if (!isInspectVisible || !activeInspectId) {
+      labelCards.forEach((card) => {
+        card.classList.remove('active');
+        card.style.opacity = '0';
+        card.style.visibility = 'hidden';
+        card.style.display = 'none';
+      });
+      if (elbowLine) elbowLine.setAttribute('d', 'M 0 0 L 0 0');
+      if (anchorDot) anchorDot.setAttribute('cx', '-100');
+      if (anchorNum) anchorNum.setAttribute('x', '-100');
+      return;
+    }
 
     const labelDef = INSPECT_LABELS.find((l) => l.id === activeInspectId);
     if (!labelDef) return;
+
+    // Strictly ensure all other cards are hidden (no overlapping ghost text)
+    labelCards.forEach((card) => {
+      if (card.dataset.id !== activeInspectId) {
+        card.classList.remove('active');
+        card.style.opacity = '0';
+        card.style.visibility = 'hidden';
+        card.style.display = 'none';
+      }
+    });
+
+    const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
+    if (!activeCard) return;
 
     // Check dot product: part must face camera (dot > 0.2)
     if (phone && typeof phone.getPartFacingDot === 'function') {
       const dot = phone.getPartFacingDot(labelDef.part, camera);
       if (dot <= 0.2) {
         // Part is facing away from camera, hide label card and leader line
-        const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
-        if (activeCard) {
-          activeCard.style.opacity = '0';
-          activeCard.style.visibility = 'hidden';
-        }
+        activeCard.classList.remove('active');
+        activeCard.style.opacity = '0';
+        activeCard.style.visibility = 'hidden';
+        activeCard.style.display = 'none';
         if (elbowLine) elbowLine.setAttribute('d', 'M 0 0 L 0 0');
         if (anchorDot) anchorDot.setAttribute('cx', '-100');
         if (anchorNum) anchorNum.setAttribute('x', '-100');
@@ -216,13 +244,18 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
 
     // Project 3D part anchor to 2D screen space
     const screenPos = phone.getPartScreenPosition(labelDef.part, camera, width, height);
-    if (!screenPos.visible) return;
+    if (!screenPos.visible) {
+      activeCard.classList.remove('active');
+      activeCard.style.opacity = '0';
+      activeCard.style.visibility = 'hidden';
+      activeCard.style.display = 'none';
+      return;
+    }
 
-    const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
-    if (!activeCard) return;
-
+    activeCard.classList.add('active');
     activeCard.style.opacity = '1';
     activeCard.style.visibility = 'visible';
+    activeCard.style.display = 'block';
 
     if (!isMobile) {
       // Desktop: label in left column (x from 0 to 38vw per layout contract).

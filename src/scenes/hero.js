@@ -5,9 +5,9 @@
 export function build(tl, ctx) {
   const { phone, rendererObj } = ctx;
 
-  // Initial resting state
+  // Initial resting state: Front OLED screen facing camera (y = 0 with innerGroup inverted)
   phone.group.position.set(0, 0, 0);
-  phone.group.rotation.set(0, 0, 0);
+  phone.group.rotation.set(0.02, 0, 0);
   phone.group.scale.set(1, 1, 1);
 
   // Hero transition to open (0.00 -> 0.07)
@@ -16,7 +16,7 @@ export function build(tl, ctx) {
     phone.group.rotation,
     {
       y: 0.08,
-      x: 0.02,
+      x: 0.04,
       duration: 7,
       ease: 'none',
     },

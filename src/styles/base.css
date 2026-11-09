@@ -81,35 +81,9 @@ html, body {
   }
 }
 
-/* Custom Cursor (Pointer: Fine only) */
+/* Custom Cursor Removed per user request */
 .custom-cursor {
-  display: none;
-}
-
-@media (pointer: fine) {
-  .custom-cursor {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--cursor-color);
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.15s ease-out, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
-    mix-blend-mode: normal;
-    box-shadow: 0 0 8px var(--accent-glow);
-  }
-
-  .custom-cursor.active {
-    width: 32px;
-    height: 32px;
-    background-color: transparent;
-    border: 2px solid var(--accent);
-  }
+  display: none !important;
 }
 
 /* 1px Animated Scroll Cue Line */

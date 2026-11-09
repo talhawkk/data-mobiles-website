@@ -142,6 +142,7 @@ export function build(tl, ctx) {
   );
 
   // Part 6: Cover plate drops on and snaps connector (57.8 to 59.9)
+  tl.set(phone.coverPlateGroup, { visible: true }, 57.8);
   tl.to(
     phone.coverPlateGroup.position,
     {
@@ -166,6 +167,7 @@ export function build(tl, ctx) {
   );
 
   // Part 7: Back cover swoops back in from off-canvas and clicks flush (58.0 to 60.0)
+  tl.set(phone.backCoverGroup, { visible: true }, 58.0);
   tl.to(
     phone.backCoverGroup.position,
     {

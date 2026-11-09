@@ -378,38 +378,31 @@ export function createPhone({ isMobile = false } = {}) {
     roughness: 0.3,
   });
   const copperTapeMesh = new THREE.Mesh(copperTapeGeom, copperTapeMat);
-  copperTapeMesh.position.set(0, -0.25, 0.008);
+  copperTapeMesh.position.set(0, -0.25, 0.005);
   screenGroup.add(copperTapeMesh);
-
-  // Display flex tail folding around bottom edge
-  const displayFlexGeom = new THREE.BoxGeometry(0.08, 0.22, 0.003);
-  const flexMat = new THREE.MeshStandardMaterial({ color: 0xC8791F, roughness: 0.5 });
-  const displayFlexMesh = new THREE.Mesh(displayFlexGeom, flexMat);
-  displayFlexMesh.position.set(0.12, -0.66, 0.009);
-  screenGroup.add(displayFlexMesh);
 
   const screenOutline = addEdgeOutline(screenGeom, screenGroup);
   innerGroup.add(screenGroup);
 
   // ===================================================================
   // 2. LAYER 4: MIDFRAME
-  // Aluminium frame #9A9DA5, metalness 1.0, roughness 0.32, brushed roughness map
+  // Natural Titanium frame #DCE0E6, metalness 0.95, roughness 0.28
   // ===================================================================
   const frameGroup = new THREE.Group();
   frameGroup.name = 'frame';
 
   const frameGeom = new RoundedBoxGeometry(0.72, 1.52, 0.08, 5, 0.08);
   const frameMat = new THREE.MeshStandardMaterial({
-    color: 0xB5B8C2,
-    metalness: 0.88,
-    roughness: 0.32,
+    color: 0xDCE0E6,
+    metalness: 0.95,
+    roughness: 0.28,
     roughnessMap: textures.brushedTexture,
   });
   const frameMesh = new THREE.Mesh(frameGeom, frameMat);
   frameGroup.add(frameMesh);
 
   // Antenna split lines (merged geometry)
-  const antennaMat = new THREE.MeshBasicMaterial({ color: 0x222428 });
+  const antennaMat = new THREE.MeshBasicMaterial({ color: 0x8C929E });
   const antGeom1 = new THREE.BoxGeometry(0.01, 0.01, 0.082);
   antGeom1.translate(-0.358, 0.45, 0);
   const antGeom2 = new THREE.BoxGeometry(0.01, 0.01, 0.082);
@@ -865,25 +858,63 @@ export function createPhone({ isMobile = false } = {}) {
 
   const backCoverGeom = new RoundedBoxGeometry(0.70, 1.50, 0.015, 5, 0.06);
 
+  // White Titanium / Ceramic Silver Back Cover
   let backCoverMat;
   if (!isMobile && THREE.MeshPhysicalMaterial) {
     backCoverMat = new THREE.MeshPhysicalMaterial({
-      color: 0x15161A,
+      color: 0xF5F6FA,
       clearcoat: 1.0,
       clearcoatRoughness: 0.08,
-      roughness: 0.20,
-      metalness: 0.10,
+      roughness: 0.16,
+      metalness: 0.05,
     });
   } else {
     backCoverMat = new THREE.MeshStandardMaterial({
-      color: 0x15161A,
-      roughness: 0.20,
-      metalness: 0.10,
+      color: 0xF5F6FA,
+      roughness: 0.16,
+      metalness: 0.05,
     });
   }
 
   const backCoverMesh = new THREE.Mesh(backCoverGeom, backCoverMat);
   backCoverGroup.add(backCoverMesh);
+
+  // White Titanium Sculpted Camera Plateau on Back Cover
+  const camPlateauGeom = new RoundedBoxGeometry(0.28, 0.28, 0.008, 4, 0.035);
+  const camPlateauMat = new THREE.MeshStandardMaterial({
+    color: 0xEFF1F5,
+    roughness: 0.20,
+    metalness: 0.08,
+  });
+  const camPlateauMesh = new THREE.Mesh(camPlateauGeom, camPlateauMat);
+  camPlateauMesh.position.set(-0.18, 0.52, 0.009);
+  backCoverGroup.add(camPlateauMesh);
+
+  // Subtle chrome / silver-gloss "DATA" logo on rear glass
+  const logoCanvas = document.createElement('canvas');
+  logoCanvas.width = 256;
+  logoCanvas.height = 128;
+  const logoCtx = logoCanvas.getContext('2d');
+  logoCtx.fillStyle = '#A0A5B0';
+  logoCtx.font = '800 48px "Bricolage Grotesque", sans-serif';
+  logoCtx.textAlign = 'center';
+  logoCtx.fillText('DATA', 128, 76);
+  logoCtx.fillStyle = '#00875A';
+  logoCtx.beginPath();
+  logoCtx.arc(206, 52, 6, 0, Math.PI * 2);
+  logoCtx.fill();
+
+  const logoTexture = new THREE.CanvasTexture(logoCanvas);
+  const logoGeom = new THREE.PlaneGeometry(0.22, 0.11);
+  const logoMat = new THREE.MeshBasicMaterial({
+    map: logoTexture,
+    transparent: true,
+    opacity: 0.75,
+    side: THREE.FrontSide,
+  });
+  const logoMesh = new THREE.Mesh(logoGeom, logoMat);
+  logoMesh.position.set(0, -0.22, 0.008);
+  backCoverGroup.add(logoMesh);
 
   // Adhesive strip ring (#D8D5CC, roughness 0.9) on inner edge
   const adhesiveGeom = new RoundedBoxGeometry(0.68, 1.48, 0.002, 3, 0.05);
@@ -901,8 +932,8 @@ export function createPhone({ isMobile = false } = {}) {
   innerGroup.add(backCoverGroup);
 
   // ===================================================================
-  // 6. DYNAMIC FLEX RIBBONS (FlexRibbon Class)
-  // Joining board-battery, board-port, board-display, plate-board
+  // 6. DYNAMIC FLEX RIBBONS (Kept inert/hidden per visual cleanliness)
+  // Ribbons removed from scene to eliminate brown line poking bug
   // ===================================================================
   const ribbons = {
     boardBattery: new FlexRibbon({ width: 0.038, segments: 24 }),
@@ -910,17 +941,15 @@ export function createPhone({ isMobile = false } = {}) {
     boardDisplay: new FlexRibbon({ width: 0.035, segments: 24 }),
     plateBoard: new FlexRibbon({ width: 0.032, segments: 24 }),
   };
-
-  innerGroup.add(ribbons.boardBattery.group);
-  innerGroup.add(ribbons.boardPort.group);
-  innerGroup.add(ribbons.boardDisplay.group);
-  innerGroup.add(ribbons.plateBoard.group);
+  Object.values(ribbons).forEach((r) => {
+    r.group.visible = false;
+  });
 
   // ===================================================================
-  // 7. WORKSHOP TOOLS: SPUDGER & PRECISION SCREWDRIVER
+  // 7. WORKSHOP TOOLS (Hidden per user request: no screwdriver/spudger)
   // ===================================================================
   const tools = createWorkshopTools();
-  innerGroup.add(tools.toolsGroup);
+  tools.toolsGroup.visible = false;
 
   // ===================================================================
   // 8. TWO-LAYER CONTACT SHADOW (UPGRADE.md U4 Item 4)
@@ -1026,7 +1055,7 @@ export function createPhone({ isMobile = false } = {}) {
     port:        { x:  0.0,   y:  0.0,   z: -0.006, rx: 0, ry: 0 },
     battery:     { x: -0.14,  y: -0.06,  z:  0.010, rx: 0, ry: 0 },
     board:       { x:  0.0,   y:  0.42,  z:  0.008, rx: 0, ry: 0 },
-    cameraUnit:  { x: -0.18,  y:  0.52,  z:  0.020, rx: 0, ry: 0 },
+    cameraUnit:  { x: -0.18,  y:  0.52,  z:  0.052, rx: 0, ry: 0 },
     coverPlate:  { x:  0.0,   y:  0.0,   z:  0.032, rx: 0, ry: 0 },
     backCover:   { x:  0.0,   y:  0.0,   z:  0.045, rx: 0, ry: 0 },
   };
@@ -1061,45 +1090,7 @@ export function createPhone({ isMobile = false } = {}) {
   const anchorVec = new THREE.Vector3();
 
   function updateRibbonAnchors() {
-    // 1. Board to Battery ribbon
-    tempStart.set(boardGroup.position.x - 0.15, boardGroup.position.y - 0.22, boardGroup.position.z + 0.01);
-    tempEnd.set(batteryGroup.position.x + 0.03, batteryGroup.position.y + 0.42, batteryGroup.position.z + 0.01);
-    tempControl.set(
-      (tempStart.x + tempEnd.x) / 2 - 0.04,
-      (tempStart.y + tempEnd.y) / 2,
-      (tempStart.z + tempEnd.z) / 2 + 0.06
-    );
-    ribbons.boardBattery.updateCurve(tempStart, tempEnd, tempControl);
-
-    // 2. Board to Port ribbon
-    tempStart.set(boardGroup.position.x, boardGroup.position.y - 0.24, boardGroup.position.z);
-    tempEnd.set(portGroup.position.x, portGroup.position.y - 0.50, portGroup.position.z);
-    tempControl.set(
-      (tempStart.x + tempEnd.x) / 2 + 0.03,
-      (tempStart.y + tempEnd.y) / 2,
-      (tempStart.z + tempEnd.z) / 2 + 0.08
-    );
-    ribbons.boardPort.updateCurve(tempStart, tempEnd, tempControl);
-
-    // 3. Board to Display folded ribbon
-    tempStart.set(boardGroup.position.x + 0.22, boardGroup.position.y - 0.22, boardGroup.position.z);
-    tempEnd.set(screenGroup.position.x + 0.12, screenGroup.position.y - 0.55, screenGroup.position.z + 0.01);
-    tempControl.set(
-      (tempStart.x + tempEnd.x) / 2 + 0.05,
-      (tempStart.y + tempEnd.y) / 2,
-      Math.min(tempStart.z, tempEnd.z) - 0.06
-    );
-    ribbons.boardDisplay.updateCurve(tempStart, tempEnd, tempControl);
-
-    // 4. Plate to Board ribbon
-    tempStart.set(coverPlateGroup.position.x, coverPlateGroup.position.y + 0.18, coverPlateGroup.position.z + 0.01);
-    tempEnd.set(boardGroup.position.x + 0.14, boardGroup.position.y, boardGroup.position.z + 0.01);
-    tempControl.set(
-      (tempStart.x + tempEnd.x) / 2,
-      (tempStart.y + tempEnd.y) / 2 + 0.04,
-      (tempStart.z + tempEnd.z) / 2 + 0.08
-    );
-    ribbons.plateBoard.updateCurve(tempStart, tempEnd, tempControl);
+    // Ribbons removed to eliminate brown line poking through geometry
   }
 
   function setExplodeProgress(t, isReassemble = false) {

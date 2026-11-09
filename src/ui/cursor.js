@@ -1,35 +1,13 @@
 import { gsap } from 'gsap';
 
 /**
- * Custom Cursor & Magnetic Interactions
- * Strictly active only when (pointer: fine)
+ * Interactive Button Dynamics (Magnetic Interactions)
+ * Dot cursor removed per user request.
  */
 export function initCursor() {
   if (!window.matchMedia('(pointer: fine)').matches) {
     return;
   }
-
-  const cursorEl = document.querySelector('.custom-cursor');
-  if (!cursorEl) return;
-
-  const quickX = gsap.quickTo(cursorEl, 'x', { duration: 0.2, ease: 'power3.out' });
-  const quickY = gsap.quickTo(cursorEl, 'y', { duration: 0.2, ease: 'power3.out' });
-
-  window.addEventListener('mousemove', (e) => {
-    quickX(e.clientX);
-    quickY(e.clientY);
-  });
-
-  // Hover states on interactive targets
-  const interactiveElements = document.querySelectorAll('a, button, [role="button"], input');
-  interactiveElements.forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      cursorEl.classList.add('active');
-    });
-    el.addEventListener('mouseleave', () => {
-      cursorEl.classList.remove('active');
-    });
-  });
 
   // Magnetic Hover for WhatsApp Button & Primary CTA
   const magneticElements = document.querySelectorAll('.floating-whatsapp, .contact-cta-btn');

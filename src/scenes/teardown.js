@@ -40,7 +40,7 @@ export function build(tl, ctx) {
     7
   );
 
-  // Orbit phone to back view (yaw: Math.PI - 0.314 rad, pitch: 0.14 rad, roll: 0.035 rad)
+  // Orbit phone from front screen to back cover view (yaw: Math.PI - 0.314 rad, pitch: 0.14 rad, roll: 0.035 rad)
   tl.to(
     phone.group.rotation,
     {
@@ -50,23 +50,6 @@ export function build(tl, ctx) {
       duration: 3,
       ease: 'power2.inOut',
     },
-    7
-  );
-
-  // Spudger enters at bottom-left seam and slides along it
-  tl.set(tools.toolsGroup, { visible: true }, 7);
-  tl.set(tools.spudgerGroup, { visible: true }, 7);
-
-  tl.fromTo(
-    tools.spudgerGroup.position,
-    { x: -0.365, y: -0.68, z: 0.048 },
-    { x: -0.365, y: 0.20, z: 0.048, duration: 3, ease: 'power1.inOut' },
-    7
-  );
-  tl.fromTo(
-    tools.spudgerGroup.rotation,
-    { z: 0.18, y: -0.1 },
-    { z: 0.04, y: 0.0, duration: 3, ease: 'power1.inOut' },
     7
   );
 
@@ -115,66 +98,18 @@ export function build(tl, ctx) {
     },
     13
   );
+  tl.set(phone.backCoverGroup, { visible: false }, 15);
 
-  // Spudger exits frame by 0.15
+  // 4. 0.15 - 0.19 (15 to 19): Cover plate smooth micro-lift before release
   tl.to(
-    tools.spudgerGroup.position,
+    phone.coverPlateGroup.position,
     {
-      x: -1.6,
-      duration: 2,
-      ease: 'power2.in',
+      z: 0.065,
+      duration: 4,
+      ease: 'power1.inOut',
     },
-    13
-  );
-  tl.set(tools.spudgerGroup, { visible: false }, 15);
-
-  // 4. 0.15 - 0.19 (15 to 19): Screwdriver visits 3 screw clusters; screws spin out (4 turns)
-  tl.set(tools.driverGroup, { visible: true }, 15);
-
-  // Screwdriver visits top cluster (15 to 16)
-  tl.fromTo(
-    tools.driverGroup.position,
-    { x: 0.6, y: 1.2, z: 0.5 },
-    { x: 0.0, y: 0.66, z: 0.32, duration: 1.0, ease: 'power2.out' },
     15
   );
-  tl.to(
-    tools.driverGroup.rotation,
-    { z: Math.PI * 4, duration: 1.0, ease: 'linear' },
-    15
-  );
-
-  // Screwdriver visits middle cluster (16.2 to 17.5)
-  tl.to(
-    tools.driverGroup.position,
-    { x: 0.28, y: 0.0, z: 0.32, duration: 1.3, ease: 'power2.inOut' },
-    16.2
-  );
-  tl.to(
-    tools.driverGroup.rotation,
-    { z: Math.PI * 8, duration: 1.3, ease: 'linear' },
-    16.2
-  );
-
-  // Screwdriver visits bottom cluster (17.7 to 18.8)
-  tl.to(
-    tools.driverGroup.position,
-    { x: -0.28, y: -0.66, z: 0.32, duration: 1.1, ease: 'power2.inOut' },
-    17.7
-  );
-  tl.to(
-    tools.driverGroup.rotation,
-    { z: Math.PI * 12, duration: 1.1, ease: 'linear' },
-    17.7
-  );
-
-  // Screwdriver exits by 0.19
-  tl.to(
-    tools.driverGroup.position,
-    { x: 1.8, y: 1.4, z: 0.8, duration: 0.5, ease: 'power2.in' },
-    18.8
-  );
-  tl.set(tools.driverGroup, { visible: false }, 19);
 
   // 5. 0.19 - 0.20 (19 to 20): Cover plate with coil lifts, tilting 25 deg, exits left
   tl.to(
@@ -188,6 +123,7 @@ export function build(tl, ctx) {
     },
     19
   );
+  tl.set(phone.coverPlateGroup, { visible: false }, 20);
 
   tl.to(
     phone.coverPlateGroup.rotation,
@@ -483,7 +419,7 @@ export function build(tl, ctx) {
       y: 0.0,
       x: 0.04,
       z: 0.0,
-      duration: 8,
+      duration: 3,
       ease: 'power2.inOut',
     },
     48

@@ -493,10 +493,11 @@
 
 .inspect-label-card {
   position: absolute;
-  pointer-events: auto;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+  transition: opacity 0.25s ease, transform 0.25s ease;
   /* Desktop: text column 0 to 38vw left */
   max-width: 34vw;
   min-width: 220px;
@@ -508,8 +509,10 @@
 }
 
 .inspect-label-card.active {
-  opacity: 1;
-  visibility: visible;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  pointer-events: auto !important;
 }
 
 .inspect-label-card .display-title {
@@ -603,6 +606,9 @@
     border-radius: 3px;
     background: var(--accent);
     opacity: 1;
+  }
+  .inspect-line-svg {
+    display: none !important;
   }
   .inspect-label-card {
     position: fixed;
@@ -817,9 +823,12 @@
 
 .finale-container {
   position: absolute;
-  top: calc(90px + var(--sat));
+  top: clamp(60px, 8vh, 90px);
+  bottom: clamp(60px, 8vh, 80px);
   left: 0;
   right: 0;
+  display: flex;
+  align-items: center;
   pointer-events: none;
   z-index: 10;
 }
@@ -832,6 +841,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
 }
 
 .finale-status-chip {
@@ -852,9 +862,9 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  min-height: 64px;
-  min-width: 280px;
-  padding: 0 36px;
+  min-height: 56px;
+  min-width: 260px;
+  padding: 0 32px;
   background: var(--btn-cta-bg);
   color: var(--btn-cta-text);
   font-family: var(--font-display);
