@@ -989,27 +989,117 @@
 
 .contact-content {
   grid-column: 1 / span 5;
-  max-width: 38vw;
+  max-width: clamp(340px, 42vw, 520px);
   z-index: 10;
   pointer-events: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  margin-top: -4vh;
+  margin-top: -6vh;
 }
 
 .finale-status-chip {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.finale-about-text {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 6px 0 14px;
+  max-width: 440px;
+}
+
+/* Atelier Dossier Card */
+.atelier-dossier-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  border-left: 3px solid var(--accent);
+  border-radius: 16px;
+  box-shadow: 
+    0 14px 32px -10px rgba(15, 23, 42, 0.06),
+    0 2px 6px rgba(15, 23, 42, 0.02);
+  margin-bottom: 14px;
+}
+
+.atelier-dossier-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.dossier-icon {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+
+.dossier-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dossier-label {
+  font-family: var(--font-mono);
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.dossier-value {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.dossier-maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  margin-top: 2px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dossier-maps-link:hover {
+  opacity: 0.8;
+  transform: translateX(2px);
+}
+
+.dossier-subtext {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 1px;
 }
 
 .finale-cta-group {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
-  margin-top: 24px;
-  margin-bottom: 32px;
+  gap: 10px;
+  margin-top: 6px;
+  margin-bottom: 12px;
   pointer-events: auto;
 }
 
@@ -1191,14 +1281,51 @@
 }
 
 @media (max-width: 1023px) {
+  .finale-container {
+    top: calc(72px + var(--sat));
+    bottom: calc(52px + var(--sab));
+  }
   .contact-content {
     grid-column: 1 / -1;
     max-width: 100%;
-    align-self: flex-start;
+    align-self: flex-end;
+    margin-top: 0;
+    padding-bottom: 6px;
+  }
+  .contact-content .display-title {
+    font-size: clamp(1.8rem, 7vw, 2.3rem);
+    line-height: 1.1;
+  }
+  .finale-about-text {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin: 4px 0 10px;
+  }
+  .atelier-dossier-card {
+    max-width: 100%;
+    padding: 10px 14px;
+    gap: 8px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.94);
+  }
+  .dossier-value {
+    font-size: 0.78rem;
   }
   .contact-cta-btn {
     min-width: 100%;
-    width: calc(100vw - 40px);
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+  .finale-cta-group {
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+  .contact-tel-link {
+    font-size: 0.80rem;
+    padding: 4px 8px;
   }
   .finale-wordmark {
     font-size: 38vw;
@@ -1207,11 +1334,14 @@
   .finale-wordmark-wrapper {
     bottom: -11vw;
   }
+  .finale-marquee-wrapper {
+    display: none !important;
+  }
+  .canvas-orbit-hint {
+    display: none !important;
+  }
   .finale-footer-bar {
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    text-align: center;
+    display: none !important;
   }
 }
 
@@ -1246,6 +1376,12 @@
   .finale-marquee-wrapper {
     bottom: 34px;
     padding: 4px 0;
+  }
+  .finale-marquee-wrapper {
+    display: none !important;
+  }
+  .canvas-orbit-hint {
+    display: none !important;
   }
   .finale-footer-bar {
     display: none;

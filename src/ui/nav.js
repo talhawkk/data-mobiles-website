@@ -39,6 +39,8 @@ export function initNav({ onNavigate }) {
         case '#wifi':
           targetProgress = 0.83;
           break;
+        case '#about':
+        case '#atelier':
         case '#contact':
           targetProgress = 0.95;
           break;

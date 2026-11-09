@@ -8,9 +8,9 @@
 export function build(tl, ctx) {
   const { phone, accessories, wifiScene, camera, initialCamZ, isMobile } = ctx;
 
-  const targetPhoneX = isMobile ? 0 : 0;
-  const targetPhoneY = isMobile ? 0.12 : 0;
-  const targetPhoneScale = isMobile ? 0.82 : 1.0;
+  const targetPhoneX = 0;
+  const targetPhoneY = isMobile ? 0.38 : 0;
+  const targetPhoneScale = isMobile ? 0.55 : 1.0;
 
   // Camera pulls back to wide composition (91 -> 96)
   tl.to(
