@@ -27,14 +27,28 @@ export function initPreloader(options = {}) {
   let counterDone = false;
   let hasRevealed = false;
 
+  const isReload = (function () {
+    try {
+      const navEntry = performance.getEntriesByType('navigation')[0];
+      if (navEntry && navEntry.type === 'reload') return true;
+      if (sessionStorage.getItem('data_app_loaded')) return true;
+    } catch (e) {}
+    return false;
+  })();
+
   function doWipe() {
     if (hasRevealed) return;
     hasRevealed = true;
 
+    document.body.classList.add('app-ready');
+    try {
+      sessionStorage.setItem('data_app_loaded', '1');
+    } catch (e) {}
+
     // Upward clip-path wipe
     gsap.to(preloaderEl, {
       clipPath: 'inset(0 0 100% 0)',
-      duration: 0.65,
+      duration: isReload ? 0.38 : 0.55,
       ease: 'power3.inOut',
       onComplete: () => {
         preloaderEl.style.display = 'none';
@@ -44,13 +58,15 @@ export function initPreloader(options = {}) {
   }
 
   // Track asset readiness with a strict timeout to guarantee <= 1.8s total
-  const safetyTimeout = new Promise((resolve) => setTimeout(resolve, 1100));
+  const safetyTimeout = new Promise((resolve) => setTimeout(resolve, isReload ? 350 : 900));
   Promise.race([readyPromise, safetyTimeout]).finally(() => {
     isReady = true;
     if (counterDone) {
       doWipe();
     }
   });
+
+  const animDuration = isReload ? 0.35 : 0.85;
 
   const tl = gsap.timeline({
     onComplete: () => {
@@ -66,11 +82,11 @@ export function initPreloader(options = {}) {
     charEls,
     {
       y: '0%',
-      duration: 0.75,
-      stagger: 0.07,
+      duration: isReload ? 0.35 : 0.65,
+      stagger: isReload ? 0.03 : 0.06,
       ease: 'expo.out',
     },
-    0.05
+    0.02
   );
 
   // 2. 1px accent line draws left to right (width: 0% -> 100%)
@@ -79,7 +95,7 @@ export function initPreloader(options = {}) {
       lineFillEl,
       {
         width: '100%',
-        duration: 1.0,
+        duration: animDuration,
         ease: 'power2.inOut',
       },
       0.0
@@ -92,7 +108,7 @@ export function initPreloader(options = {}) {
     counterObj,
     {
       value: 100,
-      duration: 1.0,
+      duration: animDuration,
       ease: 'power2.inOut',
       onUpdate: () => {
         counterEl.textContent = Math.floor(counterObj.value).toString().padStart(3, '0');

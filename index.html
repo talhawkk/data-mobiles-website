@@ -24,6 +24,54 @@
   <!-- Favicon: Accent 'D' on Dark -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B0B0C'/%3E%3Cpath d='M8 6h7a9 9 0 0 1 0 18H8V6zm4 3.5v11h3a5.5 5.5 0 0 0 0-11h-3z' fill='%23C8FF2E'/%3E%3C/svg%3E">
 
+  <!-- Direct CSS linking to block rendering until styled & prevent FOUC -->
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/overlay.css">
+
+  <style>
+    /* Critical immediate styles: prevent FOUC and ensure white background & styled preloader instantly */
+    html, body {
+      background-color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    #preloader {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #FFFFFF;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px;
+      box-sizing: border-box;
+      pointer-events: auto;
+    }
+    /* Prevent content flash before CSS & WebGL are initialized */
+    .top-nav,
+    .section-overlay,
+    .scroll-progress-line,
+    .scroll-cue-line,
+    .finale-wordmark-wrapper,
+    .finale-footer-bar,
+    .floating-whatsapp-btn {
+      opacity: 0;
+    }
+    body.app-ready .top-nav,
+    body.app-ready .section-overlay,
+    body.app-ready .scroll-progress-line,
+    body.app-ready .scroll-cue-line,
+    body.app-ready .finale-wordmark-wrapper,
+    body.app-ready .finale-footer-bar,
+    body.app-ready .floating-whatsapp-btn {
+      opacity: 1;
+    }
+  </style>
+
   <!-- JSON-LD LocalBusiness -->
   <script type="application/ld+json">
   {
