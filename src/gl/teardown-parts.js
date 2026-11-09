@@ -147,7 +147,7 @@ export function createProceduralTextures(isMobile = false) {
   pCtx.font = `600 ${isMobile ? 9 : 12}px "DM Mono", monospace`;
   pCtx.fillText('5G SUB-6 // UWB // NFC // DSI_0', 36, pcbSize - 22);
   pCtx.fillText('TP_GND · VCC_MAIN', pcbSize - 180, pcbSize - 40);
-  pCtx.fillText('LAHORE 042 // PK', pcbSize - 180, pcbSize - 22);
+  pCtx.fillText('DATA LABS // PRECISION ATELIER', pcbSize - 230, pcbSize - 22);
 
   const pcbTexture = new THREE.CanvasTexture(pcbCanvas);
   pcbTexture.colorSpace = THREE.SRGBColorSpace;
@@ -218,7 +218,7 @@ export function createProceduralTextures(isMobile = false) {
 
   sCtx.fillStyle = '#727682';
   sCtx.font = '500 12px "DM Mono", monospace';
-  sCtx.fillText('LOT N3B-2026-LHR-042', 256, 452);
+  sCtx.fillText('LOT N3B-2026-SILICON-PRO', 256, 452);
 
   const socTexture = new THREE.CanvasTexture(socCanvas);
   socTexture.colorSpace = THREE.SRGBColorSpace;

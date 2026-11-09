@@ -210,6 +210,51 @@ export function build(tl, ctx) {
     20
   );
 
+  // Mobile layout optimization: scale and lift phone slightly so exploded components
+  // never collide with top nav bar or bottom inspect dock
+  if (isMobile) {
+    tl.to(
+      phone.group.position,
+      {
+        y: 0.12,
+        duration: 3,
+        ease: 'power2.inOut',
+      },
+      20
+    );
+    tl.to(
+      phone.group.scale,
+      {
+        x: 0.70,
+        y: 0.70,
+        z: 0.70,
+        duration: 3,
+        ease: 'power2.inOut',
+      },
+      20
+    );
+    tl.to(
+      phone.group.position,
+      {
+        y: 0.0,
+        duration: 3,
+        ease: 'power2.inOut',
+      },
+      56
+    );
+    tl.to(
+      phone.group.scale,
+      {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        duration: 3,
+        ease: 'power2.inOut',
+      },
+      56
+    );
+  }
+
   // WINDOW 01: BATTERY (0.20 - 0.27, t: 20 to 27)
   // Battery pulls toward camera (+0.32 in Z), rotates 14 deg around Y to show lithium pouch & pull tabs
   tl.to(
