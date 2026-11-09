@@ -10,6 +10,73 @@ import { createPhone } from './phone.js';
 import { createAccessories } from './accessories.js';
 import { createWifiScene } from './wifi.js';
 import { QualityManager } from './quality.js';
+import { playHapticTick, playSnap } from '../ui/audio.js';
+
+/**
+ * Subtle Floating Studio Optical Micro-Particles (Awwwards / Keynote depth)
+ * 75 tiny floating motes, single draw call, zero geometry overhead.
+ */
+function createAtmosphericParticles() {
+  const count = 75;
+  const geom = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const speeds = new Float32Array(count * 3);
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3 + 0] = (Math.random() - 0.5) * 6;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 4;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 3 + 1;
+    speeds[i * 3 + 0] = (Math.random() - 0.5) * 0.04;
+    speeds[i * 3 + 1] = 0.02 + Math.random() * 0.04;
+    speeds[i * 3 + 2] = (Math.random() - 0.5) * 0.04;
+  }
+
+  geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const pCanvas = document.createElement('canvas');
+  pCanvas.width = 32;
+  pCanvas.height = 32;
+  const pCtx = pCanvas.getContext('2d');
+  const pGrad = pCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+  pGrad.addColorStop(0, 'rgba(200, 255, 46, 0.85)');
+  pGrad.addColorStop(0.35, 'rgba(180, 190, 210, 0.45)');
+  pGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  pCtx.fillStyle = pGrad;
+  pCtx.fillRect(0, 0, 32, 32);
+
+  const pTexture = new THREE.CanvasTexture(pCanvas);
+  const pMat = new THREE.PointsMaterial({
+    size: 0.04,
+    map: pTexture,
+    transparent: true,
+    opacity: 0.25,
+    blending: THREE.NormalBlending,
+    depthWrite: false,
+  });
+
+  const points = new THREE.Points(geom, pMat);
+  points.name = 'atmosphericParticles';
+
+  return {
+    points,
+    tick: (time) => {
+      const pos = geom.attributes.position.array;
+      for (let i = 0; i < count; i++) {
+        pos[i * 3 + 1] += speeds[i * 3 + 1] * 0.012;
+        pos[i * 3 + 0] += Math.sin(time * 0.4 + i) * 0.0006;
+        if (pos[i * 3 + 1] > 2.5) {
+          pos[i * 3 + 1] = -2.5;
+        }
+      }
+      geom.attributes.position.needsUpdate = true;
+    },
+    dispose: () => {
+      geom.dispose();
+      pMat.dispose();
+      pTexture.dispose();
+    },
+  };
+}
 
 /**
  * Custom Post-Processing Shader (UPGRADE.md U4 Item 2)
@@ -88,7 +155,7 @@ const PostProcessShader = {
  * Enforces single persistent canvas, strict sizing rules,
  * gsap.ticker rendering, idle motion & adaptive quality.
  */
-export function initRenderer(canvasElement) {
+export function initRenderer(canvasElement, { onNavigate } = {}) {
   const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
 
   // 1. WebGL Renderer
@@ -208,7 +275,16 @@ export function initRenderer(canvasElement) {
   tiltGroup.name = 'tiltGroup';
   velocityTiltGroup.add(tiltGroup);
 
-  tiltGroup.add(phone.group);
+  // Interactive 360 Turntable Orbit Group (Direct Agency & Inspection)
+  const interactiveOrbitGroup = new THREE.Group();
+  interactiveOrbitGroup.name = 'interactiveOrbitGroup';
+  tiltGroup.add(interactiveOrbitGroup);
+
+  interactiveOrbitGroup.add(phone.group);
+
+  // Floating Atmospheric Particles (Atelier / Cleanroom depth)
+  const atmosphericParticles = createAtmosphericParticles();
+  scene.add(atmosphericParticles.points);
 
   // 5. Accessories Component
   const accessories = createAccessories();
@@ -267,7 +343,7 @@ export function initRenderer(canvasElement) {
   });
   updateComposerTier(quality.getTier());
 
-  // 9. Desktop Pointer Tilt up to 6 degrees via gsap.quickTo
+  // 9. Desktop Pointer Tilt via gsap.quickTo (Subtle 3D Parallax everywhere)
   let currentScrollProgress = 0;
   const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   let quickTiltX = null;
@@ -277,18 +353,135 @@ export function initRenderer(canvasElement) {
     quickTiltY = gsap.quickTo(tiltGroup.rotation, 'y', { duration: 0.6, ease: 'power2.out' });
 
     window.addEventListener('mousemove', (e) => {
-      if (currentScrollProgress > 0.08) {
-        quickTiltX(0);
-        quickTiltY(0);
-        return;
-      }
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      const maxTilt = (6 * Math.PI) / 180; // 6 degrees
+      const maxTilt = (3.2 * Math.PI) / 180; // 3.2 degrees gentle depth
       quickTiltX(-normY * maxTilt);
       quickTiltY(normX * maxTilt);
     });
   }
+
+  // 9b. Interactive 360 Turntable Orbit & 3D Raycasting Picker
+  const raycaster = new THREE.Raycaster();
+  const mouseVec = new THREE.Vector2();
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let lastDragX = 0;
+  let lastDragY = 0;
+  let dragDist = 0;
+  let targetOrbitX = 0;
+  let targetOrbitY = 0;
+  let hasInteractedWithOrbit = false;
+
+  const hintEl = document.getElementById('canvas-orbit-hint');
+
+  function identifyPart(object) {
+    let curr = object;
+    while (curr && curr !== phone.group) {
+      if (curr === phone.batteryGroup) return 'battery';
+      if (curr === phone.boardGroup) return 'board';
+      if (curr === phone.cameraUnitGroup) return 'camera';
+      if (curr === phone.portGroup) return 'port';
+      if (curr === phone.screenGroup) return 'screen';
+      curr = curr.parent;
+    }
+    return null;
+  }
+
+  const PART_NAV_TARGETS = {
+    battery: 0.23,
+    board: 0.30,
+    camera: 0.37,
+    port: 0.44,
+    screen: 0.51,
+  };
+
+  const interactiveParts = [
+    phone.batteryGroup,
+    phone.boardGroup,
+    phone.cameraUnitGroup,
+    phone.portGroup,
+    phone.screenGroup,
+  ];
+
+  function getRaycastHit(clientX, clientY) {
+    const rect = canvasElement.getBoundingClientRect();
+    mouseVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouseVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouseVec, camera);
+    const hits = raycaster.intersectObjects(interactiveParts, true);
+    if (hits && hits.length > 0) {
+      for (const hit of hits) {
+        const part = identifyPart(hit.object);
+        if (part) return { part, point: hit.point };
+      }
+    }
+    return null;
+  }
+
+  canvasElement.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    lastDragX = e.clientX;
+    lastDragY = e.clientY;
+    dragDist = 0;
+    try {
+      canvasElement.setPointerCapture(e.pointerId);
+    } catch (err) {}
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (isDragging) {
+      const dx = e.clientX - lastDragX;
+      const dy = e.clientY - lastDragY;
+      lastDragX = e.clientX;
+      lastDragY = e.clientY;
+      dragDist += Math.hypot(dx, dy);
+
+      const sens = 0.0075;
+      targetOrbitY += dx * sens;
+      targetOrbitX += dy * sens;
+      targetOrbitX = Math.max(-1.22, Math.min(1.22, targetOrbitX));
+
+      if (dragDist > 6 && !hasInteractedWithOrbit) {
+        hasInteractedWithOrbit = true;
+        if (hintEl) hintEl.classList.add('hidden');
+      }
+    } else if (!isTouch) {
+      const hit = getRaycastHit(e.clientX, e.clientY);
+      if (hit) {
+        canvasElement.style.cursor = 'pointer';
+      } else {
+        canvasElement.style.cursor = 'grab';
+      }
+    }
+  });
+
+  const handlePointerUp = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    try {
+      canvasElement.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+
+    if (dragDist < 8) {
+      const hit = getRaycastHit(e.clientX, e.clientY);
+      if (hit && PART_NAV_TARGETS[hit.part] !== undefined) {
+        playSnap();
+        if (typeof onNavigate === 'function') {
+          onNavigate(PART_NAV_TARGETS[hit.part]);
+        }
+        if (hintEl) hintEl.classList.add('hidden');
+      } else {
+        playHapticTick(750, 0.025);
+      }
+    }
+  };
+
+  canvasElement.addEventListener('pointerup', handlePointerUp);
+  canvasElement.addEventListener('pointercancel', handlePointerUp);
 
   // 10. Scroll Velocity Drivers (UPGRADE.md U4 Item 3)
   // Drives chromatic aberration (clamped at 0.0025), camera roll up to 1.2 deg, phone tilt up to 3 deg
@@ -524,6 +717,17 @@ export function initRenderer(canvasElement) {
     accessories.tick(idleState.time, idleFrozen);
     wifiScene.tick(idleState.time, idleFrozen);
 
+    // 360 Turntable inertia damping
+    interactiveOrbitGroup.rotation.y += (targetOrbitY - interactiveOrbitGroup.rotation.y) * 0.12;
+    interactiveOrbitGroup.rotation.x += (targetOrbitX - interactiveOrbitGroup.rotation.x) * 0.12;
+    if (isScrolling) {
+      targetOrbitX *= 0.95;
+      targetOrbitY *= 0.95;
+    }
+
+    // Tick floating atmospheric particles
+    atmosphericParticles.tick(idleState.time);
+
     // (b) composer/post-processing off (render directly for maximum clarity and visibility)
     const shouldUseComposer = false;
 
@@ -622,6 +826,7 @@ export function initRenderer(canvasElement) {
       glowGeom.dispose();
       glowMat.dispose();
       glowTexture.dispose();
+      atmosphericParticles.dispose();
       phone.dispose();
       accessories.dispose();
       wifiScene.dispose();

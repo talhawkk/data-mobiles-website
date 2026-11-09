@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/SplitText.js';
 import { INSPECT_LABELS } from '../config.js';
+import { playHapticTick, playSnap, playSwitch } from './audio.js';
 
 gsap.registerPlugin(SplitText);
 
@@ -96,6 +97,7 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
   railItems.forEach((item) => {
     item.addEventListener('click', (e) => {
       e.stopPropagation();
+      playSnap();
       const id = item.dataset.id;
       if (id && INSPECT_PROGRESS_MAP[id] !== undefined && typeof onNavigate === 'function') {
         onNavigate(INSPECT_PROGRESS_MAP[id]);
@@ -108,6 +110,7 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
   accRailItems.forEach((item, idx) => {
     item.addEventListener('click', (e) => {
       e.stopPropagation();
+      playHapticTick(720, 0.03);
       if (typeof onNavigate === 'function') {
         onNavigate(ACC_PROGRESS_MAP[idx] || 0.68);
       }
@@ -119,9 +122,20 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
   wifiPlanRows.forEach((row, idx) => {
     row.addEventListener('click', (e) => {
       e.stopPropagation();
+      playHapticTick(680, 0.035);
       if (typeof onNavigate === 'function') {
         onNavigate(WIFI_PROGRESS_MAP[idx] || 0.83);
       }
+    });
+  });
+
+  // Interactive Symptom Selection Chips
+  const symptomTags = document.querySelectorAll('.symptom-tag');
+  symptomTags.forEach((tag) => {
+    tag.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tag.classList.toggle('selected');
+      playSwitch();
     });
   });
 
@@ -153,8 +167,16 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
     }
   }
 
+  let lastPlayedInspectId = null;
+
   // Update visible inspect label & rail item
   function setInspectLabel(id) {
+    if (id && id !== lastPlayedInspectId) {
+      playSnap();
+      lastPlayedInspectId = id;
+    } else if (!id) {
+      lastPlayedInspectId = null;
+    }
     activeInspectId = id;
 
     // Highlight active index rail item

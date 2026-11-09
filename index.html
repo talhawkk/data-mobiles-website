@@ -108,6 +108,12 @@
   <!-- Persistent WebGL Canvas -->
   <canvas id="webgl-canvas" aria-hidden="true"></canvas>
 
+  <!-- Floating 3D Interaction Turntable Hint -->
+  <div class="canvas-orbit-hint" id="canvas-orbit-hint" aria-hidden="true">
+    <span class="orbit-radar-dot"></span>
+    <span class="orbit-hint-text">DRAG TO ROTATE 360° · CLICK ANY PART</span>
+  </div>
+
   <!-- Preloader Screen -->
   <div id="preloader" role="dialog" aria-label="Loading site">
     <div class="preloader-brand" aria-label="DATA">
@@ -142,6 +148,15 @@
         <span class="status-dot" aria-hidden="true"></span>
         <span class="nav-status-text">MAIN MARKET, LAHORE</span>
       </div>
+      <button class="nav-sound-btn" id="sound-toggle-btn" aria-label="Audio feedback" title="Toggle Sound">
+        <svg class="sound-icon-on" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+        <svg class="sound-icon-off" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" style="display: none;">
+          <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+        </svg>
+        <span class="sound-label">SFX</span>
+      </button>
     </div>
   </header>
 
@@ -229,57 +244,132 @@
 
       <!-- 01 Battery -->
       <div class="inspect-label-card" data-id="battery">
-        <span class="mono-label accent">01 // POWER</span>
+        <span class="mono-label accent">01 // POWER SYSTEM</span>
         <h3 class="display-title split-text">Battery</h3>
-        <p class="body-subline">Full day power again.</p>
+        <p class="body-subline">Full day high-capacity power restored to factory cycles.</p>
+        <div class="inspect-specs-grid">
+          <div class="inspect-spec-item">
+            <span class="spec-k">CAPACITY</span>
+            <span class="spec-v">4,850 mAh DUAL-CELL</span>
+          </div>
+          <div class="inspect-spec-item">
+            <span class="spec-k">TURNAROUND</span>
+            <span class="spec-v">⚡ 25-MIN EXPRESS</span>
+          </div>
+        </div>
         <div class="inspect-symptoms">
           <span class="symptom-tag">Drains fast</span>
-          <span class="symptom-tag">Swollen</span>
+          <span class="symptom-tag">Swollen cell</span>
+          <span class="symptom-tag">Random off</span>
         </div>
+        <a href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20want%20to%20book%20a%20Battery%20replacement." target="_blank" rel="noopener noreferrer" class="inspect-action-btn">
+          <span>Book Battery Service</span>
+          <span class="action-arrow">➔</span>
+        </a>
       </div>
 
       <!-- 02 Board -->
       <div class="inspect-label-card" data-id="board">
-        <span class="mono-label accent">02 // CIRCUIT</span>
-        <h3 class="display-title split-text">Board</h3>
-        <p class="body-subline">Dead phone? We try.</p>
+        <span class="mono-label accent">02 // LOGIC BOARD</span>
+        <h3 class="display-title split-text">Logic Board</h3>
+        <p class="body-subline">Level-3 micro-soldering, short diagnostics, and BGA reballing.</p>
+        <div class="inspect-specs-grid">
+          <div class="inspect-spec-item">
+            <span class="spec-k">ARCHITECTURE</span>
+            <span class="spec-v">3nm MULTI-LAYER PCB</span>
+          </div>
+          <div class="inspect-spec-item">
+            <span class="spec-k">TURNAROUND</span>
+            <span class="spec-v">🔬 SAME-DAY ATELIER</span>
+          </div>
+        </div>
         <div class="inspect-symptoms">
           <span class="symptom-tag">No power</span>
           <span class="symptom-tag">Water damage</span>
+          <span class="symptom-tag">IC Short</span>
         </div>
+        <a href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20motherboard%20micro-soldering%20repair." target="_blank" rel="noopener noreferrer" class="inspect-action-btn">
+          <span>Book Board Service</span>
+          <span class="action-arrow">➔</span>
+        </a>
       </div>
 
       <!-- 03 Camera -->
       <div class="inspect-label-card" data-id="camera">
-        <span class="mono-label accent">03 // OPTICS</span>
+        <span class="mono-label accent">03 // OPTICS SYSTEM</span>
         <h3 class="display-title split-text">Camera</h3>
-        <p class="body-subline">Sharp again.</p>
-        <div class="inspect-symptoms">
-          <span class="symptom-tag">Blurry</span>
-          <span class="symptom-tag">Cracked lens</span>
+        <p class="body-subline">Sapphire crystal lens replacement with laser optical alignment.</p>
+        <div class="inspect-specs-grid">
+          <div class="inspect-spec-item">
+            <span class="spec-k">SENSOR ARRAY</span>
+            <span class="spec-v">48MP OIS + PERISCOPE</span>
+          </div>
+          <div class="inspect-spec-item">
+            <span class="spec-k">TURNAROUND</span>
+            <span class="spec-v">📸 35-MIN CALIBRATED</span>
+          </div>
         </div>
+        <div class="inspect-symptoms">
+          <span class="symptom-tag">Blurry focus</span>
+          <span class="symptom-tag">Cracked glass</span>
+          <span class="symptom-tag">OIS shake</span>
+        </div>
+        <a href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20want%20to%20fix%20my%20phone%20camera." target="_blank" rel="noopener noreferrer" class="inspect-action-btn">
+          <span>Book Camera Service</span>
+          <span class="action-arrow">➔</span>
+        </a>
       </div>
 
       <!-- 04 Port -->
       <div class="inspect-label-card" data-id="port">
-        <span class="mono-label accent">04 // CHARGING</span>
-        <h3 class="display-title split-text">Port</h3>
-        <p class="body-subline">Charges like new.</p>
+        <span class="mono-label accent">04 // CHARGING DOCK</span>
+        <h3 class="display-title split-text">USB-C Port</h3>
+        <p class="body-subline">CNC milled dock assembly, flex connection, and fast PD line restoration.</p>
+        <div class="inspect-specs-grid">
+          <div class="inspect-spec-item">
+            <span class="spec-k">SPECIFICATION</span>
+            <span class="spec-v">USB-C 3.2 · 40W PD TESTED</span>
+          </div>
+          <div class="inspect-spec-item">
+            <span class="spec-k">TURNAROUND</span>
+            <span class="spec-v">⚡ 20-MIN EXPRESS</span>
+          </div>
+        </div>
         <div class="inspect-symptoms">
           <span class="symptom-tag">Won't charge</span>
-          <span class="symptom-tag">Loose cable</span>
+          <span class="symptom-tag">Loose plug</span>
+          <span class="symptom-tag">Slow charge</span>
         </div>
+        <a href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20my%20charging%20port%20repaired." target="_blank" rel="noopener noreferrer" class="inspect-action-btn">
+          <span>Book Port Service</span>
+          <span class="action-arrow">➔</span>
+        </a>
       </div>
 
       <!-- 05 Screen -->
       <div class="inspect-label-card" data-id="screen">
-        <span class="mono-label accent">05 // DISPLAY</span>
+        <span class="mono-label accent">05 // OLED DISPLAY</span>
         <h3 class="display-title split-text">Screen</h3>
-        <p class="body-subline">Cracked? Replaced today.</p>
+        <p class="body-subline">Grade-A ProMotion OLED panel with true color and factory water seal.</p>
+        <div class="inspect-specs-grid">
+          <div class="inspect-spec-item">
+            <span class="spec-k">PANEL TYPE</span>
+            <span class="spec-v">120Hz SUPER RETINA OLED</span>
+          </div>
+          <div class="inspect-spec-item">
+            <span class="spec-k">TURNAROUND</span>
+            <span class="spec-v">✨ 30-MIN SAME-DAY</span>
+          </div>
+        </div>
         <div class="inspect-symptoms">
-          <span class="symptom-tag">Cracked</span>
+          <span class="symptom-tag">Cracked glass</span>
+          <span class="symptom-tag">Green line</span>
           <span class="symptom-tag">Dead touch</span>
         </div>
+        <a href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20my%20screen%20replaced%20today." target="_blank" rel="noopener noreferrer" class="inspect-action-btn">
+          <span>Book Screen Service</span>
+          <span class="action-arrow">➔</span>
+        </a>
       </div>
     </section>
 

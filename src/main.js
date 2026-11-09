@@ -12,6 +12,7 @@ import { initNav } from './ui/nav.js';
 import { initOverlay } from './ui/overlay.js';
 import { initScroll } from './scroll.js';
 import { getOpenStatus } from './config.js';
+import { initAudio } from './ui/audio.js';
 
 /**
  * Checks for WebGL2 capability
@@ -42,14 +43,7 @@ function boot() {
   const canvas = document.getElementById('webgl-canvas');
   if (!canvas) return;
 
-  // 1. Initialize WebGL Scene
-  let rendererObj = null;
-  try {
-    rendererObj = initRenderer(canvas);
-  } catch (err) {
-    console.error('Failed to initialize WebGL renderer:', err);
-    document.body.classList.add('no-webgl');
-  }
+  initAudio();
 
   let scrollObj = null;
   const navigateFn = (progress) => {
@@ -57,6 +51,17 @@ function boot() {
       scrollObj.scrollToProgress(progress);
     }
   };
+
+  // 1. Initialize WebGL Scene
+  let rendererObj = null;
+  try {
+    rendererObj = initRenderer(canvas, {
+      onNavigate: (p) => navigateFn(p),
+    });
+  } catch (err) {
+    console.error('Failed to initialize WebGL renderer:', err);
+    document.body.classList.add('no-webgl');
+  }
 
   // 2. Initialize Overlay Controller
   const overlayObj = initOverlay({
