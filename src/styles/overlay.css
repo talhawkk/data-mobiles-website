@@ -448,12 +448,12 @@
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--muted);
-  opacity: 0.55;
-  transition: transform 0.2s ease, opacity 0.3s ease, color 0.3s ease;
+  opacity: 0.50;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, color 0.25s ease;
   user-select: none;
   cursor: pointer;
   pointer-events: auto;
-  padding: 4px 0;
+  padding: 5px 0;
 }
 
 .rail-item:hover {
@@ -464,31 +464,33 @@
 
 .rail-item.active {
   opacity: 1;
-  color: var(--rail-active);
-  transform: translateX(4px);
+  color: var(--text);
+  transform: translateX(6px);
 }
 
 .rail-num {
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--rail-inactive);
+  font-variant-numeric: tabular-nums;
   transition: color 0.25s ease;
 }
 
 .rail-item.active .rail-num {
-  color: var(--rail-active);
+  color: var(--accent);
 }
 
 .rail-line {
   display: inline-block;
   width: 0px;
-  height: 1.5px;
-  background: var(--rail-bar);
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
   transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
 }
 
 .rail-item.active .rail-line {
-  width: 28px;
+  width: 24px;
 }
 
 .rail-label {
@@ -497,21 +499,32 @@
   transition: color 0.25s ease;
 }
 
+.rail-item.active .rail-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
 .inspect-label-card {
   position: absolute;
   pointer-events: none;
   opacity: 0 !important;
   visibility: hidden !important;
   display: none !important;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  /* Desktop: text column 0 to 38vw left */
-  max-width: 34vw;
-  min-width: 220px;
-  /* No filled box (transparent background, accent left bar only) */
-  border-left: 2px solid var(--accent);
-  padding-left: 18px;
-  padding-top: 4px;
-  padding-bottom: 6px;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: clamp(280px, 22vw, 360px);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  border-left: 3px solid var(--accent);
+  border-radius: 20px;
+  padding: 24px 26px;
+  box-shadow: 
+    0 20px 48px -12px rgba(15, 23, 42, 0.08),
+    0 4px 16px -2px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  z-index: 25;
 }
 
 .inspect-label-card.active {
@@ -521,9 +534,35 @@
   pointer-events: auto !important;
 }
 
+.inspect-label-card .mono-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
 .inspect-label-card .display-title {
-  font-size: clamp(2rem, 3.5vw, 3.5rem);
-  margin: 6px 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 2.6vw, 2.85rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--text);
+  margin: 6px 0 4px;
+  line-height: 1.1;
+}
+
+.inspect-label-card .body-subline {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 16px;
 }
 
 /* Symptom Tags (outlined chips, 1px) */
@@ -620,9 +659,12 @@
     position: fixed;
     bottom: calc(20px + var(--sab));
     left: var(--container-pad);
-    right: auto;
-    max-width: calc(100vw - (var(--container-pad) * 2));
+    right: var(--container-pad);
+    width: auto;
+    max-width: none;
     min-width: 0;
+    padding: 18px 20px;
+    border-radius: 16px;
   }
 }
 

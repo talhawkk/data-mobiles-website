@@ -243,10 +243,10 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
     activeCard.style.display = 'block';
 
     if (!isMobile) {
-      // Desktop: label in left column (x from 0 to 38vw per layout contract).
-      const cardWidth = activeCard.offsetWidth || 340;
-      const cardX = Math.max(50, Math.min(width * 0.08, 100)); // offset past rail
-      const cardY = Math.min(height - 240, Math.max(120, screenPos.y - 60));
+      // Desktop: Dedicated info column placed to the right of the index rail (zero collision)
+      const railRight = Math.min(width * 0.04 + 130, 160);
+      const cardX = Math.max(railRight + 36, Math.min(width * 0.15, 220));
+      const cardY = Math.min(height - 280, Math.max(120, screenPos.y - 70));
 
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;

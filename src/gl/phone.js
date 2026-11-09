@@ -386,23 +386,23 @@ export function createPhone({ isMobile = false } = {}) {
 
   // ===================================================================
   // 2. LAYER 4: MIDFRAME
-  // Natural Titanium frame #DCE0E6, metalness 0.95, roughness 0.28
+  // Flagship Space Black Titanium frame #242730, metalness 0.94, roughness 0.24 (High Contrast against White Studio)
   // ===================================================================
   const frameGroup = new THREE.Group();
   frameGroup.name = 'frame';
 
   const frameGeom = new RoundedBoxGeometry(0.72, 1.52, 0.08, 5, 0.08);
   const frameMat = new THREE.MeshStandardMaterial({
-    color: 0xDCE0E6,
-    metalness: 0.95,
-    roughness: 0.28,
+    color: 0x242730,
+    metalness: 0.94,
+    roughness: 0.24,
     roughnessMap: textures.brushedTexture,
   });
   const frameMesh = new THREE.Mesh(frameGeom, frameMat);
   frameGroup.add(frameMesh);
 
   // Antenna split lines (merged geometry: 4 corner bands)
-  const antennaMat = new THREE.MeshBasicMaterial({ color: 0x8C929E });
+  const antennaMat = new THREE.MeshBasicMaterial({ color: 0x12141A });
   const antGeom1 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
   antGeom1.translate(-0.358, 0.48, 0);
   const antGeom2 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
@@ -415,11 +415,11 @@ export function createPhone({ isMobile = false } = {}) {
   const antennaMesh = new THREE.Mesh(mergedAntGeom, antennaMat);
   frameGroup.add(antennaMesh);
 
-  // Tactile Natural Titanium Hardware Buttons
+  // Tactile Space Black Titanium Hardware Buttons
   const buttonMat = new THREE.MeshStandardMaterial({
-    color: 0xD0D4DE,
+    color: 0x383C48,
     metalness: 0.95,
-    roughness: 0.22,
+    roughness: 0.20,
     roughnessMap: textures.brushedTexture,
   });
 
@@ -917,41 +917,41 @@ export function createPhone({ isMobile = false } = {}) {
 
   const backCoverGeom = new RoundedBoxGeometry(0.70, 1.50, 0.015, 5, 0.06);
 
-  // White Titanium / Ceramic Silver Back Cover
+  // Flagship Space Black / Obsidian Black Titanium Back Cover (High Contrast against White Studio)
   let backCoverMat;
   if (!isMobile && THREE.MeshPhysicalMaterial) {
     backCoverMat = new THREE.MeshPhysicalMaterial({
-      color: 0xF5F6FA,
+      color: 0x16181F,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.08,
-      roughness: 0.16,
-      metalness: 0.05,
+      clearcoatRoughness: 0.10,
+      roughness: 0.20,
+      metalness: 0.12,
     });
   } else {
     backCoverMat = new THREE.MeshStandardMaterial({
-      color: 0xF5F6FA,
-      roughness: 0.16,
-      metalness: 0.05,
+      color: 0x16181F,
+      roughness: 0.20,
+      metalness: 0.12,
     });
   }
 
   const backCoverMesh = new THREE.Mesh(backCoverGeom, backCoverMat);
   backCoverGroup.add(backCoverMesh);
 
-  // White Titanium Sculpted Camera Plateau on Back Cover
+  // Sculpted Space Black Camera Plateau on Back Cover
   const camPlateauGeom = new RoundedBoxGeometry(0.29, 0.29, 0.010, 4, 0.038);
   const camPlateauMat = new THREE.MeshStandardMaterial({
-    color: 0xF2F4F8,
-    roughness: 0.16,
-    metalness: 0.08,
+    color: 0x191B24,
+    roughness: 0.18,
+    metalness: 0.12,
   });
   const camPlateauMesh = new THREE.Mesh(camPlateauGeom, camPlateauMat);
   camPlateauMesh.position.set(-0.18, 0.52, 0.010);
   backCoverGroup.add(camPlateauMesh);
 
-  // Polished Titanium Bezel Trim around camera island perimeter
+  // Polished Dark Titanium Bezel Trim around camera island perimeter
   const plateauRimGeom = new THREE.EdgesGeometry(camPlateauGeom, 30);
-  const plateauRimMat = new THREE.LineBasicMaterial({ color: 0xD0D4E0, transparent: true, opacity: 0.85 });
+  const plateauRimMat = new THREE.LineBasicMaterial({ color: 0x3E4352, transparent: true, opacity: 0.85 });
   const plateauRimMesh = new THREE.LineSegments(plateauRimGeom, plateauRimMat);
   camPlateauMesh.add(plateauRimMesh);
 
@@ -962,11 +962,11 @@ export function createPhone({ isMobile = false } = {}) {
     { x: 0.066,  y: 0.0,    r: 0.042 }, // 5x Telephoto
   ];
 
-  // Knurled Titanium Outer Rings
+  // Knurled Dark Titanium Outer Rings
   const proRingMat = new THREE.MeshStandardMaterial({
-    color: 0xD2D6E4,
+    color: 0x585E70,
     metalness: 0.98,
-    roughness: 0.16,
+    roughness: 0.15,
   });
   const proRingGeoms = proLensCoords.map((lc) => {
     const g = new THREE.TorusGeometry(lc.r, 0.006, 12, isMobile ? 18 : 30);
@@ -1039,16 +1039,16 @@ export function createPhone({ isMobile = false } = {}) {
   micHoleMesh.position.set(0.014, -0.088, 0.006);
   camPlateauMesh.add(micHoleMesh);
 
-  // Subtle chrome / silver-gloss "DATA" logo on rear glass
+  // Brilliant chrome / mirror-silver "DATA" logo on rear obsidian glass
   const logoCanvas = document.createElement('canvas');
   logoCanvas.width = 256;
   logoCanvas.height = 128;
   const logoCtx = logoCanvas.getContext('2d');
-  logoCtx.fillStyle = '#A0A5B0';
+  logoCtx.fillStyle = '#E8ECF5';
   logoCtx.font = '800 48px "Bricolage Grotesque", sans-serif';
   logoCtx.textAlign = 'center';
   logoCtx.fillText('DATA', 128, 76);
-  logoCtx.fillStyle = '#00875A';
+  logoCtx.fillStyle = '#16A34A';
   logoCtx.beginPath();
   logoCtx.arc(206, 52, 6, 0, Math.PI * 2);
   logoCtx.fill();
@@ -1388,37 +1388,37 @@ export function createPhone({ isMobile = false } = {}) {
     switch (partName) {
       case 'screen':
         targetGroup = screenGroup;
-        localOffset.set(0, 0.2, 0);
+        localOffset.set(0, 0, 0.01);
         break;
       case 'battery':
         targetGroup = batteryGroup;
-        localOffset.set(0, -0.15, 0);
+        localOffset.set(0, 0, 0.02);
         break;
       case 'port':
         targetGroup = portGroup;
-        localOffset.set(0, -0.74, 0);
+        localOffset.set(0, -0.62, 0.02);
         break;
       case 'camera':
       case 'cameraUnit':
         targetGroup = cameraUnitGroup;
-        localOffset.set(-0.19, 0.52, 0.06);
+        localOffset.set(0, 0, 0.04);
         break;
       case 'board':
         targetGroup = boardGroup;
-        localOffset.set(0, 0.42, 0.02);
+        localOffset.set(0, 0, 0.02);
         break;
       case 'cover':
       case 'coverPlate':
       case 'backCover':
         targetGroup = backCoverGroup;
-        localOffset.set(0, 0, 0.04);
+        localOffset.set(0, 0, 0.02);
         break;
       default:
         targetGroup = phoneGroup;
     }
 
-    targetGroup.getWorldPosition(anchorVec);
-    anchorVec.add(localOffset);
+    if (!targetGroup) targetGroup = phoneGroup;
+    targetGroup.localToWorld(anchorVec.copy(localOffset));
     anchorVec.project(camera);
 
     const x = (anchorVec.x * 0.5 + 0.5) * width;
