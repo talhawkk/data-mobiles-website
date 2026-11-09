@@ -408,6 +408,12 @@
   font-size: clamp(2.75rem, 7vw, 7.5rem);
 }
 
+.section-teardown-intro .display-title {
+  font-size: clamp(2.25rem, 4.8vw, 5.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
 @media (max-width: 1023px) {
   .hero-content {
     grid-column: 1 / -1;
@@ -842,6 +848,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
+  margin-top: -4vh;
 }
 
 .finale-status-chip {
@@ -852,8 +859,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   margin-top: 24px;
+  margin-bottom: 32px;
   pointer-events: auto;
 }
 
@@ -904,7 +912,7 @@
 /* One-line Marquee in DM Mono at 40px/s */
 .finale-marquee-wrapper {
   position: absolute;
-  bottom: 84px;
+  bottom: 56px;
   left: 0;
   width: 100%;
   overflow: hidden;
@@ -913,7 +921,7 @@
   z-index: 6;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .finale-marquee-track {

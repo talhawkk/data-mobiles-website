@@ -401,15 +401,74 @@ export function createPhone({ isMobile = false } = {}) {
   const frameMesh = new THREE.Mesh(frameGeom, frameMat);
   frameGroup.add(frameMesh);
 
-  // Antenna split lines (merged geometry)
+  // Antenna split lines (merged geometry: 4 corner bands)
   const antennaMat = new THREE.MeshBasicMaterial({ color: 0x8C929E });
-  const antGeom1 = new THREE.BoxGeometry(0.01, 0.01, 0.082);
-  antGeom1.translate(-0.358, 0.45, 0);
-  const antGeom2 = new THREE.BoxGeometry(0.01, 0.01, 0.082);
-  antGeom2.translate(0.358, 0.45, 0);
-  const mergedAntGeom = BufferGeometryUtils.mergeGeometries([antGeom1, antGeom2]);
+  const antGeom1 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
+  antGeom1.translate(-0.358, 0.48, 0);
+  const antGeom2 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
+  antGeom2.translate(0.358, 0.48, 0);
+  const antGeom3 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
+  antGeom3.translate(-0.358, -0.48, 0);
+  const antGeom4 = new THREE.BoxGeometry(0.01, 0.012, 0.082);
+  antGeom4.translate(0.358, -0.48, 0);
+  const mergedAntGeom = BufferGeometryUtils.mergeGeometries([antGeom1, antGeom2, antGeom3, antGeom4]);
   const antennaMesh = new THREE.Mesh(mergedAntGeom, antennaMat);
   frameGroup.add(antennaMesh);
+
+  // Tactile Natural Titanium Hardware Buttons
+  const buttonMat = new THREE.MeshStandardMaterial({
+    color: 0xD0D4DE,
+    metalness: 0.95,
+    roughness: 0.22,
+    roughnessMap: textures.brushedTexture,
+  });
+
+  // Left: Action button
+  const actionBtnGeom = new RoundedBoxGeometry(0.008, 0.038, 0.024, 2, 0.004);
+  const actionBtnMesh = new THREE.Mesh(actionBtnGeom, buttonMat);
+  actionBtnMesh.position.set(-0.362, 0.38, 0);
+  frameGroup.add(actionBtnMesh);
+
+  // Left: Volume Up
+  const volUpGeom = new RoundedBoxGeometry(0.008, 0.062, 0.024, 2, 0.004);
+  const volUpMesh = new THREE.Mesh(volUpGeom, buttonMat);
+  volUpMesh.position.set(-0.362, 0.26, 0);
+  frameGroup.add(volUpMesh);
+
+  // Left: Volume Down
+  const volDownGeom = new RoundedBoxGeometry(0.008, 0.062, 0.024, 2, 0.004);
+  const volDownMesh = new THREE.Mesh(volDownGeom, buttonMat);
+  volDownMesh.position.set(-0.362, 0.17, 0);
+  frameGroup.add(volDownMesh);
+
+  // Right: Side / Power button
+  const powerBtnGeom = new RoundedBoxGeometry(0.008, 0.095, 0.024, 2, 0.004);
+  const powerBtnMesh = new THREE.Mesh(powerBtnGeom, buttonMat);
+  powerBtnMesh.position.set(0.362, 0.24, 0);
+  frameGroup.add(powerBtnMesh);
+
+  // Bottom: CNC Acoustic Speaker Ports
+  const portHoleMat = new THREE.MeshBasicMaterial({ color: 0x111318 });
+  const holeGeom = new THREE.CylinderGeometry(0.006, 0.006, 0.012, 10);
+  holeGeom.rotateZ(Math.PI / 2);
+  const holePositions = [
+    { x: 0.10, y: -0.76, z: 0 },
+    { x: 0.13, y: -0.76, z: 0 },
+    { x: 0.16, y: -0.76, z: 0 },
+    { x: 0.19, y: -0.76, z: 0 },
+    { x: 0.22, y: -0.76, z: 0 },
+    { x: -0.10, y: -0.76, z: 0 },
+    { x: -0.13, y: -0.76, z: 0 },
+    { x: -0.16, y: -0.76, z: 0 },
+  ];
+  const holeGeoms = holePositions.map((hp) => {
+    const g = holeGeom.clone();
+    g.translate(hp.x, hp.y, hp.z);
+    return g;
+  });
+  const mergedHoles = BufferGeometryUtils.mergeGeometries(holeGeoms);
+  const holesMesh = new THREE.Mesh(mergedHoles, portHoleMat);
+  frameGroup.add(holesMesh);
 
   const frameOutline = addEdgeOutline(frameGeom, frameGroup);
   innerGroup.add(frameGroup);
@@ -880,15 +939,105 @@ export function createPhone({ isMobile = false } = {}) {
   backCoverGroup.add(backCoverMesh);
 
   // White Titanium Sculpted Camera Plateau on Back Cover
-  const camPlateauGeom = new RoundedBoxGeometry(0.28, 0.28, 0.008, 4, 0.035);
+  const camPlateauGeom = new RoundedBoxGeometry(0.29, 0.29, 0.010, 4, 0.038);
   const camPlateauMat = new THREE.MeshStandardMaterial({
-    color: 0xEFF1F5,
-    roughness: 0.20,
+    color: 0xF2F4F8,
+    roughness: 0.16,
     metalness: 0.08,
   });
   const camPlateauMesh = new THREE.Mesh(camPlateauGeom, camPlateauMat);
-  camPlateauMesh.position.set(-0.18, 0.52, 0.009);
+  camPlateauMesh.position.set(-0.18, 0.52, 0.010);
   backCoverGroup.add(camPlateauMesh);
+
+  // Polished Titanium Bezel Trim around camera island perimeter
+  const plateauRimGeom = new THREE.EdgesGeometry(camPlateauGeom, 30);
+  const plateauRimMat = new THREE.LineBasicMaterial({ color: 0xD0D4E0, transparent: true, opacity: 0.85 });
+  const plateauRimMesh = new THREE.LineSegments(plateauRimGeom, plateauRimMat);
+  camPlateauMesh.add(plateauRimMesh);
+
+  // 3 Pro Titanium Lens Assemblies directly on sculpted rear plateau
+  const proLensCoords = [
+    { x: -0.062, y: 0.066, r: 0.046 },  // Wide 48MP
+    { x: -0.062, y: -0.066, r: 0.046 }, // Ultra-Wide
+    { x: 0.066,  y: 0.0,    r: 0.042 }, // 5x Telephoto
+  ];
+
+  // Knurled Titanium Outer Rings
+  const proRingMat = new THREE.MeshStandardMaterial({
+    color: 0xD2D6E4,
+    metalness: 0.98,
+    roughness: 0.16,
+  });
+  const proRingGeoms = proLensCoords.map((lc) => {
+    const g = new THREE.TorusGeometry(lc.r, 0.006, 12, isMobile ? 18 : 30);
+    g.translate(lc.x, lc.y, 0.007);
+    return g;
+  });
+  const mergedProRings = BufferGeometryUtils.mergeGeometries(proRingGeoms);
+  const proRingsMesh = new THREE.Mesh(mergedProRings, proRingMat);
+  camPlateauMesh.add(proRingsMesh);
+
+  // Stepped Inner Anodized Rings
+  const innerStepMat = new THREE.MeshStandardMaterial({
+    color: 0x1A1C22,
+    metalness: 0.85,
+    roughness: 0.30,
+  });
+  const innerStepGeoms = proLensCoords.map((lc) => {
+    const g = new THREE.TorusGeometry(lc.r * 0.84, 0.003, 8, isMobile ? 16 : 24);
+    g.translate(lc.x, lc.y, 0.0075);
+    return g;
+  });
+  const mergedInnerSteps = BufferGeometryUtils.mergeGeometries(innerStepGeoms);
+  const innerStepsMesh = new THREE.Mesh(mergedInnerSteps, innerStepMat);
+  camPlateauMesh.add(innerStepsMesh);
+
+  // Sapphire Anti-Reflective Optical Domes
+  const proOpticsMat = new THREE.MeshStandardMaterial({
+    color: 0x020306,
+    roughness: 0.03,
+    metalness: 0.96,
+    map: textures.cameraLensTexture,
+  });
+  const proDomeGeoms = proLensCoords.map((lc) => {
+    const g = new THREE.SphereGeometry(lc.r * 0.82, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+    g.translate(lc.x, lc.y, 0.006);
+    return g;
+  });
+  const mergedProDomes = BufferGeometryUtils.mergeGeometries(proDomeGeoms);
+  const proDomesMesh = new THREE.Mesh(mergedProDomes, proOpticsMat);
+  camPlateauMesh.add(proDomesMesh);
+
+  // True Tone Dual-LED Flash with Frosted Diffuser
+  const flashMeshGeom = new THREE.CylinderGeometry(0.018, 0.018, 0.004, 20);
+  flashMeshGeom.rotateX(Math.PI / 2);
+  const flashDiffuserMat = new THREE.MeshStandardMaterial({
+    color: 0xFFFBE8,
+    roughness: 0.35,
+    metalness: 0.15,
+  });
+  const flashUnitMesh = new THREE.Mesh(flashMeshGeom, flashDiffuserMat);
+  flashUnitMesh.position.set(0.066, 0.074, 0.006);
+  camPlateauMesh.add(flashUnitMesh);
+
+  // LiDAR Scanner Deep Mirror Window
+  const lidarWindowGeom = new THREE.CylinderGeometry(0.016, 0.016, 0.004, 20);
+  lidarWindowGeom.rotateX(Math.PI / 2);
+  const lidarWindowMat = new THREE.MeshStandardMaterial({
+    color: 0x06070B,
+    roughness: 0.04,
+    metalness: 0.98,
+  });
+  const lidarWindowMesh = new THREE.Mesh(lidarWindowGeom, lidarWindowMat);
+  lidarWindowMesh.position.set(0.066, -0.074, 0.006);
+  camPlateauMesh.add(lidarWindowMesh);
+
+  // Studio Rear Microphone Acoustic Port
+  const micHoleGeom = new THREE.CircleGeometry(0.0045, 14);
+  const micHoleMat = new THREE.MeshBasicMaterial({ color: 0x111318 });
+  const micHoleMesh = new THREE.Mesh(micHoleGeom, micHoleMat);
+  micHoleMesh.position.set(0.014, -0.088, 0.006);
+  camPlateauMesh.add(micHoleMesh);
 
   // Subtle chrome / silver-gloss "DATA" logo on rear glass
   const logoCanvas = document.createElement('canvas');
@@ -1055,7 +1204,7 @@ export function createPhone({ isMobile = false } = {}) {
     port:        { x:  0.0,   y:  0.0,   z: -0.006, rx: 0, ry: 0 },
     battery:     { x: -0.14,  y: -0.06,  z:  0.010, rx: 0, ry: 0 },
     board:       { x:  0.0,   y:  0.42,  z:  0.008, rx: 0, ry: 0 },
-    cameraUnit:  { x: -0.18,  y:  0.52,  z:  0.052, rx: 0, ry: 0 },
+    cameraUnit:  { x: -0.18,  y:  0.52,  z:  0.024, rx: 0, ry: 0 },
     coverPlate:  { x:  0.0,   y:  0.0,   z:  0.032, rx: 0, ry: 0 },
     backCover:   { x:  0.0,   y:  0.0,   z:  0.045, rx: 0, ry: 0 },
   };

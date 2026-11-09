@@ -170,12 +170,12 @@ export function build(tl, ctx) {
     20
   );
 
-  // Tighten camera fov from 38/50 to 30 during inspect
+  // Retain optimal camera fov for complete in-frame visibility (no viewport clipping)
   const baseFov = isMobile ? 50 : 38;
   tl.to(
     camera,
     {
-      fov: 30,
+      fov: baseFov,
       duration: 4,
       ease: 'power2.inOut',
       onUpdate: () => camera.updateProjectionMatrix(),
@@ -184,11 +184,11 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 01: BATTERY (0.20 - 0.27, t: 20 to 27)
-  // Battery pulls toward camera (+0.35 in Z), rotates 20 deg around Y to show pull tabs
+  // Battery pulls toward camera (+0.28 in Z), rotates 16 deg around Y to show pull tabs
   tl.to(
     phone.batteryGroup.position,
     {
-      z: 0.44 + 0.35,
+      z: 0.44 + 0.28,
       x: -0.06,
       duration: 3,
       ease: 'power2.out',
@@ -198,20 +198,20 @@ export function build(tl, ctx) {
   tl.to(
     phone.batteryGroup.rotation,
     {
-      y: 0.35, // 20 degrees around Y
-      x: -0.08,
+      y: 0.28, // 16 degrees around Y
+      x: -0.06,
       duration: 3,
       ease: 'power2.out',
     },
     20
   );
 
-  // Camera focuses on Battery world position
+  // Camera frames Battery comfortably
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.84,
-      y: -0.06,
+      z: initialCamZ * 0.98,
+      y: -0.04,
       duration: 6,
       ease: 'none',
     },
@@ -241,12 +241,12 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 02: BOARD (0.27 - 0.34, t: 27 to 34)
-  // Board pulls toward camera (+0.35 in Z), tilted (rx: 0.15, ry: -0.15) to rake light across shield cans
+  // Board pulls toward camera (+0.28 in Z), tilted to rake light across shield cans
   tl.to(
     phone.boardGroup.position,
     {
-      z: 0.24 + 0.35,
-      y: 0.46,
+      z: 0.24 + 0.28,
+      y: 0.44,
       duration: 3,
       ease: 'power2.out',
     },
@@ -255,20 +255,20 @@ export function build(tl, ctx) {
   tl.to(
     phone.boardGroup.rotation,
     {
-      x: 0.15,
-      y: -0.15,
+      x: 0.12,
+      y: -0.12,
       duration: 3,
       ease: 'power2.out',
     },
     27
   );
 
-  // Camera focuses on Board
+  // Camera frames Board
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.80,
-      y: 0.36,
+      z: initialCamZ * 0.98,
+      y: 0.16,
       duration: 6,
       ease: 'none',
     },
@@ -298,13 +298,13 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 03: CAMERA UNIT (0.34 - 0.41, t: 34 to 41)
-  // Camera unit pulls forward (+0.35 in Z), rotates to show triple lens rings
+  // Camera unit pulls forward (+0.28 in Z), rotates to show triple lens rings
   tl.to(
     phone.cameraUnitGroup.position,
     {
-      z: 0.68 + 0.35,
-      x: -0.20,
-      y: 0.58,
+      z: 0.68 + 0.28,
+      x: -0.18,
+      y: 0.54,
       duration: 3,
       ease: 'power2.out',
     },
@@ -313,8 +313,8 @@ export function build(tl, ctx) {
   tl.to(
     phone.cameraUnitGroup.rotation,
     {
-      x: 0.10,
-      y: -0.12,
+      x: 0.08,
+      y: -0.10,
       duration: 3,
       ease: 'power2.out',
     },
@@ -324,8 +324,8 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.82,
-      y: 0.42,
+      z: initialCamZ * 0.98,
+      y: 0.18,
       duration: 6,
       ease: 'none',
     },
@@ -356,12 +356,12 @@ export function build(tl, ctx) {
   );
 
   // WINDOW 04: PORT (0.41 - 0.48, t: 41 to 48)
-  // Port pulls forward (+0.35 in Z), tilted (rx: -0.35) to show USB-C slot
+  // Port pulls forward (+0.28 in Z), tilted (rx: -0.25) to show USB-C slot
   tl.to(
     phone.portGroup.position,
     {
-      z: 0.10 + 0.35,
-      y: -0.12,
+      z: 0.10 + 0.28,
+      y: -0.10,
       duration: 3,
       ease: 'power2.out',
     },
@@ -370,8 +370,8 @@ export function build(tl, ctx) {
   tl.to(
     phone.portGroup.rotation,
     {
-      x: -0.35, // tilt to show slot
-      y: 0.08,
+      x: -0.25, // tilt to show slot
+      y: 0.06,
       duration: 3,
       ease: 'power2.out',
     },
@@ -381,8 +381,8 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.82,
-      y: -0.42,
+      z: initialCamZ * 0.98,
+      y: -0.18,
       duration: 6,
       ease: 'none',
     },
@@ -428,7 +428,7 @@ export function build(tl, ctx) {
   tl.to(
     phone.screenGroup.position,
     {
-      z: -0.35 - 0.25,
+      z: -0.35 - 0.08,
       x: -0.04,
       duration: 5,
       ease: 'power2.out',
@@ -440,7 +440,7 @@ export function build(tl, ctx) {
   tl.to(
     camera.position,
     {
-      z: initialCamZ * 0.88,
+      z: initialCamZ,
       y: 0.0,
       x: 0.0,
       duration: 8,

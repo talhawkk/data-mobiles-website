@@ -133,10 +133,20 @@ export function initScroll({
         // Section Visibilities (Progress Map v2)
         // hero: 0.00 - 0.07
         const heroOpacity = p <= 0.05 ? 1 : Math.max(0, 1 - (p - 0.05) / 0.02);
-        overlayObj.setSectionState('hero', heroOpacity, p < 0.08);
+        overlayObj.setSectionState('hero', heroOpacity, p < 0.07);
         if (typeof rendererObj.setHeroGlowOpacity === 'function') {
           rendererObj.setHeroGlowOpacity(heroOpacity * 0.12);
         }
+
+        // teardown architecture intro: 0.07 - 0.19 (Unsealing & Deconstruction narrative)
+        const isTeardownIntro = p >= 0.065 && p < 0.195;
+        let teardownIntroOpacity = 0;
+        if (isTeardownIntro) {
+          if (p < 0.09) teardownIntroOpacity = (p - 0.065) / 0.025;
+          else if (p > 0.17) teardownIntroOpacity = Math.max(0, 1 - (p - 0.17) / 0.025);
+          else teardownIntroOpacity = 1;
+        }
+        overlayObj.setSectionState('teardownIntro', teardownIntroOpacity, isTeardownIntro);
 
         // inspect: 0.20 - 0.56 (TEARDOWN.md Part T2: 5 windows with 0.01 gap to eliminate ghosts)
         const isInspect = p >= 0.19 && p <= 0.56;
@@ -253,7 +263,8 @@ export function initScroll({
         } else if (p >= 0.80 && p < 0.91) {
           // Handled above in isWifi
         } else {
-          phone.renderScreenState('boot');
+          // Finale: Phone is fully restored and live, showing OLED lock screen with live clock and date
+          phone.renderScreenState('lock');
         }
 
         // Update 3D label projection

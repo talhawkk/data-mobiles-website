@@ -70,6 +70,7 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
   // Section references
   const sections = {
     hero: document.querySelector('.section-hero'),
+    teardownIntro: document.querySelector('.section-teardown-intro'),
     inspect: document.querySelector('.section-inspect'),
     rebuild: document.querySelector('.section-rebuild'),
     accessories: document.querySelector('.section-accessories'),
@@ -223,22 +224,6 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
     const activeCard = document.querySelector(`.inspect-label-card[data-id="${activeInspectId}"]`);
     if (!activeCard) return;
 
-    // Check dot product: part must face camera (dot > 0.2)
-    if (phone && typeof phone.getPartFacingDot === 'function') {
-      const dot = phone.getPartFacingDot(labelDef.part, camera);
-      if (dot <= 0.2) {
-        // Part is facing away from camera, hide label card and leader line
-        activeCard.classList.remove('active');
-        activeCard.style.opacity = '0';
-        activeCard.style.visibility = 'hidden';
-        activeCard.style.display = 'none';
-        if (elbowLine) elbowLine.setAttribute('d', 'M 0 0 L 0 0');
-        if (anchorDot) anchorDot.setAttribute('cx', '-100');
-        if (anchorNum) anchorNum.setAttribute('x', '-100');
-        return;
-      }
-    }
-
     const { width, height } = getSize();
     const isMobile = width < 1024;
 
@@ -266,17 +251,14 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;
 
-      // Draw 24px horizontal elbow leader line to the right edge of label card
-      const labelRightEdgeX = cardX + cardWidth;
-      const labelRightEdgeY = cardY + 28;
-
+      // Clean, refined 28px horizontal indicator tick directly attached to 3D part anchor (no ugly cross-screen diagonal wire)
       if (elbowLine) {
         const pX = screenPos.x;
         const pY = screenPos.y;
-        const elbowX = pX - 24; // 24px horizontal toward label
+        const tickX = pX - 28;
         elbowLine.setAttribute(
           'd',
-          `M ${pX.toFixed(1)} ${pY.toFixed(1)} L ${elbowX.toFixed(1)} ${pY.toFixed(1)} L ${labelRightEdgeX.toFixed(1)} ${labelRightEdgeY.toFixed(1)}`
+          `M ${pX.toFixed(1)} ${pY.toFixed(1)} L ${tickX.toFixed(1)} ${pY.toFixed(1)}`
         );
       }
 
@@ -286,8 +268,8 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
       }
 
       if (anchorNum) {
-        anchorNum.setAttribute('x', (screenPos.x + 8).toFixed(1));
-        anchorNum.setAttribute('y', (screenPos.y - 8).toFixed(1));
+        anchorNum.setAttribute('x', (screenPos.x - 48).toFixed(1));
+        anchorNum.setAttribute('y', (screenPos.y + 4).toFixed(1));
         anchorNum.textContent = labelDef.number || '01';
       }
     } else {
