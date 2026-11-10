@@ -86,43 +86,6 @@ html, body {
   display: none !important;
 }
 
-/* 1px Animated Scroll Cue Line */
-.scroll-cue-line {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 48px;
-  background: linear-gradient(to bottom, var(--accent) 0%, transparent 100%);
-  z-index: 10;
-  pointer-events: none;
-  animation: scrollCuePulse 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-
-@keyframes scrollCuePulse {
-  0% {
-    transform: translateX(-50%) scaleY(0);
-    transform-origin: top;
-    opacity: 0;
-  }
-  50% {
-    transform: translateX(-50%) scaleY(1);
-    transform-origin: top;
-    opacity: 1;
-  }
-  50.1% {
-    transform: translateX(-50%) scaleY(1);
-    transform-origin: bottom;
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-50%) scaleY(0);
-    transform-origin: bottom;
-    opacity: 0;
-  }
-}
-
 /* 1px Top Scroll Progress Bar */
 .scroll-progress-line {
   position: fixed;

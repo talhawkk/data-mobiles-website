@@ -9,9 +9,9 @@
 export function build(tl, ctx) {
   const { phone, wifiScene, isMobile } = ctx;
 
-  const targetRouterScale = isMobile ? 0.72 : 1.0;
-  const wifiRouterX = isMobile ? 0 : 0.05;
-  const wifiRouterY = isMobile ? 0.52 : 0.18;
+  const targetRouterScale = isMobile ? 0.52 : 1.0;
+  const wifiRouterX = isMobile ? -0.05 : 0.05;
+  const wifiRouterY = isMobile ? 0.25 : 0.18;
   const wifiRouterZ = isMobile ? -0.20 : 0.0;
 
   wifiScene.group.position.set(wifiRouterX, wifiRouterY, wifiRouterZ);
@@ -62,8 +62,8 @@ export function build(tl, ctx) {
   tl.to(
     wifiScene.group.position,
     {
-      x: isMobile ? 0.45 : 0.65,
-      y: 0.42,
+      x: isMobile ? 0.35 : 0.65,
+      y: isMobile ? 0.40 : 0.42,
       z: -1.2,
       duration: 1.5,
       ease: 'power2.inOut',

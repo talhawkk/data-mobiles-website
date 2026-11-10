@@ -217,7 +217,10 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
 
   // Per-frame projection of active inspect label, 24px elbow line, and anchor marker
   function updateInspectPosition() {
-    if (!isInspectVisible || !activeInspectId) {
+    const hasCard = isInspectVisible && !!activeInspectId;
+    document.body.classList.toggle('has-inspect-card', hasCard);
+
+    if (!hasCard) {
       labelCards.forEach((card) => {
         card.classList.remove('active');
         card.style.opacity = '0';
@@ -265,10 +268,10 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
     activeCard.style.display = 'block';
 
     if (!isMobile) {
-      // Desktop: Dedicated info column placed to the right of the index rail (zero collision)
-      const railRight = Math.min(width * 0.04 + 130, 160);
-      const cardX = Math.max(railRight + 36, Math.min(width * 0.15, 220));
-      const cardY = Math.min(height - 280, Math.max(120, screenPos.y - 70));
+      // Desktop: Dedicated info column placed comfortably right of the index rail (zero collision)
+      const containerPad = Math.max(24, Math.min(width * 0.05, 64));
+      const cardX = Math.max(containerPad + 180, Math.min(width * 0.18, 300));
+      const cardY = Math.max(110, Math.min(height - 380, Math.round((height - 340) / 2)));
 
       activeCard.style.left = `${cardX}px`;
       activeCard.style.top = `${cardY}px`;
@@ -352,6 +355,10 @@ export function initOverlay({ phone, camera, getSize, onNavigate }) {
       if (!isInspectVisible) {
         setInspectLabel(null);
       }
+    }
+
+    if (sectionName === 'contact') {
+      document.body.classList.toggle('finale-active', visibility && opacity > 0.3);
     }
   }
 

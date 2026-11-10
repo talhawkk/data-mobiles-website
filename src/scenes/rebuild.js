@@ -17,8 +17,10 @@ import * as THREE from 'three';
  *    Acceptance: no leftover slabs at p=0.62-0.66.
  */
 export function build(tl, ctx) {
-  const { phone, camera, initialCamZ } = ctx;
+  const { phone, camera, initialCamZ, isMobile } = ctx;
   const rest = phone.restPositions;
+  const baseScale = isMobile ? 0.58 : 1.0;
+  const punchScale = isMobile ? 0.60 : 1.03;
 
   // 1. REVERSE ORDER CONVERGENCE (56 to 60) WITH power4.in
   // Part 1: Screen pulls in (56.0 to 58.5)
@@ -251,14 +253,26 @@ export function build(tl, ctx) {
     56
   );
 
+  if (isMobile) {
+    tl.to(
+      phone.group.position,
+      {
+        y: 0.22,
+        duration: 4,
+        ease: 'power2.inOut',
+      },
+      56
+    );
+  }
+
   // 3. CONTACT EFFECTS (Progress 0.60, Timeline 60.0 to 61.5)
-  // Sub-effect A: Phone scale punch 1.0 -> 1.03 -> 1.0 over 0.015 progress (1.5 units)
+  // Sub-effect A: Phone scale punch over 0.015 progress (1.5 units)
   tl.to(
     phone.group.scale,
     {
-      x: 1.03,
-      y: 1.03,
-      z: 1.03,
+      x: punchScale,
+      y: punchScale,
+      z: punchScale,
       duration: 0.75,
       ease: 'power2.out',
     },
@@ -267,9 +281,9 @@ export function build(tl, ctx) {
   tl.to(
     phone.group.scale,
     {
-      x: 1.0,
-      y: 1.0,
-      z: 1.0,
+      x: baseScale,
+      y: baseScale,
+      z: baseScale,
       duration: 0.75,
       ease: 'power2.inOut',
     },

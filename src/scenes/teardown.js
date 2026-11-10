@@ -216,7 +216,7 @@ export function build(tl, ctx) {
     tl.to(
       phone.group.position,
       {
-        y: 0.12,
+        y: 0.18,
         duration: 3,
         ease: 'power2.inOut',
       },
@@ -225,9 +225,9 @@ export function build(tl, ctx) {
     tl.to(
       phone.group.scale,
       {
-        x: 0.70,
-        y: 0.70,
-        z: 0.70,
+        x: 0.65,
+        y: 0.65,
+        z: 0.65,
         duration: 3,
         ease: 'power2.inOut',
       },
@@ -236,7 +236,7 @@ export function build(tl, ctx) {
     tl.to(
       phone.group.position,
       {
-        y: 0.0,
+        y: 0.22,
         duration: 3,
         ease: 'power2.inOut',
       },
@@ -245,9 +245,9 @@ export function build(tl, ctx) {
     tl.to(
       phone.group.scale,
       {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
+        x: 0.58,
+        y: 0.58,
+        z: 0.58,
         duration: 3,
         ease: 'power2.inOut',
       },

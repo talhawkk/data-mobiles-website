@@ -11,10 +11,10 @@
 export function build(tl, ctx) {
   const { phone, accessories, isMobile } = ctx;
 
-  const stageX = isMobile ? 0.05 : 0.40;
-  const wifiPhoneScale = isMobile ? 0.40 : 0.45;
-  const wifiPhoneX = isMobile ? 0.28 : 0.35;
-  const wifiPhoneY = isMobile ? 0.22 : -0.22;
+  const stageX = isMobile ? 0.0 : 0.40;
+  const wifiPhoneScale = isMobile ? 0.35 : 0.45;
+  const wifiPhoneX = isMobile ? 0.22 : 0.35;
+  const wifiPhoneY = isMobile ? 0.18 : -0.22;
 
   // Make sure accessories group is hidden until section 66
   accessories.group.visible = false;
@@ -28,8 +28,8 @@ export function build(tl, ctx) {
   accessories.caseGroup.position.set(0, 0, -0.8);
 
   // Position earbuds and charger in stage zone
-  accessories.earbudSystemGroup.position.set(stageX, isMobile ? 0.18 : 0.14, 0.12);
-  accessories.chargerGroup.position.set(stageX + 0.02, isMobile ? 0.02 : -0.05, 0.15);
+  accessories.earbudSystemGroup.position.set(stageX, isMobile ? 0.22 : 0.14, 0.12);
+  accessories.chargerGroup.position.set(stageX, isMobile ? 0.20 : -0.05, 0.15);
 
   // -------------------------------------------------------------------
   // BEAT 01: CASE (66 -> 70)

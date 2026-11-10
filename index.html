@@ -55,7 +55,6 @@
     .top-nav,
     .section-overlay,
     .scroll-progress-line,
-    .scroll-cue-line,
     .finale-wordmark-wrapper,
     .finale-footer-bar,
     .floating-whatsapp-btn {
@@ -64,7 +63,6 @@
     body.app-ready .top-nav,
     body.app-ready .section-overlay,
     body.app-ready .scroll-progress-line,
-    body.app-ready .scroll-cue-line,
     body.app-ready .finale-wordmark-wrapper,
     body.app-ready .finale-footer-bar,
     body.app-ready .floating-whatsapp-btn {
@@ -96,9 +94,6 @@
   <!-- Background Ambience & Grain Layers -->
   <div class="vignette-overlay" aria-hidden="true"></div>
   <div class="grain-overlay" aria-hidden="true"></div>
-
-  <!-- 1px Animated Scroll Cue Line (Strictly no text as per spec) -->
-  <div class="scroll-cue-line" aria-hidden="true"></div>
 
   <!-- 1px Top Scroll Progress Bar -->
   <div class="scroll-progress-line" aria-hidden="true">
@@ -145,8 +140,70 @@
         <a href="#wifi" class="nav-link">WiFi</a>
         <a href="#about" class="nav-link">About</a>
       </nav>
+      <!-- Mobile Menu Trigger Pill -->
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Navigation Menu" aria-expanded="false">
+        <span class="menu-toggle-label">MENU</span>
+        <span class="menu-toggle-icon" aria-hidden="true">
+          <span class="bar bar-top"></span>
+          <span class="bar bar-bot"></span>
+        </span>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile Luxury Navigation Drawer / Backdrop -->
+  <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" aria-hidden="true"></div>
+  <aside class="mobile-menu-drawer" id="mobile-menu-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+    <div class="mobile-drawer-header">
+      <a href="#" class="nav-brand mobile-drawer-brand">
+        DATA<span>.</span>
+      </a>
+      <button class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close Navigation Menu">
+        <span>CLOSE</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mobile-drawer-nav" aria-label="Mobile main navigation">
+      <a href="#repairs" class="mobile-drawer-link" data-target="#repairs">
+        <span class="drawer-link-num">01</span>
+        <span class="drawer-link-title">Repairs</span>
+        <span class="drawer-link-arrow">↗</span>
+      </a>
+      <a href="#accessories" class="mobile-drawer-link" data-target="#accessories">
+        <span class="drawer-link-num">02</span>
+        <span class="drawer-link-title">Accessories</span>
+        <span class="drawer-link-arrow">↗</span>
+      </a>
+      <a href="#wifi" class="mobile-drawer-link" data-target="#wifi">
+        <span class="drawer-link-num">03</span>
+        <span class="drawer-link-title">WiFi</span>
+        <span class="drawer-link-arrow">↗</span>
+      </a>
+      <a href="#about" class="mobile-drawer-link" data-target="#about">
+        <span class="drawer-link-num">04</span>
+        <span class="drawer-link-title">Atelier &amp; About</span>
+        <span class="drawer-link-arrow">↗</span>
+      </a>
+    </nav>
+
+    <div class="mobile-drawer-footer">
+      <div class="mobile-drawer-meta">
+        <span class="mono-label accent">MAIN MARKET · GULBERG II</span>
+        <span class="drawer-meta-val">Mon–Sun · 10:00 AM – 10:00 PM</span>
+      </div>
+      <a
+        href="https://wa.me/923001234567?text=Hi%20DATA%2C%20I%20need%20help%20with%20my%20phone."
+        target="_blank"
+        rel="noopener noreferrer"
+        class="drawer-whatsapp-btn"
+      >
+        Chat on WhatsApp ↗
+      </a>
+    </div>
+  </aside>
 
   <!-- Floating WhatsApp CTA Button -->
   <a
@@ -175,7 +232,7 @@
             <span class="status-label">Open now · until 10 PM</span>
           </div>
           <span class="mono-label accent">REPAIR ATELIER · GULBERG, LAHORE</span>
-          <h2 class="display-title split-text">Mobiles.<br>Repairs.<br>WiFi.</h2>
+          <h2 class="display-title split-text">Mobiles. Repairs. WiFi.</h2>
           <p class="body-subline">Screens, batteries, accessories and home WiFi.</p>
         </div>
       </div>
@@ -186,7 +243,7 @@
       <div class="grid-container">
         <div class="hero-content">
           <span class="mono-label accent">00 // ARCHITECTURE</span>
-          <h2 class="display-title split-text">Precision<br>Deconstructed.</h2>
+          <h2 class="display-title split-text">Precision Deconstructed.</h2>
           <p class="body-subline">Every screw, flex circuit, and optical sensor inspected and restored to original factory tolerance.</p>
         </div>
       </div>
